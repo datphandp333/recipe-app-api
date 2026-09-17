@@ -1,349 +1,523 @@
-import { StyleSheet, Dimensions } from "react-native";
+import { Dimensions, StyleSheet } from "react-native";
 import { COLORS } from "../../constants/colors";
 
-const { height } = Dimensions.get("window");
+const { height, width } = Dimensions.get("window");
+
+const contentWidth = Math.min(width, 720);
+const ingredientGap = 12;
+const horizontalPadding = 32;
+
+const ingredientCardWidth =
+  (contentWidth - horizontalPadding - ingredientGap) / 2;
 
 export const recipeDetailStyles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
   },
+
   headerContainer: {
-    height: height * 0.5,
+    height: Math.max(height * 0.48, 390),
     position: "relative",
+    backgroundColor: COLORS.text,
   },
+
   imageContainer: {
     ...StyleSheet.absoluteFillObject,
   },
+
   headerImage: {
     width: "100%",
-    height: "120%",
+    height: "100%",
   },
+
   gradientOverlay: {
     position: "absolute",
-    bottom: 0,
     left: 0,
     right: 0,
-    height: "60%",
+    bottom: 0,
+    height: "70%",
   },
+
   floatingButtons: {
     position: "absolute",
-    top: 50,
-    left: 16,
-    right: 16,
+    top: 54,
+    left: 18,
+    right: 18,
     flexDirection: "row",
     justifyContent: "space-between",
-  },
-  floatingButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: "rgba(0, 0, 0, 0.3)",
-    justifyContent: "center",
     alignItems: "center",
-    backdropFilter: "blur(10px)",
   },
+
+  floatingButton: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    backgroundColor: "rgba(0, 0, 0, 0.45)",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.25)",
+    shadowColor: "#000000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.22,
+    shadowRadius: 7,
+    elevation: 6,
+  },
+
   titleSection: {
     position: "absolute",
-    bottom: 30,
-    left: 16,
-    right: 16,
+    left: 20,
+    right: 20,
+    bottom: 42,
   },
+
   categoryBadge: {
     alignSelf: "flex-start",
     backgroundColor: COLORS.primary,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingHorizontal: 13,
+    paddingVertical: 7,
     borderRadius: 20,
     marginBottom: 12,
   },
+
   categoryText: {
     color: COLORS.white,
     fontSize: 12,
-    fontWeight: "600",
-    textTransform: "uppercase",
+    fontWeight: "800",
     letterSpacing: 1,
+    textTransform: "uppercase",
   },
+
   recipeTitle: {
-    fontSize: 32,
-    fontWeight: "bold",
     color: COLORS.white,
-    marginBottom: 8,
-    textShadowColor: "rgba(0, 0, 0, 0.75)",
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 3,
+    fontSize: 32,
+    lineHeight: 38,
+    fontWeight: "800",
+    letterSpacing: -0.6,
+    marginBottom: 10,
+    textShadowColor: "rgba(0, 0, 0, 0.65)",
+    textShadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    textShadowRadius: 5,
   },
+
   locationRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    marginBottom: 10,
   },
+
   locationText: {
     color: COLORS.white,
-    fontSize: 16,
-    fontWeight: "500",
-    textShadowColor: "rgba(0, 0, 0, 0.75)",
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 2,
+    fontSize: 15,
+    fontWeight: "600",
+    textShadowColor: "rgba(0, 0, 0, 0.6)",
+    textShadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    textShadowRadius: 3,
   },
+
   contentSection: {
+    width: "100%",
+    maxWidth: 720,
+    alignSelf: "center",
     backgroundColor: COLORS.background,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     marginTop: -30,
     paddingTop: 30,
     paddingHorizontal: 16,
-    paddingBottom: 40,
+    paddingBottom: 50,
   },
+
   statsContainer: {
     flexDirection: "row",
     gap: 12,
     marginBottom: 32,
   },
+
   statCard: {
     flex: 1,
+    minHeight: 130,
     backgroundColor: COLORS.card,
     borderRadius: 20,
-    padding: 20,
-    alignItems: "center",
-    shadowColor: COLORS.shadow,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  statIconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    padding: 18,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    shadowColor: COLORS.shadow,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    elevation: 3,
   },
+
+  statIconContainer: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+
   statValue: {
-    fontSize: 18,
-    fontWeight: "bold",
     color: COLORS.text,
+    fontSize: 17,
+    fontWeight: "800",
+    textAlign: "center",
     marginBottom: 4,
   },
+
   statLabel: {
-    fontSize: 12,
     color: COLORS.textLight,
+    fontSize: 12,
+    fontWeight: "600",
     textAlign: "center",
-    fontWeight: "500",
   },
+
   sectionContainer: {
-    marginBottom: 32,
+    marginBottom: 34,
   },
+
   sectionTitleRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
-    flex: 1,
-    marginBottom: 16,
+    gap: 11,
+    marginBottom: 8,
   },
+
   sectionIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  sectionTitle: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: COLORS.text,
-    flex: 1,
-  },
-  countBadge: {
-    backgroundColor: COLORS.primary + "20",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  countText: {
-    color: COLORS.primary,
-    fontSize: 12,
-    fontWeight: "600",
-  },
-  videoCard: {
-    height: 220,
-    borderRadius: 20,
-    overflow: "hidden",
-    backgroundColor: COLORS.card,
-    shadowColor: COLORS.shadow,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  webview: {
-    flex: 1,
-  },
-  ingredientsGrid: {
-    gap: 12,
-  },
-  ingredientCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: COLORS.card,
-    padding: 16,
-    borderRadius: 16,
-    shadowColor: COLORS.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-    gap: 12,
-  },
-  ingredientNumber: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: COLORS.primary + "20",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  ingredientNumberText: {
-    color: COLORS.primary,
-    fontSize: 12,
-    fontWeight: "bold",
-  },
-  ingredientText: {
-    flex: 1,
-    fontSize: 16,
-    color: COLORS.text,
-    lineHeight: 22,
-  },
-  ingredientCheck: {
-    opacity: 0.5,
-  },
-  instructionsContainer: {
-    gap: 16,
-  },
-  instructionCard: {
-    flexDirection: "row",
-    backgroundColor: COLORS.card,
-    borderRadius: 20,
-    padding: 20,
-    shadowColor: COLORS.shadow,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-    gap: 16,
-  },
-  stepIndicator: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  stepNumber: {
-    color: COLORS.white,
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  instructionContent: {
-    flex: 1,
-  },
-  instructionText: {
-    fontSize: 16,
-    color: COLORS.text,
-    lineHeight: 24,
-    marginBottom: 12,
-  },
-  instructionFooter: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  stepLabel: {
-    fontSize: 12,
-    color: COLORS.textLight,
-    fontWeight: "500",
-  },
-  completeButton: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: COLORS.primary + "20",
+    width: 34,
+    height: 34,
+    borderRadius: 17,
     justifyContent: "center",
     alignItems: "center",
   },
 
-  primaryButton: {
-    borderRadius: 16,
+  sectionTitle: {
+    flex: 1,
+    color: COLORS.text,
+    fontSize: 22,
+    fontWeight: "800",
+    letterSpacing: -0.3,
+  },
+
+  sectionDescription: {
+    color: COLORS.textLight,
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: 17,
+  },
+
+  countBadge: {
+    minWidth: 30,
+    height: 27,
+    paddingHorizontal: 9,
+    borderRadius: 14,
+    backgroundColor: `${COLORS.primary}20`,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  countText: {
+    color: COLORS.primary,
+    fontSize: 12,
+    fontWeight: "800",
+  },
+
+  videoCard: {
+    height: 220,
+    marginTop: 10,
+    borderRadius: 20,
     overflow: "hidden",
+    backgroundColor: COLORS.card,
+    borderWidth: 1,
+    borderColor: COLORS.border,
     shadowColor: COLORS.shadow,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
     elevation: 4,
   },
+
+  webview: {
+    flex: 1,
+    backgroundColor: COLORS.card,
+  },
+
+  ingredientsGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: ingredientGap,
+  },
+
+  ingredientCard: {
+    width: ingredientCardWidth,
+    maxWidth: "48%",
+    backgroundColor: COLORS.card,
+    borderRadius: 18,
+    padding: 11,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    shadowColor: COLORS.shadow,
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.07,
+    shadowRadius: 7,
+    elevation: 2,
+  },
+
+  ingredientCardCompleted: {
+    backgroundColor: `${COLORS.primary}0D`,
+    borderColor: COLORS.primary,
+    opacity: 0.78,
+  },
+
+  ingredientImageContainer: {
+    width: "100%",
+    height: 120,
+    position: "relative",
+    backgroundColor: COLORS.background,
+    borderRadius: 14,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 11,
+    overflow: "hidden",
+  },
+
+  ingredientImage: {
+    width: "88%",
+    height: "88%",
+  },
+
+  ingredientNumber: {
+    position: "absolute",
+    top: 8,
+    left: 8,
+    width: 27,
+    height: 27,
+    borderRadius: 14,
+    backgroundColor: COLORS.primary,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: COLORS.shadow,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.16,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+
+  ingredientNumberText: {
+    color: COLORS.white,
+    fontSize: 11,
+    fontWeight: "800",
+  },
+
+  ingredientCompletedBadge: {
+    position: "absolute",
+    top: 8,
+    right: 8,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: COLORS.primary,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  ingredientInfo: {
+    minHeight: 51,
+  },
+
+  ingredientName: {
+    color: COLORS.text,
+    fontSize: 15,
+    lineHeight: 19,
+    fontWeight: "800",
+    marginBottom: 4,
+  },
+
+  ingredientMeasure: {
+    color: COLORS.textLight,
+    fontSize: 13,
+    lineHeight: 18,
+    fontWeight: "500",
+  },
+
+  completedText: {
+    textDecorationLine: "line-through",
+    opacity: 0.65,
+  },
+
+  instructionsContainer: {
+    gap: 15,
+  },
+
+  instructionCard: {
+    flexDirection: "row",
+    gap: 14,
+    backgroundColor: COLORS.card,
+    borderRadius: 20,
+    padding: 17,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    shadowColor: COLORS.shadow,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.07,
+    shadowRadius: 9,
+    elevation: 3,
+  },
+
+  instructionCardCompleted: {
+    backgroundColor: `${COLORS.primary}0D`,
+    borderColor: COLORS.primary,
+  },
+
+  stepIndicator: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    justifyContent: "center",
+    alignItems: "center",
+    flexShrink: 0,
+  },
+
+  stepNumber: {
+    color: COLORS.white,
+    fontSize: 16,
+    fontWeight: "800",
+  },
+
+  instructionContent: {
+    flex: 1,
+  },
+
+  instructionText: {
+    color: COLORS.text,
+    fontSize: 15,
+    lineHeight: 23,
+    marginBottom: 13,
+  },
+
+  instructionFooter: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+
+  stepLabel: {
+    color: COLORS.textLight,
+    fontSize: 12,
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 0.7,
+  },
+
+  completeButton: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: `${COLORS.primary}18`,
+    borderWidth: 1,
+    borderColor: `${COLORS.primary}40`,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  completeButtonActive: {
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
+  },
+
+  primaryButton: {
+    borderRadius: 17,
+    overflow: "hidden",
+    shadowColor: COLORS.shadow,
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 9,
+    elevation: 5,
+  },
+
   buttonGradient: {
+    minHeight: 56,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 16,
-    gap: 10,
+    gap: 9,
   },
+
   buttonText: {
     color: COLORS.white,
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: "800",
   },
-  secondaryButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: COLORS.card,
-    paddingVertical: 16,
-    borderRadius: 16,
-    borderWidth: 2,
-    borderColor: COLORS.primary,
-    gap: 10,
-  },
-  secondaryButtonText: {
-    color: COLORS.primary,
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  errorContainer: {
+
+  notFoundContainer: {
     flex: 1,
+    minHeight: height,
+    paddingHorizontal: 28,
     justifyContent: "center",
     alignItems: "center",
   },
-  errorContent: {
-    alignItems: "center",
-    padding: 32,
-  },
-  errorTitle: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: COLORS.white,
-    marginTop: 20,
-    marginBottom: 12,
-  },
-  errorDescription: {
-    fontSize: 16,
-    color: COLORS.white,
+
+  notFoundTitle: {
+    color: COLORS.text,
+    fontSize: 26,
+    fontWeight: "800",
     textAlign: "center",
+    marginTop: 18,
+    marginBottom: 9,
+  },
+
+  notFoundDescription: {
+    maxWidth: 420,
+    color: COLORS.textLight,
+    fontSize: 15,
     lineHeight: 22,
-    marginBottom: 32,
-    opacity: 0.9,
+    textAlign: "center",
+    marginBottom: 24,
   },
-  errorButton: {
-    backgroundColor: COLORS.white,
-    paddingHorizontal: 32,
-    paddingVertical: 16,
-    borderRadius: 25,
+
+  notFoundButton: {
+    backgroundColor: COLORS.primary,
+    borderRadius: 15,
+    paddingHorizontal: 24,
+    paddingVertical: 13,
   },
-  errorButtonText: {
-    color: COLORS.primary,
-    fontSize: 16,
-    fontWeight: "bold",
+
+  notFoundButtonText: {
+    color: COLORS.white,
+    fontSize: 15,
+    fontWeight: "800",
   },
 });
