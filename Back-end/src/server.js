@@ -7,9 +7,10 @@ import { db } from "./config/db.js";
 import { favoritesTable } from "./db/schema.js";
 import job from "./config/cron.js";
 import aiRecipeRoutes from "./routes/aiRecipeRoutes.js";
+import imageRoutes from "./routes/imageRoutes.js";
 
 const app = express();
-const PORT = Number(ENV.PORT) || 5001;
+const PORT = ENV.PORT || 5001;
 
 if (ENV.NODE_ENV === "production") {
   job.start();
@@ -44,30 +45,46 @@ app.use(
   })
 );
 
-// General backend health check
-app.get("/api/health", (request, response) => {
-  return response.status(200).json({
-    success: true,
-    message: "Recipe API is running.",
-    environment: ENV.NODE_ENV,
+/*
+ * Main backend health check.
+ */
+app.get(
+  "/api/health",
+  (request, response) => {
+    return response.status(200).json({
+      success: true,
+      message:
+        "Recipe API is running.",
+      environment: ENV.NODE_ENV,
+      aiConfigured: Boolean(
+        ENV.GEMINI_API_KEY
+      ),
+      imageSearchConfigured: Boolean(
+        ENV.PEXELS_API_KEY
+      ),
+    });
+  }
+);
 
-    aiProvider: "Google Gemini",
-
-    aiConfigured: Boolean(
-      ENV.GEMINI_API_KEY
-    ),
-
-    aiModel: ENV.GEMINI_MODEL,
-  });
-});
-
-// Gemini AI recipe routes
+/*
+ * Gemini AI recipe routes.
+ */
 app.use(
   "/api/ai/recipes",
   aiRecipeRoutes
 );
 
-// Add a recipe to favorites
+/*
+ * Pexels image search routes.
+ */
+app.use(
+  "/api/images",
+  imageRoutes
+);
+
+/*
+ * Add a recipe to favorites.
+ */
 app.post(
   "/api/favorites",
   async (request, response) => {
@@ -86,11 +103,13 @@ app.post(
         !recipeId ||
         !title
       ) {
-        return response.status(400).json({
-          success: false,
-          message:
-            "User ID, recipe ID and title are required.",
-        });
+        return response
+          .status(400)
+          .json({
+            success: false,
+            message:
+              "User ID, recipe ID and title are required.",
+          });
       }
 
       const numericRecipeId =
@@ -101,11 +120,13 @@ app.post(
           numericRecipeId
         )
       ) {
-        return response.status(400).json({
-          success: false,
-          message:
-            "Recipe ID must be a number.",
-        });
+        return response
+          .status(400)
+          .json({
+            success: false,
+            message:
+              "Recipe ID must be a number.",
+          });
       }
 
       const existingFavorite =
@@ -118,7 +139,6 @@ app.post(
                 favoritesTable.userId,
                 userId
               ),
-
               eq(
                 favoritesTable.recipeId,
                 numericRecipeId
@@ -129,13 +149,15 @@ app.post(
       if (
         existingFavorite.length > 0
       ) {
-        return response.status(200).json({
-          success: true,
-          message:
-            "Recipe is already in favorites.",
-          favorite:
-            existingFavorite[0],
-        });
+        return response
+          .status(200)
+          .json({
+            success: true,
+            message:
+              "Recipe is already in favorites.",
+            favorite:
+              existingFavorite[0],
+          });
       }
 
       const newFavorite = await db
@@ -147,7 +169,6 @@ app.post(
           image: image || null,
           cookTime:
             cookTime || null,
-
           servings:
             servings !== undefined &&
             servings !== null
@@ -156,35 +177,41 @@ app.post(
         })
         .returning();
 
-      return response.status(201).json({
-        success: true,
-        message:
-          "Recipe added to favorites.",
-        favorite: newFavorite[0],
-      });
+      return response
+        .status(201)
+        .json({
+          success: true,
+          message:
+            "Recipe added to favorites.",
+          favorite:
+            newFavorite[0],
+        });
     } catch (error) {
       console.error(
         "Error adding favorite:",
         error
       );
 
-      return response.status(500).json({
-        success: false,
+      return response
+        .status(500)
+        .json({
+          success: false,
+          message:
+            "The recipe could not be added to favorites.",
 
-        message:
-          "The recipe could not be added to favorites.",
-
-        ...(ENV.NODE_ENV !==
-          "production" && {
-          developerMessage:
-            error.message,
-        }),
-      });
+          ...(ENV.NODE_ENV !==
+            "production" && {
+            developerMessage:
+              error.message,
+          }),
+        });
     }
   }
 );
 
-// Get all favorites for a user
+/*
+ * Get a user's favorite recipes.
+ */
 app.get(
   "/api/favorites/:userId",
   async (request, response) => {
@@ -193,11 +220,13 @@ app.get(
         request.params;
 
       if (!userId) {
-        return response.status(400).json({
-          success: false,
-          message:
-            "User ID is required.",
-        });
+        return response
+          .status(400)
+          .json({
+            success: false,
+            message:
+              "User ID is required.",
+          });
       }
 
       const userFavorites =
@@ -220,23 +249,26 @@ app.get(
         error
       );
 
-      return response.status(500).json({
-        success: false,
+      return response
+        .status(500)
+        .json({
+          success: false,
+          message:
+            "Favorites could not be loaded.",
 
-        message:
-          "Favorites could not be loaded.",
-
-        ...(ENV.NODE_ENV !==
-          "production" && {
-          developerMessage:
-            error.message,
-        }),
-      });
+          ...(ENV.NODE_ENV !==
+            "production" && {
+            developerMessage:
+              error.message,
+          }),
+        });
     }
   }
 );
 
-// Remove a favorite
+/*
+ * Remove a favorite recipe.
+ */
 app.delete(
   "/api/favorites/:userId/:recipeId",
   async (request, response) => {
@@ -255,12 +287,13 @@ app.delete(
           numericRecipeId
         )
       ) {
-        return response.status(400).json({
-          success: false,
-
-          message:
-            "A valid user ID and recipe ID are required.",
-        });
+        return response
+          .status(400)
+          .json({
+            success: false,
+            message:
+              "A valid user ID and recipe ID are required.",
+          });
       }
 
       await db
@@ -271,7 +304,6 @@ app.delete(
               favoritesTable.userId,
               userId
             ),
-
             eq(
               favoritesTable.recipeId,
               numericRecipeId
@@ -279,44 +311,52 @@ app.delete(
           )
         );
 
-      return response.status(200).json({
-        success: true,
-        message:
-          "Recipe removed from favorites.",
-      });
+      return response
+        .status(200)
+        .json({
+          success: true,
+          message:
+            "Recipe removed from favorites.",
+        });
     } catch (error) {
       console.error(
         "Error deleting favorite:",
         error
       );
 
-      return response.status(500).json({
-        success: false,
+      return response
+        .status(500)
+        .json({
+          success: false,
+          message:
+            "The recipe could not be removed.",
 
-        message:
-          "The recipe could not be removed.",
-
-        ...(ENV.NODE_ENV !==
-          "production" && {
-          developerMessage:
-            error.message,
-        }),
-      });
+          ...(ENV.NODE_ENV !==
+            "production" && {
+            developerMessage:
+              error.message,
+          }),
+        });
     }
   }
 );
 
-// Handle unknown routes
+/*
+ * Handle unknown routes.
+ */
 app.use((request, response) => {
   return response.status(404).json({
     success: false,
-
     message:
-      `Route not found: ${request.method} ${request.originalUrl}`,
+      `Route not found: ` +
+      `${request.method} ` +
+      `${request.originalUrl}`,
   });
 });
 
-// Express error handler
+/*
+ * Handle unexpected server errors.
+ */
 app.use(
   (
     error,
@@ -333,22 +373,22 @@ app.use(
       return next(error);
     }
 
-    return response.status(500).json({
-      success: false,
-
-      message:
-        "An unexpected server error occurred.",
-
-      ...(ENV.NODE_ENV !==
-        "production" && {
-        developerMessage:
-          error.message,
-      }),
-    });
+    return response
+      .status(500)
+      .json({
+        success: false,
+        message:
+          "An unexpected server error occurred.",
+      });
   }
 );
 
-// Start and retain the backend server
+/*
+ * Start the API server.
+ *
+ * There must be only one app.listen()
+ * call in this file.
+ */
 const server = app.listen(
   PORT,
   "0.0.0.0",
@@ -358,7 +398,7 @@ const server = app.listen(
     );
 
     console.log(
-      `AI provider: Google Gemini`
+      "AI provider: Google Gemini"
     );
 
     console.log(
@@ -372,14 +412,50 @@ const server = app.listen(
           : "no"
       }`
     );
+
+    console.log(
+      `Pexels image service configured: ${
+        ENV.PEXELS_API_KEY
+          ? "yes"
+          : "no"
+      }`
+    );
   }
 );
 
 server.on("error", (error) => {
+  if (error.code === "EADDRINUSE") {
+    console.error(
+      `Port ${PORT} is already in use. Stop the other backend process and restart this server.`
+    );
+
+    return;
+  }
+
   console.error(
     "Server failed to start:",
     error
   );
 });
 
-server.ref();
+const shutdownServer = (signal) => {
+  console.log(
+    `Received ${signal}. Closing server...`
+  );
+
+  server.close(() => {
+    console.log(
+      "Server closed successfully."
+    );
+
+    process.exit(0);
+  });
+};
+
+process.on("SIGINT", () => {
+  shutdownServer("SIGINT");
+});
+
+process.on("SIGTERM", () => {
+  shutdownServer("SIGTERM");
+});

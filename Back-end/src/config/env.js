@@ -2,22 +2,59 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+const cleanEnvironmentValue = (
+  value,
+  fallback = ""
+) => {
+  if (typeof value !== "string") {
+    return fallback;
+  }
+
+  return value.trim() || fallback;
+};
+
+const createPortNumber = (
+  value,
+  fallback = 5001
+) => {
+  const port = Number(value);
+
+  if (
+    !Number.isInteger(port) ||
+    port <= 0 ||
+    port > 65535
+  ) {
+    return fallback;
+  }
+
+  return port;
+};
+
 export const ENV = {
-  PORT:
-    Number(process.env.PORT) ||
-    5001,
+  PORT: createPortNumber(
+    process.env.PORT,
+    5001
+  ),
 
-  NODE_ENV:
-    process.env.NODE_ENV ||
-    "development",
+  NODE_ENV: cleanEnvironmentValue(
+    process.env.NODE_ENV,
+    "development"
+  ),
 
-  DATABASE_URL:
-    process.env.DATABASE_URL,
+  DATABASE_URL: cleanEnvironmentValue(
+    process.env.DATABASE_URL
+  ),
 
-  GEMINI_API_KEY:
-    process.env.GEMINI_API_KEY,
+  GEMINI_API_KEY: cleanEnvironmentValue(
+    process.env.GEMINI_API_KEY
+  ),
 
-  GEMINI_MODEL:
-    process.env.GEMINI_MODEL ||
-    "gemini-3.5-flash-lite",
+  GEMINI_MODEL: cleanEnvironmentValue(
+    process.env.GEMINI_MODEL,
+    "gemini-3.5-flash-lite"
+  ),
+
+  PEXELS_API_KEY: cleanEnvironmentValue(
+    process.env.PEXELS_API_KEY
+  ),
 };

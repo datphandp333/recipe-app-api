@@ -2,11 +2,15 @@ import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
-import { useMemo, useState } from "react";
+import {
+  useMemo,
+  useState,
+} from "react";
 import {
   ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
+  Linking,
   Platform,
   Pressable,
   SafeAreaView,
@@ -42,7 +46,12 @@ const DIETARY_OPTIONS = [
   "Low carb",
 ];
 
-const COOKING_TIMES = [15, 30, 45, 60];
+const COOKING_TIMES = [
+  15,
+  30,
+  45,
+  60,
+];
 
 const splitInput = (value) => {
   return value
@@ -51,18 +60,114 @@ const splitInput = (value) => {
     .filter(Boolean);
 };
 
+const openLink = async (url) => {
+  if (!url) {
+    return;
+  }
+
+  try {
+    const supported =
+      await Linking.canOpenURL(url);
+
+    if (supported) {
+      await Linking.openURL(url);
+    }
+  } catch (error) {
+    console.warn(
+      "Could not open link:",
+      error
+    );
+  }
+};
+
 const IngredientPicture = ({
   ingredient,
 }) => {
-  const [imageFailed, setImageFailed] =
+  const [imageUrl, setImageUrl] =
+    useState(
+      ingredient?.imageUrl || null
+    );
+
+  const [pexelsPhoto, setPexelsPhoto] =
+    useState(null);
+
+  const [loadingFallback, setLoadingFallback] =
     useState(false);
 
-  const imageUrl = ingredient?.imageUrl;
+  const [searchAttempted, setSearchAttempted] =
+    useState(false);
 
-  if (!imageUrl || imageFailed) {
+  const loadPexelsFallback =
+    async () => {
+      if (
+        searchAttempted ||
+        loadingFallback
+      ) {
+        return;
+      }
+
+      setSearchAttempted(true);
+      setLoadingFallback(true);
+
+      const searchName =
+        ingredient?.imageSearchName ||
+        ingredient?.name;
+
+      const photo =
+        await MealAPI.searchIngredientPhoto(
+          searchName
+        );
+
+      if (photo?.imageUrl) {
+        setPexelsPhoto(photo);
+
+        setImageUrl(
+          photo.thumbnailUrl ||
+            photo.imageUrl
+        );
+      } else {
+        setImageUrl(null);
+      }
+
+      setLoadingFallback(false);
+    };
+
+  const handleImageError = () => {
+    if (!searchAttempted) {
+      loadPexelsFallback();
+      return;
+    }
+
+    setImageUrl(null);
+  };
+
+  if (loadingFallback) {
     return (
       <View style={styles.imageFallback}>
-        <View style={styles.imageFallbackCircle}>
+        <ActivityIndicator
+          size="small"
+          color={COLORS.primary}
+        />
+
+        <Text
+          style={
+            styles.imageFallbackText
+          }
+        >
+          Finding photo...
+        </Text>
+      </View>
+    );
+  }
+
+  if (!imageUrl) {
+    return (
+      <View style={styles.imageFallback}>
+        <View
+          style={
+            styles.imageFallbackCircle
+          }
+        >
           <Ionicons
             name="leaf-outline"
             size={32}
@@ -70,21 +175,69 @@ const IngredientPicture = ({
           />
         </View>
 
-        <Text style={styles.imageFallbackText}>
+        <Text
+          style={
+            styles.imageFallbackText
+          }
+        >
           Photo unavailable
         </Text>
+
+        {!searchAttempted && (
+          <Pressable
+            onPress={
+              loadPexelsFallback
+            }
+            style={
+              styles.findPhotoButton
+            }
+          >
+            <Text
+              style={
+                styles.findPhotoButtonText
+              }
+            >
+              Find photo
+            </Text>
+          </Pressable>
+        )}
       </View>
     );
   }
 
   return (
-    <Image
-      source={{ uri: imageUrl }}
-      style={styles.ingredientImage}
-      contentFit="contain"
-      transition={200}
-      onError={() => setImageFailed(true)}
-    />
+    <View style={styles.ingredientPhoto}>
+      <Image
+        source={{ uri: imageUrl }}
+        style={styles.ingredientImage}
+        contentFit="contain"
+        transition={200}
+        onError={handleImageError}
+      />
+
+      {pexelsPhoto && (
+        <Pressable
+          onPress={() =>
+            openLink(
+              pexelsPhoto.pexelsUrl
+            )
+          }
+          style={
+            styles.smallAttribution
+          }
+        >
+          <Text
+            style={
+              styles.smallAttributionText
+            }
+            numberOfLines={1}
+          >
+            Photo by{" "}
+            {pexelsPhoto.photographer}
+          </Text>
+        </Pressable>
+      )}
+    </View>
   );
 };
 
@@ -112,6 +265,79 @@ const MetadataItem = ({
   );
 };
 
+const DishPhoto = ({ recipe }) => {
+  const photo = recipe?.dishPhoto;
+  const imageUrl =
+    photo?.landscapeUrl ||
+    photo?.imageUrl ||
+    recipe?.image;
+
+  if (!imageUrl) {
+    return null;
+  }
+
+  return (
+    <View style={styles.dishPhotoContainer}>
+      <Image
+        source={{ uri: imageUrl }}
+        style={styles.dishPhoto}
+        contentFit="cover"
+        transition={300}
+      />
+
+      {photo?.provider === "Pexels" && (
+        <View
+          style={
+            styles.dishPhotoAttribution
+          }
+        >
+          <Pressable
+            onPress={() =>
+              openLink(
+                photo.photographerUrl
+              )
+            }
+          >
+            <Text
+              style={
+                styles.dishPhotoCredit
+              }
+            >
+              Photo by{" "}
+              {photo.photographer}
+            </Text>
+          </Pressable>
+
+          <Text
+            style={
+              styles.dishPhotoCredit
+            }
+          >
+            {" "}on{" "}
+          </Text>
+
+          <Pressable
+            onPress={() =>
+              openLink(
+                photo.pexelsUrl
+              )
+            }
+          >
+            <Text
+              style={[
+                styles.dishPhotoCredit,
+                styles.attributionLink,
+              ]}
+            >
+              Pexels
+            </Text>
+          </Pressable>
+        </View>
+      )}
+    </View>
+  );
+};
+
 const RecipeResult = ({ recipe }) => {
   const totalTime =
     recipe.totalTime ||
@@ -120,6 +346,8 @@ const RecipeResult = ({ recipe }) => {
 
   return (
     <View style={styles.recipeCard}>
+      <DishPhoto recipe={recipe} />
+
       <LinearGradient
         colors={[
           COLORS.primary,
@@ -143,7 +371,9 @@ const RecipeResult = ({ recipe }) => {
           {recipe.title}
         </Text>
 
-        <Text style={styles.recipeDescription}>
+        <Text
+          style={styles.recipeDescription}
+        >
           {recipe.description}
         </Text>
       </LinearGradient>
@@ -165,9 +395,8 @@ const RecipeResult = ({ recipe }) => {
           <MetadataItem
             icon="flame-outline"
             value={
-              recipe.caloriesPerServing
-                ? recipe.caloriesPerServing
-                : "N/A"
+              recipe.caloriesPerServing ||
+              "N/A"
             }
             label="Calories"
           />
@@ -245,7 +474,6 @@ const RecipeResult = ({ recipe }) => {
 
                   <Text
                     style={styles.ingredientAmount}
-                    numberOfLines={2}
                   >
                     {ingredient.amount ||
                       ingredient.measure}
@@ -336,11 +564,30 @@ const RecipeResult = ({ recipe }) => {
           <Text
             style={styles.generatedByText}
           >
-            Generated by{" "}
+            Recipe generated by{" "}
             {recipe.generatedBy ||
               "Google Gemini"}
           </Text>
         </View>
+
+        <Pressable
+          onPress={() =>
+            openLink(
+              "https://www.pexels.com"
+            )
+          }
+          style={
+            styles.pexelsProviderLink
+          }
+        >
+          <Text
+            style={
+              styles.pexelsProviderText
+            }
+          >
+            Additional photos provided by Pexels
+          </Text>
+        </Pressable>
       </View>
     </View>
   );
@@ -479,7 +726,9 @@ const AiRecipeScreen = () => {
         }
       >
         <ScrollView
-          showsVerticalScrollIndicator={false}
+          showsVerticalScrollIndicator={
+            false
+          }
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={
             styles.scrollContent
@@ -518,8 +767,6 @@ const AiRecipeScreen = () => {
               COLORS.primary,
               COLORS.text,
             ]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
             style={styles.hero}
           >
             <View style={styles.heroIcon}>
@@ -535,14 +782,16 @@ const AiRecipeScreen = () => {
             </Text>
 
             <Text style={styles.heroText}>
-              Enter a dish, ingredients, or both.
-              Gemini will create a personalized
-              recipe for you.
+              Enter a dish, ingredients, or
+              both. Gemini will create your
+              personalized recipe.
             </Text>
           </LinearGradient>
 
           <View style={styles.formCard}>
-            <Text style={styles.inputLabelFirst}>
+            <Text
+              style={styles.inputLabelFirst}
+            >
               Dish you want to make
             </Text>
 
@@ -561,7 +810,6 @@ const AiRecipeScreen = () => {
                 placeholderTextColor={
                   COLORS.textLight
                 }
-                returnKeyType="next"
               />
             </View>
 
@@ -588,22 +836,16 @@ const AiRecipeScreen = () => {
             />
 
             <Text style={styles.helperText}>
-              Separate ingredients with commas.
-              This is optional when you enter a
-              dish.
+              Separate ingredients with commas
             </Text>
 
             {ingredients.length > 0 && (
-              <View
-                style={styles.chipContainer}
-              >
+              <View style={styles.chipContainer}>
                 {ingredients.map(
                   (ingredient, index) => (
                     <View
                       key={`${ingredient}-${index}`}
-                      style={
-                        styles.ingredientChip
-                      }
+                      style={styles.ingredientChip}
                     >
                       <Ionicons
                         name="leaf-outline"
@@ -645,9 +887,7 @@ const AiRecipeScreen = () => {
                   <Pressable
                     key={cuisine}
                     onPress={() =>
-                      setSelectedCuisine(
-                        cuisine
-                      )
+                      setSelectedCuisine(cuisine)
                     }
                     style={[
                       styles.optionChip,
@@ -659,7 +899,7 @@ const AiRecipeScreen = () => {
                       style={[
                         styles.optionChipText,
                         selected &&
-                          styles.optionChipTextSelected,
+                          styles.selectedText,
                       ]}
                     >
                       {cuisine}
@@ -674,36 +914,34 @@ const AiRecipeScreen = () => {
             </Text>
 
             <View style={styles.wrapOptions}>
-              {DIETARY_OPTIONS.map(
-                (diet) => {
-                  const selected =
-                    selectedDiet === diet;
+              {DIETARY_OPTIONS.map((diet) => {
+                const selected =
+                  selectedDiet === diet;
 
-                  return (
-                    <Pressable
-                      key={diet}
-                      onPress={() =>
-                        setSelectedDiet(diet)
-                      }
+                return (
+                  <Pressable
+                    key={diet}
+                    onPress={() =>
+                      setSelectedDiet(diet)
+                    }
+                    style={[
+                      styles.optionChip,
+                      selected &&
+                        styles.optionChipSelected,
+                    ]}
+                  >
+                    <Text
                       style={[
-                        styles.optionChip,
+                        styles.optionChipText,
                         selected &&
-                          styles.optionChipSelected,
+                          styles.selectedText,
                       ]}
                     >
-                      <Text
-                        style={[
-                          styles.optionChipText,
-                          selected &&
-                            styles.optionChipTextSelected,
-                        ]}
-                      >
-                        {diet}
-                      </Text>
-                    </Pressable>
-                  );
-                }
-              )}
+                      {diet}
+                    </Text>
+                  </Pressable>
+                );
+              })}
             </View>
 
             <Text style={styles.inputLabel}>
@@ -718,7 +956,6 @@ const AiRecipeScreen = () => {
               placeholderTextColor={
                 COLORS.textLight
               }
-              autoCapitalize="none"
             />
 
             <Text style={styles.inputLabel}>
@@ -734,9 +971,7 @@ const AiRecipeScreen = () => {
                   <Pressable
                     key={time}
                     onPress={() =>
-                      setMaximumCookingTime(
-                        time
-                      )
+                      setMaximumCookingTime(time)
                     }
                     style={[
                       styles.timeButton,
@@ -769,7 +1004,7 @@ const AiRecipeScreen = () => {
             </View>
 
             <View style={styles.servingsRow}>
-              <View style={styles.servingsText}>
+              <View>
                 <Text style={styles.inputLabel}>
                   Servings
                 </Text>
@@ -797,9 +1032,7 @@ const AiRecipeScreen = () => {
                   />
                 </Pressable>
 
-                <Text
-                  style={styles.counterValue}
-                >
+                <Text style={styles.counterValue}>
                   {servings}
                 </Text>
 
@@ -821,45 +1054,33 @@ const AiRecipeScreen = () => {
             <Pressable
               onPress={generateRecipe}
               disabled={isGenerating}
-              style={({ pressed }) => [
+              style={[
                 styles.generateButton,
-                pressed &&
-                  styles.buttonPressed,
                 isGenerating &&
                   styles.disabledButton,
               ]}
             >
               {isGenerating ? (
-                <>
-                  <ActivityIndicator
-                    color="#FFFFFF"
-                  />
-
-                  <Text
-                    style={
-                      styles.generateButtonText
-                    }
-                  >
-                    Gemini is cooking...
-                  </Text>
-                </>
+                <ActivityIndicator
+                  color="#FFFFFF"
+                />
               ) : (
-                <>
-                  <Ionicons
-                    name="sparkles"
-                    size={20}
-                    color="#FFFFFF"
-                  />
-
-                  <Text
-                    style={
-                      styles.generateButtonText
-                    }
-                  >
-                    Generate my recipe
-                  </Text>
-                </>
+                <Ionicons
+                  name="sparkles"
+                  size={20}
+                  color="#FFFFFF"
+                />
               )}
+
+              <Text
+                style={
+                  styles.generateButtonText
+                }
+              >
+                {isGenerating
+                  ? "Gemini is cooking..."
+                  : "Generate my recipe"}
+              </Text>
             </Pressable>
           </View>
 
@@ -875,8 +1096,8 @@ const AiRecipeScreen = () => {
               </Text>
 
               <Text style={styles.loadingText}>
-                Gemini is preparing ingredients,
-                portions, and cooking steps.
+                Generating the recipe and finding
+                a photo of the finished dish.
               </Text>
             </View>
           )}
@@ -895,15 +1116,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.background,
   },
-
   keyboardView: {
     flex: 1,
   },
-
   scrollContent: {
     paddingBottom: 48,
   },
-
   header: {
     paddingHorizontal: 18,
     paddingVertical: 12,
@@ -911,7 +1129,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
   },
-
   headerButton: {
     width: 42,
     height: 42,
@@ -922,20 +1139,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.border,
   },
-
   headerTitle: {
     color: COLORS.text,
     fontSize: 20,
     fontWeight: "800",
   },
-
   hero: {
     marginHorizontal: 18,
     marginBottom: 18,
     padding: 24,
     borderRadius: 26,
   },
-
   heroIcon: {
     width: 52,
     height: 52,
@@ -946,20 +1160,17 @@ const styles = StyleSheet.create({
       "rgba(255,255,255,0.18)",
     marginBottom: 18,
   },
-
   heroTitle: {
     color: "#FFFFFF",
     fontSize: 27,
     fontWeight: "900",
     marginBottom: 8,
   },
-
   heroText: {
     color: "rgba(255,255,255,0.86)",
     fontSize: 15,
     lineHeight: 22,
   },
-
   formCard: {
     marginHorizontal: 18,
     padding: 18,
@@ -968,14 +1179,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.border,
   },
-
   inputLabelFirst: {
     color: COLORS.text,
     fontSize: 15,
     fontWeight: "800",
     marginBottom: 10,
   },
-
   inputLabel: {
     color: COLORS.text,
     fontSize: 15,
@@ -983,7 +1192,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 10,
   },
-
   inputWithIcon: {
     height: 54,
     paddingHorizontal: 14,
@@ -995,7 +1203,6 @@ const styles = StyleSheet.create({
     borderColor: COLORS.border,
     borderRadius: 16,
   },
-
   iconInput: {
     flex: 1,
     height: "100%",
@@ -1003,7 +1210,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     outlineStyle: "none",
   },
-
   input: {
     height: 52,
     paddingHorizontal: 14,
@@ -1015,7 +1221,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     outlineStyle: "none",
   },
-
   largeInput: {
     minHeight: 96,
     padding: 14,
@@ -1027,21 +1232,17 @@ const styles = StyleSheet.create({
     fontSize: 15,
     outlineStyle: "none",
   },
-
   helperText: {
     color: COLORS.textLight,
     fontSize: 12,
-    lineHeight: 17,
     marginTop: 7,
   },
-
   chipContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 8,
     marginTop: 12,
   },
-
   ingredientChip: {
     flexDirection: "row",
     alignItems: "center",
@@ -1051,24 +1252,20 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     backgroundColor: COLORS.background,
   },
-
   ingredientChipText: {
     color: COLORS.text,
     fontSize: 13,
     fontWeight: "600",
   },
-
   horizontalOptions: {
     gap: 8,
     paddingRight: 12,
   },
-
   wrapOptions: {
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 8,
   },
-
   optionChip: {
     paddingHorizontal: 14,
     paddingVertical: 9,
@@ -1077,27 +1274,22 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.border,
   },
-
   optionChipSelected: {
     backgroundColor: COLORS.primary,
     borderColor: COLORS.primary,
   },
-
   optionChipText: {
     color: COLORS.text,
     fontSize: 13,
     fontWeight: "600",
   },
-
-  optionChipTextSelected: {
+  selectedText: {
     color: "#FFFFFF",
   },
-
   timeOptions: {
     flexDirection: "row",
     gap: 8,
   },
-
   timeButton: {
     flex: 1,
     minHeight: 48,
@@ -1110,37 +1302,24 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 4,
   },
-
   timeButtonSelected: {
     backgroundColor: COLORS.primary,
     borderColor: COLORS.primary,
   },
-
   timeButtonText: {
     color: COLORS.text,
     fontSize: 13,
     fontWeight: "700",
   },
-
-  selectedText: {
-    color: "#FFFFFF",
-  },
-
   servingsRow: {
     flexDirection: "row",
     alignItems: "flex-end",
     justifyContent: "space-between",
   },
-
-  servingsText: {
-    flex: 1,
-  },
-
   servingsDescription: {
     color: COLORS.textLight,
     fontSize: 12,
   },
-
   counter: {
     flexDirection: "row",
     alignItems: "center",
@@ -1150,14 +1329,12 @@ const styles = StyleSheet.create({
     borderColor: COLORS.border,
     overflow: "hidden",
   },
-
   counterButton: {
     width: 42,
     height: 42,
     alignItems: "center",
     justifyContent: "center",
   },
-
   counterValue: {
     minWidth: 34,
     textAlign: "center",
@@ -1165,11 +1342,9 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: "800",
   },
-
   generateButton: {
     minHeight: 56,
     marginTop: 24,
-    paddingHorizontal: 18,
     borderRadius: 18,
     backgroundColor: COLORS.primary,
     flexDirection: "row",
@@ -1177,21 +1352,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 10,
   },
-
   generateButtonText: {
     color: "#FFFFFF",
     fontSize: 16,
     fontWeight: "800",
   },
-
   disabledButton: {
     opacity: 0.65,
   },
-
-  buttonPressed: {
-    transform: [{ scale: 0.98 }],
-  },
-
   loadingCard: {
     margin: 18,
     padding: 26,
@@ -1201,22 +1369,18 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.border,
   },
-
   loadingTitle: {
     color: COLORS.text,
     fontSize: 18,
     fontWeight: "800",
     marginTop: 14,
   },
-
   loadingText: {
     color: COLORS.textLight,
     fontSize: 14,
-    lineHeight: 20,
     textAlign: "center",
     marginTop: 6,
   },
-
   recipeCard: {
     marginHorizontal: 18,
     marginTop: 18,
@@ -1226,11 +1390,30 @@ const styles = StyleSheet.create({
     borderColor: COLORS.border,
     overflow: "hidden",
   },
-
+  dishPhotoContainer: {
+    backgroundColor: COLORS.background,
+  },
+  dishPhoto: {
+    width: "100%",
+    height: 260,
+  },
+  dishPhotoAttribution: {
+    flexDirection: "row",
+    justifyContent: "center",
+    padding: 8,
+    backgroundColor: "#FFFFFF",
+  },
+  dishPhotoCredit: {
+    color: COLORS.textLight,
+    fontSize: 11,
+  },
+  attributionLink: {
+    color: COLORS.primary,
+    fontWeight: "800",
+  },
   recipeHero: {
     padding: 22,
   },
-
   aiBadge: {
     alignSelf: "flex-start",
     flexDirection: "row",
@@ -1242,63 +1425,53 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     marginBottom: 14,
   },
-
   aiBadgeText: {
     color: COLORS.primary,
     fontSize: 11,
     fontWeight: "900",
   },
-
   recipeTitle: {
     color: "#FFFFFF",
     fontSize: 25,
     lineHeight: 31,
     fontWeight: "900",
   },
-
   recipeDescription: {
     color: "rgba(255,255,255,0.85)",
     fontSize: 14,
     lineHeight: 21,
     marginTop: 8,
   },
-
   recipeBody: {
     padding: 18,
   },
-
   recipeMetadata: {
     flexDirection: "row",
     paddingBottom: 18,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,
   },
-
   metadataItem: {
     flex: 1,
     alignItems: "center",
   },
-
   metadataValue: {
     color: COLORS.text,
     fontSize: 15,
     fontWeight: "800",
     marginTop: 5,
   },
-
   metadataLabel: {
     color: COLORS.textLight,
     fontSize: 11,
     marginTop: 2,
   },
-
   labelContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 7,
     marginTop: 16,
   },
-
   dietaryLabel: {
     flexDirection: "row",
     alignItems: "center",
@@ -1308,36 +1481,30 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     backgroundColor: "#E8F5E9",
   },
-
   dietaryLabelText: {
     color: "#2E7D32",
     fontSize: 12,
     fontWeight: "700",
   },
-
   resultSection: {
     marginTop: 26,
   },
-
   resultSectionTitle: {
     color: COLORS.text,
     fontSize: 21,
     fontWeight: "900",
   },
-
   resultSectionSubtitle: {
     color: COLORS.textLight,
     fontSize: 13,
     marginTop: 3,
     marginBottom: 14,
   },
-
   ingredientGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 10,
   },
-
   ingredientCard: {
     width: "48%",
     padding: 12,
@@ -1346,22 +1513,21 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.border,
   },
-
   ingredientImageContainer: {
-    height: 96,
+    height: 110,
     borderRadius: 14,
-    alignItems: "center",
-    justifyContent: "center",
     backgroundColor: "#FFFFFF",
     marginBottom: 10,
     overflow: "hidden",
   },
-
-  ingredientImage: {
-    width: "90%",
-    height: "90%",
+  ingredientPhoto: {
+    width: "100%",
+    height: "100%",
   },
-
+  ingredientImage: {
+    width: "100%",
+    height: "100%",
+  },
   imageFallback: {
     width: "100%",
     height: "100%",
@@ -1369,7 +1535,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: COLORS.background,
   },
-
   imageFallbackCircle: {
     width: 48,
     height: 48,
@@ -1380,41 +1545,61 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.border,
   },
-
   imageFallbackText: {
     color: COLORS.textLight,
     fontSize: 10,
     fontWeight: "600",
     marginTop: 5,
   },
-
+  findPhotoButton: {
+    marginTop: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 12,
+    backgroundColor: COLORS.primary,
+  },
+  findPhotoButtonText: {
+    color: "#FFFFFF",
+    fontSize: 10,
+    fontWeight: "700",
+  },
+  smallAttribution: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    paddingVertical: 4,
+    paddingHorizontal: 6,
+    backgroundColor: "rgba(0,0,0,0.65)",
+  },
+  smallAttributionText: {
+    color: "#FFFFFF",
+    fontSize: 8,
+    textAlign: "center",
+  },
   ingredientName: {
     color: COLORS.text,
     fontSize: 14,
     fontWeight: "800",
     textTransform: "capitalize",
   },
-
   ingredientAmount: {
     color: COLORS.primary,
     fontSize: 12,
     fontWeight: "700",
     marginTop: 4,
   },
-
   ingredientPreparation: {
     color: COLORS.textLight,
     fontSize: 11,
     lineHeight: 15,
     marginTop: 3,
   },
-
   instructionRow: {
     flexDirection: "row",
     alignItems: "flex-start",
     marginTop: 16,
   },
-
   stepCircle: {
     width: 34,
     height: 34,
@@ -1424,20 +1609,17 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
     marginRight: 12,
   },
-
   stepNumber: {
     color: "#FFFFFF",
     fontSize: 14,
     fontWeight: "900",
   },
-
   instructionText: {
     flex: 1,
     color: COLORS.text,
     fontSize: 14,
     lineHeight: 21,
   },
-
   tipBox: {
     marginTop: 26,
     padding: 16,
@@ -1446,38 +1628,43 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#F2D18A",
   },
-
   tipHeader: {
     flexDirection: "row",
     alignItems: "center",
     gap: 7,
     marginBottom: 8,
   },
-
   tipTitle: {
     color: "#7A4900",
     fontSize: 16,
     fontWeight: "800",
   },
-
   tipText: {
     color: "#7A4900",
     fontSize: 13,
     lineHeight: 20,
     marginTop: 4,
   },
-
   generatedByRow: {
     flexDirection: "row",
-    alignItems: "center",
     justifyContent: "center",
+    alignItems: "center",
     gap: 6,
     marginTop: 24,
   },
-
   generatedByText: {
     color: COLORS.textLight,
     fontSize: 12,
+  },
+  pexelsProviderLink: {
+    alignItems: "center",
+    marginTop: 10,
+  },
+  pexelsProviderText: {
+    color: COLORS.primary,
+    fontSize: 11,
+    fontWeight: "700",
+    textDecorationLine: "underline",
   },
 });
 
