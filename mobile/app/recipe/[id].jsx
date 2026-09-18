@@ -19,6 +19,40 @@ import { COLORS } from "../../constants/colors";
 import { recipeDetailStyles } from "../../assets/styles/recipe-detail.styles";
 import LoadingSpinner from "../../components/LoadingSpinner";
 
+const getInstructionText = (instruction) => {
+  if (typeof instruction === "string") {
+    return instruction;
+  }
+
+  if (instruction && typeof instruction === "object") {
+    return instruction.instruction || instruction.text || "";
+  }
+
+  return "";
+};
+
+const getIngredientData = (ingredient, index) => {
+  if (typeof ingredient === "string") {
+    return {
+      id: `ingredient-${index}`,
+      name: ingredient,
+      measure: "As needed",
+      imageUrl: null,
+    };
+  }
+
+  return {
+    id: ingredient?.id || `ingredient-${index}`,
+    name: ingredient?.name || ingredient?.label || "Ingredient",
+    measure:
+      ingredient?.measure ||
+      ingredient?.amount ||
+      ingredient?.label ||
+      "As needed",
+    imageUrl: ingredient?.imageUrl || ingredient?.image || null,
+  };
+};
+
 const RecipeDetailScreen = () => {
   const { id: recipeId } = useLocalSearchParams();
   const router = useRouter();
@@ -55,7 +89,16 @@ const RecipeDetailScreen = () => {
         }
 
         const transformedRecipe = MealAPI.transformMealData(mealData);
-        setRecipe(transformedRecipe);
+
+        setRecipe({
+          ...transformedRecipe,
+          ingredients: Array.isArray(transformedRecipe.ingredients)
+            ? transformedRecipe.ingredients
+            : [],
+          instructions: Array.isArray(transformedRecipe.instructions)
+            ? transformedRecipe.instructions
+            : [],
+        });
       } catch (error) {
         console.error("Error loading recipe details:", error);
         setRecipe(null);
@@ -110,11 +153,9 @@ const RecipeDetailScreen = () => {
 
       const videoId = parsedUrl.searchParams.get("v");
 
-      if (!videoId) {
-        return null;
-      }
-
-      return `https://www.youtube.com/embed/${videoId}`;
+      return videoId
+        ? `https://www.youtube.com/embed/${videoId}`
+        : null;
     } catch {
       return null;
     }
@@ -327,11 +368,6 @@ const RecipeDetailScreen = () => {
               ]}
               onPress={handleToggleSave}
               disabled={isSaving}
-              accessibilityLabel={
-                isSaved
-                  ? "Remove recipe from favorites"
-                  : "Add recipe to favorites"
-              }
             >
               <Ionicons
                 name={
@@ -350,7 +386,7 @@ const RecipeDetailScreen = () => {
           <View style={recipeDetailStyles.titleSection}>
             <View style={recipeDetailStyles.categoryBadge}>
               <Text style={recipeDetailStyles.categoryText}>
-                {recipe.category}
+                {recipe.category || "Recipe"}
               </Text>
             </View>
 
@@ -389,7 +425,7 @@ const RecipeDetailScreen = () => {
               </LinearGradient>
 
               <Text style={recipeDetailStyles.statValue}>
-                {recipe.cookTime}
+                {recipe.cookTime || "—"}
               </Text>
 
               <Text style={recipeDetailStyles.statLabel}>
@@ -410,7 +446,7 @@ const RecipeDetailScreen = () => {
               </LinearGradient>
 
               <Text style={recipeDetailStyles.statValue}>
-                {recipe.servings}
+                {recipe.servings || "—"}
               </Text>
 
               <Text style={recipeDetailStyles.statLabel}>
@@ -456,9 +492,7 @@ const RecipeDetailScreen = () => {
                   />
                 ) : (
                   (() => {
-                    const {
-                      WebView,
-                    } = require("react-native-webview");
+                    const { WebView } = require("react-native-webview");
 
                     return (
                       <WebView
@@ -504,19 +538,24 @@ const RecipeDetailScreen = () => {
 
             <View style={recipeDetailStyles.ingredientsGrid}>
               {recipe.ingredients.map((ingredient, index) => {
-                const isCompleted =
-                  completedIngredients.includes(ingredient.id);
+                const ingredientData = getIngredientData(
+                  ingredient,
+                  index
+                );
+                const isCompleted = completedIngredients.includes(
+                  ingredientData.id
+                );
 
                 return (
                   <TouchableOpacity
-                    key={ingredient.id || index}
+                    key={ingredientData.id}
                     style={[
                       recipeDetailStyles.ingredientCard,
                       isCompleted &&
                         recipeDetailStyles.ingredientCardCompleted,
                     ]}
                     onPress={() =>
-                      toggleIngredient(ingredient.id)
+                      toggleIngredient(ingredientData.id)
                     }
                     activeOpacity={0.8}
                   >
@@ -525,12 +564,20 @@ const RecipeDetailScreen = () => {
                         recipeDetailStyles.ingredientImageContainer
                       }
                     >
-                      <Image
-                        source={{ uri: ingredient.imageUrl }}
-                        style={recipeDetailStyles.ingredientImage}
-                        contentFit="contain"
-                        transition={250}
-                      />
+                      {ingredientData.imageUrl ? (
+                        <Image
+                          source={{ uri: ingredientData.imageUrl }}
+                          style={recipeDetailStyles.ingredientImage}
+                          contentFit="contain"
+                          transition={250}
+                        />
+                      ) : (
+                        <Ionicons
+                          name="leaf-outline"
+                          size={42}
+                          color={COLORS.primary}
+                        />
+                      )}
 
                       <View
                         style={recipeDetailStyles.ingredientNumber}
@@ -568,7 +615,7 @@ const RecipeDetailScreen = () => {
                         ]}
                         numberOfLines={2}
                       >
-                        {ingredient.name}
+                        {ingredientData.name}
                       </Text>
 
                       <Text
@@ -579,7 +626,7 @@ const RecipeDetailScreen = () => {
                         ]}
                         numberOfLines={2}
                       >
-                        {ingredient.measure || "As needed"}
+                        {ingredientData.measure}
                       </Text>
                     </View>
                   </TouchableOpacity>
@@ -618,12 +665,12 @@ const RecipeDetailScreen = () => {
 
             <View style={recipeDetailStyles.instructionsContainer}>
               {recipe.instructions.map((instruction, index) => {
-                const isCompleted =
-                  completedSteps.includes(index);
+                const isCompleted = completedSteps.includes(index);
+                const instructionText = getInstructionText(instruction);
 
                 return (
                   <View
-                    key={`${recipe.id}-step-${index}`}
+                    key={`${recipe.id || recipeId}-step-${index}`}
                     style={[
                       recipeDetailStyles.instructionCard,
                       isCompleted &&
@@ -664,7 +711,7 @@ const RecipeDetailScreen = () => {
                             recipeDetailStyles.completedText,
                         ]}
                       >
-                        {instruction}
+                        {instructionText || "Instruction unavailable."}
                       </Text>
 
                       <View
@@ -683,11 +730,6 @@ const RecipeDetailScreen = () => {
                               recipeDetailStyles.completeButtonActive,
                           ]}
                           onPress={() => toggleStep(index)}
-                          accessibilityLabel={
-                            isCompleted
-                              ? `Mark step ${index + 1} incomplete`
-                              : `Mark step ${index + 1} complete`
-                          }
                         >
                           <Ionicons
                             name="checkmark"

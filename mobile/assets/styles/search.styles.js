@@ -6,124 +6,258 @@ export const searchStyles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.background,
   },
-  searchSection: {
+
+  listContent: {
     paddingHorizontal: 16,
-    paddingTop: 16,
+    paddingTop: 18,
+    paddingBottom: 36,
   },
+
+  heroSection: {
+    marginBottom: 18,
+  },
+
+  eyebrow: {
+    color: COLORS.primary,
+    fontSize: 11,
+    fontWeight: "800",
+    letterSpacing: 1.1,
+    marginBottom: 7,
+  },
+
+  heroTitle: {
+    color: COLORS.text,
+    fontSize: 27,
+    fontWeight: "800",
+    letterSpacing: -0.6,
+  },
+
+  heroSubtitle: {
+    color: COLORS.textLight,
+    fontSize: 14,
+    lineHeight: 20,
+    marginTop: 6,
+    maxWidth: 340,
+  },
+
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: COLORS.card,
     borderRadius: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
     borderWidth: 1,
     borderColor: COLORS.border,
+    paddingHorizontal: 14,
+    minHeight: 56,
     shadowColor: COLORS.shadow,
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 3,
     },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
     elevation: 2,
   },
-  searchIcon: {
-    marginRight: 12,
-  },
+
   searchInput: {
     flex: 1,
-    fontSize: 16,
     color: COLORS.text,
+    fontSize: 16,
+    paddingHorizontal: 11,
+    paddingVertical: 13,
   },
+
   clearButton: {
     padding: 4,
   },
-  quickFilters: {
-    marginTop: 20,
-  },
-  filterLabel: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: COLORS.text,
-    marginBottom: 12,
-  },
-  filterButtons: {
+
+  modeContainer: {
     flexDirection: "row",
-    gap: 12,
+    gap: 10,
+    marginTop: 12,
   },
-  quickFilterButton: {
-    backgroundColor: COLORS.card,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
+
+  modeButton: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 7,
+    paddingVertical: 11,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: COLORS.border,
+    backgroundColor: COLORS.card,
   },
-  activeQuickFilter: {
+
+  activeModeButton: {
     backgroundColor: COLORS.primary,
     borderColor: COLORS.primary,
   },
-  quickFilterText: {
-    fontSize: 14,
-    fontWeight: "500",
+
+  modeButtonText: {
     color: COLORS.text,
+    fontSize: 14,
+    fontWeight: "700",
   },
-  activeQuickFilterText: {
+
+  activeModeButtonText: {
     color: COLORS.white,
   },
-  resultsSection: {
-    flex: 1,
-    paddingHorizontal: 16,
-    marginTop: 8,
+
+  quickSearchSection: {
+    marginTop: 22,
   },
+
+  quickSearchHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+
+  quickSearchTitle: {
+    color: COLORS.text,
+    fontSize: 16,
+    fontWeight: "800",
+  },
+
+  resetText: {
+    color: COLORS.primary,
+    fontSize: 13,
+    fontWeight: "800",
+  },
+
+  quickSearchList: {
+    gap: 9,
+    paddingRight: 8,
+  },
+
+  quickSearchChip: {
+    backgroundColor: COLORS.card,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 20,
+    paddingHorizontal: 15,
+    paddingVertical: 9,
+  },
+
+  activeQuickSearchChip: {
+    backgroundColor: `${COLORS.primary}18`,
+    borderColor: COLORS.primary,
+  },
+
+  quickSearchChipText: {
+    color: COLORS.text,
+    fontSize: 13,
+    fontWeight: "700",
+  },
+
+  activeQuickSearchChipText: {
+    color: COLORS.primary,
+  },
+
   resultsHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 16,
-    marginTop: 16,
+    marginTop: 25,
+    marginBottom: 15,
   },
+
+  resultsHeading: {
+    flex: 1,
+    paddingRight: 12,
+  },
+
   resultsTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
     color: COLORS.text,
-    flex: 1,
+    fontSize: 19,
+    fontWeight: "800",
   },
-  resultsCount: {
-    fontSize: 14,
+
+  resultsDescription: {
     color: COLORS.textLight,
-    fontWeight: "500",
+    fontSize: 13,
+    marginTop: 3,
   },
-  loadingContainer: {
-    flex: 1,
+
+  countBadge: {
+    minWidth: 36,
+    height: 30,
+    borderRadius: 15,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: `${COLORS.primary}18`,
   },
+
+  countBadgeText: {
+    color: COLORS.primary,
+    fontSize: 13,
+    fontWeight: "800",
+  },
+
   recipesGrid: {
-    gap: 16,
     paddingBottom: 32,
   },
+
   row: {
     justifyContent: "space-between",
   },
-  emptyState: {
-    flex: 1,
-    justifyContent: "center",
+
+  loadingContainer: {
     alignItems: "center",
+    justifyContent: "center",
     paddingVertical: 64,
   },
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: COLORS.text,
-    marginTop: 16,
-    marginBottom: 8,
-  },
-  emptyDescription: {
-    fontSize: 14,
+
+  loadingText: {
     color: COLORS.textLight,
-    textAlign: "center",
+    fontSize: 14,
+    marginTop: 12,
+  },
+
+  emptyState: {
+    alignItems: "center",
+    paddingVertical: 48,
+    paddingHorizontal: 26,
+  },
+
+  emptyIconContainer: {
+    width: 84,
+    height: 84,
+    borderRadius: 42,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: `${COLORS.primary}12`,
+    marginBottom: 16,
+  },
+
+  emptyTitle: {
+    color: COLORS.text,
+    fontSize: 20,
+    fontWeight: "800",
+    marginBottom: 7,
+  },
+
+  emptyDescription: {
+    color: COLORS.textLight,
+    fontSize: 14,
     lineHeight: 20,
+    textAlign: "center",
+  },
+
+  emptyButton: {
+    backgroundColor: COLORS.primary,
+    borderRadius: 12,
+    marginTop: 20,
+    paddingHorizontal: 18,
+    paddingVertical: 11,
+  },
+
+  emptyButtonText: {
+    color: COLORS.white,
+    fontSize: 14,
+    fontWeight: "800",
   },
 });
