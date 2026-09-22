@@ -18,12 +18,7 @@ import { COLORS } from "../../constants/colors";
 
 const ForgotPasswordScreen = () => {
   const router = useRouter();
-
-  const {
-    signIn,
-    errors,
-    fetchStatus,
-  } = useSignIn();
+  const { signIn, errors, fetchStatus } = useSignIn();
 
   const [step, setStep] = useState("email");
   const [email, setEmail] = useState("");
@@ -83,6 +78,8 @@ const ForgotPasswordScreen = () => {
 
       setEmail(cleanEmail);
       setVerificationCode("");
+      setNewPassword("");
+      setConfirmPassword("");
       setStep("code");
     } catch (error) {
       console.error("Send reset code error:", error);
@@ -113,7 +110,23 @@ const ForgotPasswordScreen = () => {
         return;
       }
 
-      setStep("password");
+      // Clerk must confirm the reset process is ready
+      // before this screen allows a new password.
+      if (signIn.status === "needs_new_password") {
+        setStep("password");
+        return;
+      }
+
+      if (signIn.status === "needs_second_factor") {
+        setErrorMessage(
+          "This account needs an additional verification step before its password can be changed."
+        );
+        return;
+      }
+
+      setErrorMessage(
+        "The code was accepted, but Clerk could not start the password reset. Please request a new code and try again."
+      );
     } catch (error) {
       console.error("Verify reset code error:", error);
       setErrorMessage(getErrorMessage(error));
@@ -155,10 +168,7 @@ const ForgotPasswordScreen = () => {
       if (signIn.status === "complete") {
         const { error: finalizeError } =
           await signIn.finalize({
-            navigate: ({
-              decorateUrl,
-              session,
-            }) => {
+            navigate: ({ decorateUrl, session }) => {
               if (session?.currentTask) {
                 console.log(
                   "Clerk session task:",
@@ -198,8 +208,9 @@ const ForgotPasswordScreen = () => {
       }
 
       setErrorMessage(
-        "The password was changed, but sign-in could not be completed. Return to sign in and use your new password."
+        "Your password was changed. Please return to Sign In and use your new password."
       );
+      router.replace("/(auth)/sign-in");
     } catch (error) {
       console.error("Reset password error:", error);
       setErrorMessage(getErrorMessage(error));
@@ -241,7 +252,7 @@ const ForgotPasswordScreen = () => {
       return;
     }
 
-    router.back();
+    router.replace("/(auth)/sign-in");
   };
 
   const renderError = () => {

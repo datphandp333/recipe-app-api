@@ -2,6 +2,7 @@ import express from "express";
 
 import { ENV } from "../config/env.js";
 import {
+  chatWithRecipeChef,
   generateRecipeWithGemini,
 } from "../services/geminiRecipeService.js";
 
@@ -23,6 +24,34 @@ const cleanStringArray = (value) => {
   return value
     .map((item) => String(item).trim())
     .filter(Boolean);
+};
+
+const cleanChatMessages = (value) => {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((message) => {
+      const content = cleanText(
+        message?.content
+      );
+
+      if (!content) {
+        return null;
+      }
+
+      return {
+        role:
+          message?.role === "assistant"
+            ? "assistant"
+            : "user",
+
+        content: content.slice(0, 2000),
+      };
+    })
+    .filter(Boolean)
+    .slice(-16);
 };
 
 const createSafeNumber = (
@@ -82,11 +111,11 @@ const getPublicErrorMessage = (
   status
 ) => {
   if (status === 400) {
-    return "The recipe request is invalid.";
+    return "Please check your request and try again.";
   }
 
   if (status === 429) {
-    return "The AI recipe service is currently busy. Please wait a moment and try again.";
+    return "Recipe Chef is busy right now. Please wait a moment and try again.";
   }
 
   if (status === 503) {
@@ -98,30 +127,23 @@ const getPublicErrorMessage = (
 
 /*
  * GET /api/ai/recipes/health
- *
- * Used to check whether the Gemini recipe
- * service is available.
  */
 router.get("/health", (request, response) => {
   return response.status(200).json({
     success: true,
-    service: "AI Recipe Generator",
+    service: "AI Recipe Chef",
     provider: "Google Gemini",
     model: ENV.GEMINI_MODEL,
     configured: Boolean(ENV.GEMINI_API_KEY),
     message:
-      "Gemini AI recipe route is available.",
+      "Gemini AI recipe and chat routes are available.",
   });
 });
 
 /*
  * POST /api/ai/recipes/generate
  *
- * The user may provide:
- *
- * 1. Only a dish name
- * 2. Only ingredients
- * 3. Both a dish name and ingredients
+ * Keeps the original recipe-builder flow.
  */
 router.post(
   "/generate",
@@ -170,10 +192,6 @@ router.post(
           20
         );
 
-      /*
-       * A dish name or at least one ingredient
-       * must be included.
-       */
       if (
         !cleanedDishName &&
         cleanedIngredients.length === 0
@@ -212,14 +230,6 @@ router.post(
         });
       }
 
-      if (!ENV.GEMINI_API_KEY) {
-        return response.status(503).json({
-          success: false,
-          message:
-            "The Gemini API key has not been configured.",
-        });
-      }
-
       const recipe =
         await generateRecipeWithGemini({
           dishName: cleanedDishName,
@@ -243,6 +253,70 @@ router.post(
     } catch (error) {
       console.error(
         "Gemini recipe generation error:",
+        error
+      );
+
+      const status = getErrorStatus(error);
+
+      return response.status(status).json({
+        success: false,
+        message:
+          getPublicErrorMessage(status),
+
+        ...(ENV.NODE_ENV !==
+          "production" && {
+          developerMessage:
+            error?.message ||
+            "Unknown Gemini service error.",
+        }),
+      });
+    }
+  }
+);
+
+/*
+ * POST /api/ai/recipes/chat
+ *
+ * The mobile app sends a short conversation:
+ *
+ * {
+ *   "messages": [
+ *     { "role": "user", "content": "I have chicken and rice." }
+ *   ]
+ * }
+ */
+router.post(
+  "/chat",
+  async (request, response) => {
+    try {
+      const messages = cleanChatMessages(
+        request.body?.messages
+      );
+
+      if (messages.length === 0) {
+        return response.status(400).json({
+          success: false,
+          message:
+            "Send a message to Recipe Chef.",
+        });
+      }
+
+      const result =
+        await chatWithRecipeChef({
+          messages,
+        });
+
+      return response.status(200).json({
+        success: true,
+        message:
+          "Recipe Chef replied successfully.",
+        reply: result.reply,
+        suggestedRecipe:
+          result.suggestedRecipe,
+      });
+    } catch (error) {
+      console.error(
+        "Gemini Recipe Chef chat error:",
         error
       );
 

@@ -1,8 +1,34 @@
-// if you're using your physical phone, change this to the deployed url
-// we have explained this in the course :-)
 import { Platform } from "react-native";
 
-const WEB_API_URL = "http://localhost:5001/api";
-const MOBILE_API_URL = "http://192.168.1.71:5001/api";
+const removeTrailingSlash = (value = "") =>
+  String(value).replace(/\/+$/, "");
 
-export const API_URL = Platform.OS === "web" ? WEB_API_URL : MOBILE_API_URL;
+const normalizeApiUrl = (value = "") => {
+  const cleanedUrl = removeTrailingSlash(value);
+
+  if (!cleanedUrl) {
+    return "";
+  }
+
+  return cleanedUrl.endsWith("/api")
+    ? cleanedUrl
+    : `${cleanedUrl}/api`;
+};
+
+const configuredApiUrl = normalizeApiUrl(
+  process.env.EXPO_PUBLIC_API_URL
+);
+
+const WEB_API_URL = "http://localhost:5001/api";
+
+const NATIVE_API_URL =
+  configuredApiUrl ||
+  Platform.select({
+    android: "http://10.0.2.2:5001/api",
+    default: "http://localhost:5001/api",
+  });
+
+export const API_URL =
+  Platform.OS === "web"
+    ? WEB_API_URL
+    : NATIVE_API_URL;

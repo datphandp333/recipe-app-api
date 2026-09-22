@@ -18,26 +18,9 @@ if (ENV.NODE_ENV === "production") {
 
 app.use(
   cors({
-    origin: [
-      "http://localhost:8081",
-      "http://127.0.0.1:8081",
-      "http://localhost:19006",
-      "http://127.0.0.1:19006",
-    ],
-
-    methods: [
-      "GET",
-      "POST",
-      "PUT",
-      "PATCH",
-      "DELETE",
-      "OPTIONS",
-    ],
-
-    allowedHeaders: [
-      "Content-Type",
-      "Authorization",
-    ],
+    origin: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
@@ -47,27 +30,6 @@ app.use(
   })
 );
 
-const isValidArray = (value) => {
-  return Array.isArray(value);
-};
-
-const getFavoriteById = async (userId, favoriteId) => {
-  const favorites = await db
-    .select()
-    .from(favoritesTable)
-    .where(
-      and(
-        eq(favoritesTable.id, favoriteId),
-        eq(favoritesTable.userId, userId)
-      )
-    );
-
-  return favorites[0] || null;
-};
-
-/*
- * Main backend health check.
- */
 app.get("/api/health", (request, response) => {
   return response.status(200).json({
     success: true,
@@ -78,22 +40,9 @@ app.get("/api/health", (request, response) => {
   });
 });
 
-/*
- * Gemini AI recipe routes.
- */
 app.use("/api/ai/recipes", aiRecipeRoutes);
-
-/*
- * Pexels image search routes.
- */
 app.use("/api/images", imageRoutes);
 
-/*
- * Add a recipe to favorites.
- *
- * ingredients, instructions, and personalNote are optional so that
- * previously saved recipes continue to work.
- */
 app.post("/api/favorites", async (request, response) => {
   try {
     const {
@@ -106,43 +55,16 @@ app.post("/api/favorites", async (request, response) => {
       ingredients,
       instructions,
       personalNote,
-    } = request.body;
+    } = request.body || {};
 
     if (!userId || !recipeId || !title) {
       return response.status(400).json({
         success: false,
-        message: "User ID, recipe ID and title are required.",
+        message: "User ID, recipe ID, and title are required.",
       });
     }
 
-    const numericRecipeId = Number(recipeId);
-
-    if (!Number.isFinite(numericRecipeId)) {
-      return response.status(400).json({
-        success: false,
-        message: "Recipe ID must be a number.",
-      });
-    }
-
-    if (
-      ingredients !== undefined &&
-      !isValidArray(ingredients)
-    ) {
-      return response.status(400).json({
-        success: false,
-        message: "Ingredients must be an array.",
-      });
-    }
-
-    if (
-      instructions !== undefined &&
-      !isValidArray(instructions)
-    ) {
-      return response.status(400).json({
-        success: false,
-        message: "Instructions must be an array.",
-      });
-    }
+    const safeRecipeId = String(recipeId);
 
     const existingFavorite = await db
       .select()
@@ -150,7 +72,7 @@ app.post("/api/favorites", async (request, response) => {
       .where(
         and(
           eq(favoritesTable.userId, userId),
-          eq(favoritesTable.recipeId, numericRecipeId)
+          eq(favoritesTable.recipeId, safeRecipeId)
         )
       );
 
@@ -166,7 +88,7 @@ app.post("/api/favorites", async (request, response) => {
       .insert(favoritesTable)
       .values({
         userId,
-        recipeId: numericRecipeId,
+        recipeId: safeRecipeId,
         title,
         image: image || null,
         cookTime: cookTime || null,
@@ -174,14 +96,9 @@ app.post("/api/favorites", async (request, response) => {
           servings !== undefined && servings !== null
             ? String(servings)
             : null,
-        ingredients: isValidArray(ingredients)
-          ? ingredients
-          : [],
-        instructions: isValidArray(instructions)
-          ? instructions
-          : [],
-        personalNote: personalNote?.trim() || null,
-        updatedAt: new Date(),
+        ingredients: Array.isArray(ingredients) ? ingredients : [],
+        instructions: Array.isArray(instructions) ? instructions : [],
+        personalNote: personalNote || null,
       })
       .returning();
 
@@ -196,7 +113,6 @@ app.post("/api/favorites", async (request, response) => {
     return response.status(500).json({
       success: false,
       message: "The recipe could not be added to favorites.",
-
       ...(ENV.NODE_ENV !== "production" && {
         developerMessage: error.message,
       }),
@@ -204,19 +120,9 @@ app.post("/api/favorites", async (request, response) => {
   }
 });
 
-/*
- * Get all favorites for one user.
- */
 app.get("/api/favorites/:userId", async (request, response) => {
   try {
     const { userId } = request.params;
-
-    if (!userId) {
-      return response.status(400).json({
-        success: false,
-        message: "User ID is required.",
-      });
-    }
 
     const userFavorites = await db
       .select()
@@ -230,7 +136,6 @@ app.get("/api/favorites/:userId", async (request, response) => {
     return response.status(500).json({
       success: false,
       message: "Favorites could not be loaded.",
-
       ...(ENV.NODE_ENV !== "production" && {
         developerMessage: error.message,
       }),
@@ -238,67 +143,11 @@ app.get("/api/favorites/:userId", async (request, response) => {
   }
 });
 
-/*
- * Get one saved favorite by its database record ID.
- */
-app.get(
-  "/api/favorites/:userId/record/:favoriteId",
-  async (request, response) => {
-    try {
-      const { userId, favoriteId } = request.params;
-      const numericFavoriteId = Number(favoriteId);
-
-      if (!userId || !Number.isFinite(numericFavoriteId)) {
-        return response.status(400).json({
-          success: false,
-          message: "A valid user ID and favorite ID are required.",
-        });
-      }
-
-      const favorite = await getFavoriteById(
-        userId,
-        numericFavoriteId
-      );
-
-      if (!favorite) {
-        return response.status(404).json({
-          success: false,
-          message: "Saved recipe not found.",
-        });
-      }
-
-      return response.status(200).json({
-        success: true,
-        favorite,
-      });
-    } catch (error) {
-      console.error("Error fetching saved favorite:", error);
-
-      return response.status(500).json({
-        success: false,
-        message: "The saved recipe could not be loaded.",
-
-        ...(ENV.NODE_ENV !== "production" && {
-          developerMessage: error.message,
-        }),
-      });
-    }
-  }
-);
-
-/*
- * Update a saved favorite recipe.
- *
- * A user can customize title, ingredients, instructions,
- * cook time, servings, and a personal note.
- */
 app.put(
-  "/api/favorites/:userId/record/:favoriteId",
+  "/api/favorites/:userId/:recipeId",
   async (request, response) => {
     try {
-      const { userId, favoriteId } = request.params;
-      const numericFavoriteId = Number(favoriteId);
-
+      const { userId, recipeId } = request.params;
       const {
         title,
         image,
@@ -307,106 +156,69 @@ app.put(
         ingredients,
         instructions,
         personalNote,
-      } = request.body;
+      } = request.body || {};
 
-      if (!userId || !Number.isFinite(numericFavoriteId)) {
-        return response.status(400).json({
-          success: false,
-          message: "A valid user ID and favorite ID are required.",
-        });
-      }
-
-      if (
-        ingredients !== undefined &&
-        !isValidArray(ingredients)
-      ) {
-        return response.status(400).json({
-          success: false,
-          message: "Ingredients must be an array.",
-        });
-      }
-
-      if (
-        instructions !== undefined &&
-        !isValidArray(instructions)
-      ) {
-        return response.status(400).json({
-          success: false,
-          message: "Instructions must be an array.",
-        });
-      }
-
-      const existingFavorite = await getFavoriteById(
-        userId,
-        numericFavoriteId
-      );
-
-      if (!existingFavorite) {
-        return response.status(404).json({
-          success: false,
-          message: "Saved recipe not found.",
-        });
-      }
-
-      const updateData = {
+      const updates = {
         updatedAt: new Date(),
       };
 
       if (typeof title === "string" && title.trim()) {
-        updateData.title = title.trim();
+        updates.title = title.trim();
       }
 
       if (image !== undefined) {
-        updateData.image = image || null;
+        updates.image = image || null;
       }
 
       if (cookTime !== undefined) {
-        updateData.cookTime = cookTime || null;
+        updates.cookTime = cookTime || null;
       }
 
       if (servings !== undefined && servings !== null) {
-        updateData.servings = String(servings);
+        updates.servings = String(servings);
       }
 
-      if (isValidArray(ingredients)) {
-        updateData.ingredients = ingredients;
+      if (Array.isArray(ingredients)) {
+        updates.ingredients = ingredients;
       }
 
-      if (isValidArray(instructions)) {
-        updateData.instructions = instructions;
+      if (Array.isArray(instructions)) {
+        updates.instructions = instructions;
       }
 
       if (personalNote !== undefined) {
-        updateData.personalNote =
-          typeof personalNote === "string" &&
-          personalNote.trim()
-            ? personalNote.trim()
-            : null;
+        updates.personalNote = personalNote || null;
       }
 
       const updatedFavorite = await db
         .update(favoritesTable)
-        .set(updateData)
+        .set(updates)
         .where(
           and(
-            eq(favoritesTable.id, numericFavoriteId),
-            eq(favoritesTable.userId, userId)
+            eq(favoritesTable.userId, userId),
+            eq(favoritesTable.recipeId, String(recipeId))
           )
         )
         .returning();
 
+      if (updatedFavorite.length === 0) {
+        return response.status(404).json({
+          success: false,
+          message: "Favorite recipe not found.",
+        });
+      }
+
       return response.status(200).json({
         success: true,
-        message: "Saved recipe updated.",
+        message: "Favorite recipe updated.",
         favorite: updatedFavorite[0],
       });
     } catch (error) {
-      console.error("Error updating saved favorite:", error);
+      console.error("Error updating favorite:", error);
 
       return response.status(500).json({
         success: false,
-        message: "The saved recipe could not be updated.",
-
+        message: "The favorite recipe could not be updated.",
         ...(ENV.NODE_ENV !== "production" && {
           developerMessage: error.message,
         }),
@@ -415,30 +227,18 @@ app.put(
   }
 );
 
-/*
- * Delete a favorite by database record ID.
- * Used by the Favorites page.
- */
 app.delete(
-  "/api/favorites/:userId/record/:favoriteId",
+  "/api/favorites/:userId/:recipeId",
   async (request, response) => {
     try {
-      const { userId, favoriteId } = request.params;
-      const numericFavoriteId = Number(favoriteId);
-
-      if (!userId || !Number.isFinite(numericFavoriteId)) {
-        return response.status(400).json({
-          success: false,
-          message: "A valid user ID and favorite ID are required.",
-        });
-      }
+      const { userId, recipeId } = request.params;
 
       const deletedFavorite = await db
         .delete(favoritesTable)
         .where(
           and(
-            eq(favoritesTable.id, numericFavoriteId),
-            eq(favoritesTable.userId, userId)
+            eq(favoritesTable.userId, userId),
+            eq(favoritesTable.recipeId, String(recipeId))
           )
         )
         .returning();
@@ -446,55 +246,9 @@ app.delete(
       if (deletedFavorite.length === 0) {
         return response.status(404).json({
           success: false,
-          message: "Saved recipe not found.",
+          message: "Favorite recipe not found.",
         });
       }
-
-      return response.status(200).json({
-        success: true,
-        message: "Saved recipe deleted.",
-      });
-    } catch (error) {
-      console.error("Error deleting saved favorite:", error);
-
-      return response.status(500).json({
-        success: false,
-        message: "The saved recipe could not be deleted.",
-
-        ...(ENV.NODE_ENV !== "production" && {
-          developerMessage: error.message,
-        }),
-      });
-    }
-  }
-);
-
-/*
- * Remove a favorite by original recipe ID.
- * This keeps the existing recipe-detail Save button working.
- */
-app.delete(
-  "/api/favorites/:userId/:recipeId",
-  async (request, response) => {
-    try {
-      const { userId, recipeId } = request.params;
-      const numericRecipeId = Number(recipeId);
-
-      if (!userId || !Number.isFinite(numericRecipeId)) {
-        return response.status(400).json({
-          success: false,
-          message: "A valid user ID and recipe ID are required.",
-        });
-      }
-
-      await db
-        .delete(favoritesTable)
-        .where(
-          and(
-            eq(favoritesTable.userId, userId),
-            eq(favoritesTable.recipeId, numericRecipeId)
-          )
-        );
 
       return response.status(200).json({
         success: true,
@@ -505,8 +259,7 @@ app.delete(
 
       return response.status(500).json({
         success: false,
-        message: "The recipe could not be removed.",
-
+        message: "The recipe could not be removed from favorites.",
         ...(ENV.NODE_ENV !== "production" && {
           developerMessage: error.message,
         }),
@@ -515,9 +268,6 @@ app.delete(
   }
 );
 
-/*
- * Handle unknown routes.
- */
 app.use((request, response) => {
   return response.status(404).json({
     success: false,
@@ -525,9 +275,6 @@ app.use((request, response) => {
   });
 });
 
-/*
- * Handle unexpected server errors.
- */
 app.use((error, request, response, next) => {
   console.error("Unhandled server error:", error);
 
@@ -541,24 +288,15 @@ app.use((error, request, response, next) => {
   });
 });
 
-/*
- * Start the API server.
- */
 const server = app.listen(PORT, "0.0.0.0", () => {
-  console.log(
-    `Recipe API is running at http://localhost:${PORT}`
-  );
-
+  console.log(`Recipe API is running at http://localhost:${PORT}`);
   console.log("AI provider: Google Gemini");
-
   console.log(`AI model: ${ENV.GEMINI_MODEL}`);
-
   console.log(
     `AI recipe service configured: ${
       ENV.GEMINI_API_KEY ? "yes" : "no"
     }`
   );
-
   console.log(
     `Pexels image service configured: ${
       ENV.PEXELS_API_KEY ? "yes" : "no"
@@ -575,21 +313,4 @@ server.on("error", (error) => {
   }
 
   console.error("Server failed to start:", error);
-});
-
-const shutdownServer = (signal) => {
-  console.log(`Received ${signal}. Closing server...`);
-
-  server.close(() => {
-    console.log("Server closed successfully.");
-    process.exit(0);
-  });
-};
-
-process.on("SIGINT", () => {
-  shutdownServer("SIGINT");
-});
-
-process.on("SIGTERM", () => {
-  shutdownServer("SIGTERM");
 });

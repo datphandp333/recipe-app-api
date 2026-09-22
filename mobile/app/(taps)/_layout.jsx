@@ -1,57 +1,125 @@
-import { useAuth } from "@clerk/expo";
-import { Redirect, Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { COLORS } from "../../constants/colors";
+import { Tabs } from "expo-router";
+import { StyleSheet, View } from "react-native";
 
-const TabsLayout = () => {
-  const { isSignedIn, isLoaded } = useAuth();
+const COLORS = {
+  cream: "#FFF8F0",
+  white: "#FFFFFF",
+  green: "#245B4B",
+  sage: "#DDEDE5",
+  coral: "#E76F51",
+  muted: "#74807B",
+  border: "#E8DED1",
+};
 
-  if (!isLoaded) return null;
+const TAB_ICONS = {
+  index: {
+    active: "restaurant",
+    inactive: "restaurant-outline",
+  },
+  search: {
+    active: "search",
+    inactive: "search-outline",
+  },
+  favorites: {
+    active: "heart",
+    inactive: "heart-outline",
+  },
+};
 
-  if (!isSignedIn) return <Redirect href={"/(auth)/sign-in"} />;
-
+export default function TabsLayout() {
   return (
     <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: COLORS.primary,
-        tabBarInactiveTintColor: COLORS.textLight,
-        tabBarStyle: {
-          backgroundColor: COLORS.white,
-          borderTopColor: COLORS.border,
-          borderTopWidth: 1,
-          paddingBottom: 8,
-          paddingTop: 8,
-          height: 80,
-        },
-        tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: "600",
-        },
+      screenOptions={({ route }) => {
+        const icons =
+          TAB_ICONS[route.name] || TAB_ICONS.index;
+
+        return {
+          headerShown: false,
+          tabBarActiveTintColor: COLORS.green,
+          tabBarInactiveTintColor: COLORS.muted,
+          tabBarStyle: styles.tabBar,
+          tabBarItemStyle: styles.tabItem,
+          tabBarLabelStyle: styles.tabLabel,
+          tabBarIcon: ({ focused, color }) => (
+            <View
+              style={[
+                styles.iconContainer,
+                focused && styles.activeIconContainer,
+              ]}
+            >
+              <Ionicons
+                name={
+                  focused
+                    ? icons.active
+                    : icons.inactive
+                }
+                size={21}
+                color={
+                  focused
+                    ? COLORS.green
+                    : color
+                }
+              />
+            </View>
+          ),
+        };
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
           title: "Recipes",
-          tabBarIcon: ({ color, size }) => <Ionicons name="restaurant" size={size} color={color} />,
         }}
       />
+
       <Tabs.Screen
         name="search"
         options={{
           title: "Search",
-          tabBarIcon: ({ color, size }) => <Ionicons name="search" size={size} color={color} />,
         }}
       />
+
       <Tabs.Screen
         name="favorites"
         options={{
           title: "Favorites",
-          tabBarIcon: ({ color, size }) => <Ionicons name="heart" size={size} color={color} />,
         }}
       />
     </Tabs>
   );
-};
-export default TabsLayout;
+}
+
+const styles = StyleSheet.create({
+  tabBar: {
+    backgroundColor: COLORS.white,
+    borderTopColor: COLORS.border,
+    borderTopWidth: 1,
+    height: 76,
+    paddingTop: 8,
+    paddingBottom: 10,
+    boxShadow: "0 -3px 12px rgba(36, 91, 75, 0.08)",
+  },
+
+  tabItem: {
+    paddingTop: 1,
+  },
+
+  tabLabel: {
+    fontSize: 12,
+    fontWeight: "800",
+    marginTop: 2,
+  },
+
+  iconContainer: {
+    alignItems: "center",
+    borderRadius: 18,
+    height: 32,
+    justifyContent: "center",
+    width: 44,
+  },
+
+  activeIconContainer: {
+    backgroundColor: COLORS.sage,
+  },
+});
