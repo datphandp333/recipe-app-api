@@ -76,6 +76,7 @@ const FavoriteCard = ({
   favorite,
   isDeleting,
   onEdit,
+  onSecondServing,
   onDelete,
 }) => {
   return (
@@ -167,6 +168,22 @@ const FavoriteCard = ({
 
           <Text style={styles.editButtonText}>
             Edit recipe
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.secondServingButton}
+          onPress={onSecondServing}
+          activeOpacity={0.85}
+        >
+          <Ionicons
+            name="sparkles-outline"
+            size={16}
+            color={THEME.primary}
+          />
+
+          <Text style={styles.secondServingButtonText}>
+            Second serving
           </Text>
         </TouchableOpacity>
 
@@ -378,6 +395,37 @@ const FavoritesScreen = () => {
     });
   };
 
+  const handleSecondServing = (favorite) => {
+    router.push({
+      pathname: "/second-serving",
+      params: {
+        title: favorite.title || "My saved recipe",
+
+        favorite: JSON.stringify({
+          title:
+            favorite.title || "My saved recipe",
+
+          image: favorite.image || null,
+
+          cookTime: favorite.cookTime || "",
+
+          servings: favorite.servings || "",
+
+          ingredients: Array.isArray(
+            favorite.ingredients
+          )
+            ? favorite.ingredients.slice(0, 12)
+            : [],
+
+          instructions: [],
+
+          personalNote:
+            favorite.personalNote || "",
+        }),
+      },
+    });
+  };
+
   const handleSignOut = async () => {
     const signOutUser = async () => {
       try {
@@ -430,6 +478,9 @@ const FavoritesScreen = () => {
         favorite={item}
         isDeleting={isDeleting}
         onEdit={() => handleEditFavorite(item)}
+        onSecondServing={() =>
+          handleSecondServing(item)
+        }
         onDelete={() =>
           handleDeleteFavorite(item)
         }
@@ -855,6 +906,25 @@ const styles = StyleSheet.create({
 
   editButtonText: {
     color: THEME.white,
+    fontSize: 12,
+    fontWeight: "800",
+  },
+
+  secondServingButton: {
+    alignItems: "center",
+    backgroundColor: THEME.sage,
+    borderColor: "#BFDCD0",
+    borderRadius: 11,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 5,
+    justifyContent: "center",
+    marginTop: 7,
+    paddingVertical: 9,
+  },
+
+  secondServingButtonText: {
+    color: THEME.primary,
     fontSize: 12,
     fontWeight: "800",
   },

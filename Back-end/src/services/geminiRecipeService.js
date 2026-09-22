@@ -581,60 +581,6 @@ const cleanChatMessages = (messages) => {
     .slice(-16);
 };
 
-const isFinalRecipeRequest = (
-  messages
-) => {
-  const latestUserMessage = [
-    ...messages,
-  ]
-    .reverse()
-    .find(
-      (message) => message.role === "user"
-    );
-
-  if (!latestUserMessage) {
-    return false;
-  }
-
-  const userText =
-    latestUserMessage.content.toLowerCase();
-
-  const explicitFinalRecipePattern =
-    /\b(make|create|show|give|write|generate)\b[\s\S]{0,60}\b(final|complete|full)\s+\b(recipe|dish)\b/i;
-
-  const readyToCookPattern =
-    /\b(i am ready to cook|i'm ready to cook|i am ready for the recipe|i'm ready for the recipe|give me the ingredients and instructions|send me the ingredients and instructions)\b/i;
-
-  if (
-    explicitFinalRecipePattern.test(userText) ||
-    readyToCookPattern.test(userText)
-  ) {
-    return true;
-  }
-
-  const latestUserIndex =
-    messages.lastIndexOf(latestUserMessage);
-
-  const previousMessage =
-    messages[latestUserIndex - 1];
-
-  const isSimpleConfirmation =
-    /^(yes|yes please|please|sure|go ahead|do it|sounds good|let's do it)[!. ]*$/i.test(
-      latestUserMessage.content
-    );
-
-  const chefAskedForFinalRecipe =
-    previousMessage?.role === "assistant" &&
-    /\b(final|complete|full)\s+recipe\b/i.test(
-      previousMessage.content
-    );
-
-  return Boolean(
-    isSimpleConfirmation &&
-      chefAskedForFinalRecipe
-  );
-};
-
 const createChefChatPrompt = (
   messages
 ) => {
@@ -652,58 +598,32 @@ const createChefChatPrompt = (
   return `
 You are "Recipe Chef", a warm, practical cooking assistant inside a recipe app.
 
-You must behave like a real conversational cooking assistant.
-
 Your job:
-- Answer the user's cooking questions naturally and clearly.
-- Help users choose dishes, substitute ingredients, adjust flavors, scale servings, and solve cooking problems.
-- Remember information the user already provided earlier in this conversation.
-- Ask one helpful follow-up question when more information would improve the dish.
-- Give food-safety guidance when relevant.
-- Never claim an allergy-safe recipe is guaranteed.
+- Answer cooking questions clearly and briefly.
+- Help users choose dishes, substitute ingredients, adjust flavors, and solve cooking problems.
+- Ask one helpful follow-up question if required information is missing.
+- Give food-safety guidance when it is relevant.
+- Never claim an allergy-safe recipe is guaranteed. Encourage users with severe allergies to verify ingredients.
 
-IMPORTANT CONVERSATION RULE:
-Do NOT create a complete recipe merely because the user listed ingredients or asked what they can make.
-
-Continue the conversation until the user clearly asks to create the final recipe.
-
-Only include suggestedRecipe when the latest user message explicitly asks for a final recipe, for example:
-- "Make the final recipe"
-- "Show me the final recipe"
-- "Give me the complete recipe"
-- "I am ready to cook"
-- "Create the recipe now"
-- "Write the recipe"
-- "Give me the ingredients and instructions"
-
-If the user has shared enough information but has not asked for the final recipe:
-- Give a helpful answer or dish suggestion.
-- Ask one useful question if needed.
-- Otherwise ask: "Would you like me to create the final recipe now?"
-- Set suggestedRecipe to null.
-
-For normal questions such as:
-- "Can I use shrimp instead?"
-- "How can I make it spicy?"
-- "Can I make it dairy-free?"
-- "What can I substitute for eggs?"
-
-Answer naturally and set suggestedRecipe to null.
+Recipe behavior:
+- Only include suggestedRecipe when the user asks for a complete recipe OR gives enough information to create one.
+- Otherwise, suggestedRecipe must be null.
+- When you include a recipe, make it complete and beginner friendly.
 
 Conversation:
 ${conversation}
 
-Return JSON only, exactly in this format while continuing the conversation:
+Return JSON only, exactly in this format:
 
 {
-  "reply": "Your helpful, conversational response to the user.",
+  "reply": "Your helpful response to the user.",
   "suggestedRecipe": null
 }
 
-Return JSON only in this format when the user explicitly requests the final recipe:
+If a complete recipe is appropriate, use this shape instead:
 
 {
-  "reply": "Here is your final personalized recipe. You can save it to My Cookbook if you like it.",
+  "reply": "Short message introducing the recipe.",
   "suggestedRecipe": {
     "title": "Recipe title",
     "description": "Short description",
@@ -714,7 +634,7 @@ Return JSON only in this format when the user explicitly requests the final reci
     "totalTime": 30,
     "servings": 4,
     "caloriesPerServing": 400,
-    "dietaryLabels": ["High Protein"],
+    "dietaryLabels": ["Vegetarian"],
     "ingredients": [
       {
         "name": "ingredient name",
@@ -731,6 +651,187 @@ Return JSON only in this format when the user explicitly requests the final reci
       }
     ],
     "tips": ["Useful tip."],
+    "imagePrompt": "Professional food photography of the finished dish"
+  }
+}
+`.trim();
+};
+
+const cleanSecondServingList = (
+  values,
+  maximumItems = 20
+) => {
+  if (!Array.isArray(values)) {
+    return [];
+  }
+
+  return values
+    .map((value) => {
+      if (typeof value === "string") {
+        return cleanText(value).slice(0, 160);
+      }
+
+      if (value && typeof value === "object") {
+        return cleanText(
+          value.label ||
+            value.name ||
+            value.ingredient ||
+            value.instruction
+        ).slice(0, 160);
+      }
+
+      return "";
+    })
+    .filter(Boolean)
+    .slice(0, maximumItems);
+};
+
+const cleanSecondServingFavorite = (
+  favoriteRecipe
+) => {
+  const source =
+    favoriteRecipe &&
+    typeof favoriteRecipe === "object"
+      ? favoriteRecipe
+      : {};
+
+  const title = cleanText(
+    source.title,
+    "Saved recipe"
+  ).slice(0, 160);
+
+  return {
+    title,
+
+    ingredients: cleanSecondServingList(
+      source.ingredients,
+      30
+    ),
+
+    instructions: cleanSecondServingList(
+      source.instructions,
+      20
+    ),
+
+    personalNote: cleanText(
+      source.personalNote
+    ).slice(0, 1000),
+
+    cookTime: cleanText(
+      source.cookTime
+    ).slice(0, 80),
+
+    servings: cleanText(
+      String(source.servings || "")
+    ).slice(0, 30),
+  };
+};
+
+const createSecondServingPrompt = ({
+  favoriteRecipe,
+  leftovers,
+  useSoonIngredients,
+  tasteNote,
+  servings,
+}) => {
+  const sourceIngredients =
+    favoriteRecipe.ingredients.length > 0
+      ? favoriteRecipe.ingredients.join(", ")
+      : "No ingredient list was saved.";
+
+  const sourceInstructions =
+    favoriteRecipe.instructions.length > 0
+      ? favoriteRecipe.instructions.join(" ")
+      : "No original instructions were saved.";
+
+  const leftoverList =
+    leftovers.length > 0
+      ? leftovers.join(", ")
+      : "No specific leftovers were entered.";
+
+  const useSoonList =
+    useSoonIngredients.length > 0
+      ? useSoonIngredients.join(", ")
+      : "No use-soon ingredients were entered.";
+
+  return `
+You are "Recipe Chef", a practical leftover-rescue assistant in a recipe app.
+
+Create one new meal called a "Second Serving." It should transform a saved dish and the user's leftovers into a fresh, appealing meal. Do not simply tell the user to reheat the original recipe.
+
+Saved favorite recipe:
+Title: ${favoriteRecipe.title}
+Original ingredients: ${sourceIngredients}
+Original instructions: ${sourceInstructions}
+Original cook time: ${
+    favoriteRecipe.cookTime || "Not provided"
+  }
+Original servings: ${
+    favoriteRecipe.servings || "Not provided"
+  }
+User's saved taste note: ${
+    favoriteRecipe.personalNote || "No personal note"
+  }
+
+Leftovers available now:
+${leftoverList}
+
+Ingredients that should be used soon:
+${useSoonList}
+
+Extra taste request:
+${tasteNote || "No extra request"}
+
+Requested servings:
+${servings}
+
+Rules:
+1. Make a genuinely different second meal, such as a bowl, wrap, fried rice, soup, salad, skillet, quesadilla, or bake when suitable.
+2. Prioritize leftovers and use-soon ingredients before adding optional pantry items.
+3. Respect the saved taste note and the extra taste request.
+4. Keep the recipe realistic, beginner-friendly, and practical for ${servings} servings.
+5. Use only common optional pantry staples such as oil, salt, pepper, garlic, onions, water, broth, or basic seasonings when needed.
+6. Include safe reheating guidance when using cooked leftovers. State that leftovers should be reheated until steaming hot, and meat should reach 165°F (74°C) when applicable.
+7. Do not claim food is safe if its storage history is unknown.
+8. Return JSON only.
+9. Every recipe ingredient requires a short, common imageSearchName.
+
+Return exactly this JSON shape:
+
+{
+  "reply": "A warm, short explanation of why this is a great Second Serving.",
+  "useFirst": [
+    "Ingredient or leftover to use soon"
+  ],
+  "suggestedRecipe": {
+    "title": "New meal title",
+    "description": "Short description",
+    "cuisine": "Cuisine name",
+    "difficulty": "Beginner",
+    "prepTime": 10,
+    "cookTime": 15,
+    "totalTime": 25,
+    "servings": ${servings},
+    "caloriesPerServing": 400,
+    "dietaryLabels": ["High Protein"],
+    "ingredients": [
+      {
+        "name": "cooked chicken",
+        "amount": "2 cups",
+        "preparation": "shredded",
+        "label": "2 cups cooked chicken, shredded",
+        "imageSearchName": "Chicken"
+      }
+    ],
+    "instructions": [
+      {
+        "step": 1,
+        "instruction": "Clear beginner-friendly instruction."
+      }
+    ],
+    "tips": [
+      "Useful leftover or food-safety tip."
+    ],
     "imagePrompt": "Professional food photography of the finished dish"
   }
 }
@@ -836,9 +937,6 @@ export const chatWithRecipeChef = async ({
     throw error;
   }
 
-  const shouldCreateFinalRecipe =
-    isFinalRecipeRequest(cleanedMessages);
-
   const text = await askGeminiForJson(
     createChefChatPrompt(
       cleanedMessages
@@ -856,15 +954,8 @@ export const chatWithRecipeChef = async ({
     "I’m sorry, I could not prepare a response. Please try again."
   );
 
-  /*
-   * This check is intentional: even if Gemini
-   * accidentally returns a recipe too early,
-   * the API will not send it to the mobile app.
-   */
   const rawRecipe =
-    shouldCreateFinalRecipe
-      ? parsedResponse?.suggestedRecipe
-      : null;
+    parsedResponse?.suggestedRecipe;
 
   if (
     !rawRecipe ||
@@ -906,3 +997,116 @@ export const chatWithRecipeChef = async ({
     };
   }
 };
+
+export const createSecondServingSuggestion =
+  async ({
+    favoriteRecipe = null,
+    leftovers = [],
+    useSoonIngredients = [],
+    tasteNote = "",
+    servings = 2,
+  }) => {
+    const cleanedFavoriteRecipe =
+      cleanSecondServingFavorite(
+        favoriteRecipe
+      );
+
+    const cleanedLeftovers =
+      cleanSecondServingList(leftovers);
+
+    const cleanedUseSoonIngredients =
+      cleanSecondServingList(
+        useSoonIngredients
+      );
+
+    const cleanedTasteNote = cleanText(
+      tasteNote
+    ).slice(0, 1000);
+
+    const safeServings = cleanNumber(
+      servings,
+      2,
+      1,
+      20
+    );
+
+    const hasRecipeDetails =
+      cleanedFavoriteRecipe.ingredients.length >
+        0 ||
+      cleanedFavoriteRecipe.instructions.length >
+        0;
+
+    if (
+      !hasRecipeDetails &&
+      cleanedLeftovers.length === 0 &&
+      cleanedUseSoonIngredients.length === 0
+    ) {
+      const error = new Error(
+        "Add leftovers, use-soon ingredients, or a saved recipe before creating a Second Serving."
+      );
+
+      error.status = 400;
+
+      throw error;
+    }
+
+    const text = await askGeminiForJson(
+      createSecondServingPrompt({
+        favoriteRecipe: cleanedFavoriteRecipe,
+        leftovers: cleanedLeftovers,
+        useSoonIngredients:
+          cleanedUseSoonIngredients,
+        tasteNote: cleanedTasteNote,
+        servings: safeServings,
+      }),
+      0.55
+    );
+
+    const parsedResponse = parseGeminiJson(
+      text,
+      "Gemini returned a Second Serving response that could not be read."
+    );
+
+    const reply = cleanText(
+      parsedResponse?.reply,
+      "Here is a fresh way to turn what you have into another great meal."
+    );
+
+    const useFirst = cleanSecondServingList(
+      parsedResponse?.useFirst,
+      8
+    );
+
+    const rawRecipe =
+      parsedResponse?.suggestedRecipe;
+
+    if (
+      !rawRecipe ||
+      typeof rawRecipe !== "object"
+    ) {
+      throw new Error(
+        "Gemini did not return a Second Serving recipe."
+      );
+    }
+
+    const suggestedRecipe = validateRecipe(
+      normalizeRecipe(rawRecipe, {
+        dishName: cleanText(
+          rawRecipe?.title,
+          `Second Serving: ${cleanedFavoriteRecipe.title}`
+        ),
+        cuisine: cleanText(
+          rawRecipe?.cuisine,
+          "Leftover Rescue"
+        ),
+        maximumCookingTime: 240,
+        servings: safeServings,
+      })
+    );
+
+    return {
+      reply,
+      useFirst,
+      suggestedRecipe,
+    };
+  };

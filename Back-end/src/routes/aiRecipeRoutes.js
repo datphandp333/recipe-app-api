@@ -3,6 +3,7 @@ import express from "express";
 import { ENV } from "../config/env.js";
 import {
   chatWithRecipeChef,
+  createSecondServingSuggestion,
   generateRecipeWithGemini,
 } from "../services/geminiRecipeService.js";
 
@@ -52,6 +53,111 @@ const cleanChatMessages = (value) => {
     })
     .filter(Boolean)
     .slice(-16);
+};
+
+const cleanRecipeEntries = (value) => {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((item) => {
+      if (typeof item === "string") {
+        return cleanText(item);
+      }
+
+      if (!item || typeof item !== "object") {
+        return "";
+      }
+
+      const amount = cleanText(
+        item.amount || item.measure
+      );
+
+      const name = cleanText(
+        item.name || item.label
+      );
+
+      const preparation = cleanText(
+        item.preparation
+      );
+
+      return [amount, name, preparation]
+        .filter(Boolean)
+        .join(" ");
+    })
+    .filter(Boolean)
+    .slice(0, 30)
+    .map((item) => item.slice(0, 250));
+};
+
+const cleanInstructionEntries = (value) => {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((item) => {
+      if (typeof item === "string") {
+        return cleanText(item);
+      }
+
+      if (!item || typeof item !== "object") {
+        return "";
+      }
+
+      return cleanText(
+        item.instruction || item.text
+      );
+    })
+    .filter(Boolean)
+    .slice(0, 20)
+    .map((item) => item.slice(0, 700));
+};
+
+const cleanFavoriteRecipe = (value) => {
+  if (!value || typeof value !== "object") {
+    return null;
+  }
+
+  const title = cleanText(value.title);
+
+  const ingredients = cleanRecipeEntries(
+    value.ingredients
+  );
+
+  const instructions = cleanInstructionEntries(
+    value.instructions
+  );
+
+  const personalNote = cleanText(
+    value.personalNote
+  ).slice(0, 1200);
+
+  const cookTime = cleanText(
+    value.cookTime || value.totalTime
+  ).slice(0, 100);
+
+  const servings = cleanText(
+    value.servings
+  ).slice(0, 30);
+
+  if (
+    !title &&
+    ingredients.length === 0 &&
+    instructions.length === 0
+  ) {
+    return null;
+  }
+
+  return {
+    title: title.slice(0, 160),
+    ingredients,
+    instructions,
+    personalNote,
+    cookTime,
+    servings,
+  };
 };
 
 const createSafeNumber = (
@@ -317,6 +423,100 @@ router.post(
     } catch (error) {
       console.error(
         "Gemini Recipe Chef chat error:",
+        error
+      );
+
+      const status = getErrorStatus(error);
+
+      return response.status(status).json({
+        success: false,
+        message:
+          getPublicErrorMessage(status),
+
+        ...(ENV.NODE_ENV !==
+          "production" && {
+          developerMessage:
+            error?.message ||
+            "Unknown Gemini service error.",
+        }),
+      });
+    }
+  }
+);
+
+/*
+ * POST /api/ai/recipes/second-serving
+ *
+ * Turns leftovers and soon-to-expire ingredients
+ * into a different next meal.
+ */
+router.post(
+  "/second-serving",
+  async (request, response) => {
+    try {
+      const favoriteRecipe =
+        cleanFavoriteRecipe(
+          request.body?.favoriteRecipe
+        );
+
+      const leftovers = cleanStringArray(
+        request.body?.leftovers
+      )
+        .slice(0, 20)
+        .map((item) => item.slice(0, 160));
+
+      const useSoonIngredients =
+        cleanStringArray(
+          request.body?.useSoonIngredients
+        )
+          .slice(0, 20)
+          .map((item) => item.slice(0, 160));
+
+      const tasteNote = cleanText(
+        request.body?.tasteNote
+      ).slice(0, 1200);
+
+      const servings = createSafeNumber(
+        request.body?.servings ||
+          favoriteRecipe?.servings,
+        2,
+        1,
+        20
+      );
+
+      if (
+        !favoriteRecipe &&
+        leftovers.length === 0 &&
+        useSoonIngredients.length === 0
+      ) {
+        return response.status(400).json({
+          success: false,
+          message:
+            "Add a saved recipe, leftovers, or ingredients to use soon.",
+        });
+      }
+
+      const result =
+        await createSecondServingSuggestion({
+          favoriteRecipe,
+          leftovers,
+          useSoonIngredients,
+          tasteNote,
+          servings,
+        });
+
+      return response.status(200).json({
+        success: true,
+        message:
+          "Your Second Serving idea is ready.",
+        reply: result.reply,
+        useFirst: result.useFirst,
+        suggestedRecipe:
+          result.suggestedRecipe,
+      });
+    } catch (error) {
+      console.error(
+        "Second Serving generation error:",
         error
       );
 

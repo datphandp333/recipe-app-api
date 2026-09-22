@@ -10,9 +10,6 @@ const COLORS = {
   green: "#245B4B",
   sage: "#DDEDE5",
   coral: "#E76F51",
-  text: "#20302A",
-  muted: "#66736D",
-  white: "#FFFFFF",
   border: "#E8DED1",
 };
 
