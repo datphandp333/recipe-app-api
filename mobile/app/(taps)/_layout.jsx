@@ -13,6 +13,10 @@ const COLORS = {
 };
 
 const TAB_ICONS = {
+  pantry: {
+    active: "basket",
+    inactive: "basket-outline",
+  },
   index: {
     active: "restaurant",
     inactive: "restaurant-outline",
@@ -86,6 +90,7 @@ export default function TabsLayout() {
           title: "Favorites",
         }}
       />
+      <Tabs.Screen name="pantry" options={{ title: "Pantry" }} />
     </Tabs>
   );
 }

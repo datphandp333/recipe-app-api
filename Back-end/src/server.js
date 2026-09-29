@@ -8,6 +8,7 @@ import { favoritesTable } from "./db/schema.js";
 import job from "./config/cron.js";
 import aiRecipeRoutes from "./routes/aiRecipeRoutes.js";
 import imageRoutes from "./routes/imageRoutes.js";
+import { createPantryRouter } from "./routes/pantryRoutes.js";
 
 const app = express();
 const PORT = ENV.PORT || 5001;
@@ -42,6 +43,7 @@ app.get("/api/health", (request, response) => {
 
 app.use("/api/ai/recipes", aiRecipeRoutes);
 app.use("/api/images", imageRoutes);
+app.use("/api/pantry", createPantryRouter({ db }));
 
 app.post("/api/favorites", async (request, response) => {
   try {

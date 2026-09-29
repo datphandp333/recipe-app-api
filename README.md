@@ -8,7 +8,10 @@ This app allows users to browse recipes, search recipes, view recipe details, wa
 
 ## Features
 
+Pantry setup and validation instructions: [Back-end/PANTRY.md](Back-end/PANTRY.md).
+
 - User authentication with Clerk
+- Pantry inventory with quantities, expiry dates, and account-specific storage
 - Browse recipes by category
 - Search for recipes
 - View detailed recipe information

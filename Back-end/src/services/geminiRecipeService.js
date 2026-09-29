@@ -57,12 +57,13 @@ const extractGeminiText = (data) => {
   }
 
   return parts
+    .filter((part) => !part?.thought && typeof part?.text === "string")
     .map((part) => part?.text || "")
     .join("")
     .trim();
 };
 
-const parseGeminiJson = (
+export const parseGeminiJson = (
   text,
   errorMessage = "Gemini returned invalid JSON."
 ) => {
@@ -233,6 +234,7 @@ const createGeminiError = (
   const error = new Error(apiMessage);
 
   error.status = response.status;
+  error.code = "GEMINI_UPSTREAM_ERROR";
 
   return error;
 };
@@ -252,9 +254,11 @@ const getGeminiEndpoint = () => {
   );
 };
 
-const askGeminiForJson = async (
+export const askGeminiForJson = async (
   prompt,
-  temperature = 0.7
+  temperature = 0.7,
+  signal,
+  outputOptions = {}
 ) => {
   if (!ENV.GEMINI_API_KEY) {
     const error = new Error(
@@ -262,6 +266,7 @@ const askGeminiForJson = async (
     );
 
     error.status = 503;
+    error.code = "GEMINI_NOT_CONFIGURED";
 
     throw error;
   }
@@ -270,6 +275,7 @@ const askGeminiForJson = async (
     getGeminiEndpoint(),
     {
       method: "POST",
+      signal,
 
       headers: {
         "Content-Type":
@@ -289,6 +295,7 @@ const askGeminiForJson = async (
         ],
 
         generationConfig: {
+          ...outputOptions,
           temperature,
           topP: 0.9,
           responseMimeType:
@@ -307,6 +314,14 @@ const askGeminiForJson = async (
       response,
       data
     );
+  }
+
+  const finishReason = data?.candidates?.[0]?.finishReason;
+  if (finishReason === "MAX_TOKENS") {
+    const error = new Error("The recipe response was cut short. Please try again.");
+    error.status = 502;
+    error.code = "GEMINI_TRUNCATED";
+    throw error;
   }
 
   const text = extractGeminiText(data);
