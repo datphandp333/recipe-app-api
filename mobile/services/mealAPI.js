@@ -1,4 +1,5 @@
 import { Platform } from "react-native";
+import { createRecipeCatalog, favoritePayload } from "./recipeCatalog";
 
 const MEAL_DB_BASE_URL =
   "https://www.themealdb.com/api/json/v1/1";
@@ -25,18 +26,24 @@ const nativeBackendUrl =
 
 const BACKEND_URL =
   Platform.OS === "web"
-    ? "http://localhost:5001"
+    ? configuredBackendUrl || "http://localhost:5001"
     : nativeBackendUrl;
 
 const fetchJson = async (
   url,
   options = {}
 ) => {
-  const response = await fetch(url, options);
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), url.includes("/api/ai/") ? 90000 : 15000);
+  let response;
+  let data;
+  try {
+    response = await fetch(url, { ...options, signal: options.signal || controller.signal });
+    data = await response.json().catch(() => null);
+  } finally {
+    clearTimeout(timeout);
+  }
 
-  const data = await response
-    .json()
-    .catch(() => null);
 
   if (!response.ok) {
     const error = new Error(
@@ -153,8 +160,8 @@ const transformMealData = (meal) => {
       `${meal.strArea || "International"} ${
         meal.strCategory || "recipe"
       }`,
-    cookTime: "30 min",
-    servings: "4",
+    cookTime: null,
+    servings: null,
     source: meal.strSource || null,
     youtube: meal.strYoutube || null,
     ingredients: extractIngredients(meal),
@@ -516,7 +523,7 @@ const generateAiRecipe = async ({
   return addDishPhotoToRecipe(data.recipe);
 };
 
-const chatWithRecipeChef = async (messages) => {
+const chatWithRecipeChef = async (messages, { finalize = false } = {}) => {
   if (
     !Array.isArray(messages) ||
     messages.length === 0
@@ -534,6 +541,7 @@ const chatWithRecipeChef = async (messages) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
+        finalize,
         messages: messages
           .map((message) => ({
             role:
@@ -545,8 +553,7 @@ const chatWithRecipeChef = async (messages) => {
                 message?.content || ""
               ).trim(),
           }))
-          .filter((message) => message.content)
-          .slice(-16),
+          .filter((message) => message.content),
       }),
     }
   );
@@ -555,6 +562,9 @@ const chatWithRecipeChef = async (messages) => {
     reply:
       data?.reply ||
       "I’m sorry, I could not prepare a response.",
+    suggestedReplies: Array.isArray(data?.suggestedReplies)
+      ? data.suggestedReplies.filter((item) => typeof item === "string").slice(0, 3)
+      : [],
     suggestedRecipe:
       data?.suggestedRecipe
         ? await addDishPhotoToRecipe(
@@ -564,7 +574,41 @@ const chatWithRecipeChef = async (messages) => {
   };
 };
 
+const filterByArea = async (area) => {
+  const data = await fetchJson(`${MEAL_DB_BASE_URL}/filter.php?a=${encodeURIComponent(area)}`);
+  return Array.isArray(data?.meals) ? data.meals : [];
+};
+
+const recipeCatalog = createRecipeCatalog({
+  searchMeals: searchMealsByName,
+  filterByArea,
+  getMeal: getMealById,
+  transformMeal: transformMealData,
+});
+
+const getFavorites = async (userId) => {
+  const data = await fetchJson(`${BACKEND_URL}/api/favorites/${encodeURIComponent(userId)}`);
+  if (!Array.isArray(data)) throw new Error("Your cookbook could not be loaded.");
+  return data;
+};
+
+const saveRecipeToFavorites = async ({ userId, recipe }) => fetchJson(`${BACKEND_URL}/api/favorites`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(favoritePayload(recipe, userId)),
+});
+
+const removeRecipeFromFavorites = async (userId, recipeId) => fetchJson(
+  `${BACKEND_URL}/api/favorites/${encodeURIComponent(userId)}/${encodeURIComponent(recipeId)}`,
+  { method: "DELETE" }
+);
+
 export const MealAPI = {
+  getHomeCollection: recipeCatalog.getCollection,
+  getRecipeById: recipeCatalog.getRecipe,
+  getFavorites,
+  saveRecipeToFavorites,
+  removeRecipeFromFavorites,
   getCategories,
   getRandomMeal,
   getRandomMeals,

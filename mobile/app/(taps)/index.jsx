@@ -1,1388 +1,375 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  Alert,
-  FlatList,
-  Platform,
-  RefreshControl,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+  ActivityIndicator, Alert, FlatList, Modal, Platform, Pressable,
+  RefreshControl, ScrollView, StyleSheet, Text, TextInput, View,
 } from "react-native";
-import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useFocusEffect, useRouter } from "expo-router";
 import { useClerk, useUser } from "@clerk/expo";
 import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 
 import { MealAPI } from "../../services/mealAPI";
-import LoadingSpinner from "../../components/LoadingSpinner";
+import {
+  COUNTRIES, CURATED_RECIPES, FEATURED_COUNTRIES, searchCountries, searchRecipes,
+} from "../../services/recipeCatalog";
+import { recipeImageSource } from "../../data/curatedImages";
 
-const THEME = {
-  background: "#FFF8F0",
-  surface: "#FFFFFF",
-  primary: "#245B4B",
-  primaryDark: "#173E33",
-  coral: "#E76F51",
-  coralDark: "#C9563B",
-  saffron: "#F4C95D",
-  sage: "#DCECE4",
-  cream: "#FFF2D8",
-  border: "#E9E1D7",
-  ink: "#20302A",
-  muted: "#77817C",
-  softText: "#9AA29F",
-  white: "#FFFFFF",
-  danger: "#D64B43",
+const C = {
+  background: "#FFF8F0", surface: "#FFFFFF", green: "#245B4B", dark: "#173E33",
+  coral: "#B94C34", yellow: "#F4C95D", sage: "#DCECE4", cream: "#FFF2D8",
+  line: "#E9E1D7", ink: "#20302A", muted: "#65736B",
 };
+const notice = (title, message) => Platform.OS === "web"
+  ? window.alert(`${title}\n\n${message}`) : Alert.alert(title, message);
 
-const CATEGORY_ICONS = {
-  Beef: "flame-outline",
-  Chicken: "restaurant-outline",
-  Dessert: "ice-cream-outline",
-  Lamb: "restaurant-outline",
-  Miscellaneous: "grid-outline",
-  Pasta: "nutrition-outline",
-  Pork: "pizza-outline",
-  Seafood: "fish-outline",
-  Side: "leaf-outline",
-  Starter: "cafe-outline",
-  Vegan: "leaf-outline",
-  Vegetarian: "leaf-outline",
-  Breakfast: "sunny-outline",
-  Goat: "restaurant-outline",
-};
-
-const getGreeting = () => {
-  const hour = new Date().getHours();
-
-  if (hour < 12) {
-    return "Good morning";
-  }
-
-  if (hour < 18) {
-    return "Good afternoon";
-  }
-
-  return "Good evening";
-};
-
-const getInitials = (name) => {
-  return String(name || "Chef")
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-};
-
-const FeaturedImage = ({ recipe }) => {
-  const [showImage, setShowImage] =
-    useState(Boolean(recipe?.image));
-
-  if (!showImage) {
-    return (
-      <View style={styles.featuredImageFallback}>
-        <Ionicons
-          name="restaurant"
-          size={44}
-          color={THEME.white}
-        />
-      </View>
-    );
-  }
-
-  return (
-    <Image
-      source={{ uri: recipe.image }}
-      style={styles.featuredImage}
-      contentFit="cover"
-      transition={250}
-      onError={() => setShowImage(false)}
-    />
+function DishImage({ recipe, style }) {
+  const [failed, setFailed] = useState(false);
+  const source = recipeImageSource(recipe);
+  useEffect(() => setFailed(false), [recipe.id, recipe.image]);
+  if (!source || failed) return (
+    <View style={[style, styles.imageFallback]}>
+      <Ionicons name="restaurant-outline" size={42} color={C.green} />
+    </View>
   );
-};
+  return <Image source={source} style={style} contentFit="cover" onError={() => setFailed(true)} accessibilityLabel={recipe.title} />;
+}
 
-const RecipeTile = ({ recipe, onPress }) => {
-  const [showImage, setShowImage] =
-    useState(Boolean(recipe?.image));
-
+function RecipeTile({ recipe, saved, saving, onOpen, onSave }) {
   return (
-    <TouchableOpacity
-      style={styles.recipeTile}
-      onPress={onPress}
-      activeOpacity={0.9}
-    >
-      <View style={styles.recipeImageContainer}>
-        {showImage ? (
-          <Image
-            source={{ uri: recipe.image }}
-            style={styles.recipeImage}
-            contentFit="cover"
-            transition={180}
-            onError={() => setShowImage(false)}
-          />
-        ) : (
-          <View style={styles.recipeImageFallback}>
-            <Ionicons
-              name="restaurant-outline"
-              size={28}
-              color={THEME.primary}
-            />
+    <View style={styles.tile}>
+      <Pressable onPress={onOpen} accessibilityRole="button" accessibilityLabel={`View ${recipe.title}`}>
+        <DishImage recipe={recipe} style={styles.tileImage} />
+        <View style={styles.tileBody}>
+          <Text style={styles.countryLabel}>{recipe.country || recipe.area}</Text>
+          <Text style={styles.tileTitle} numberOfLines={2}>{recipe.title}</Text>
+          <View style={styles.tileMeta}>
+            <Ionicons name={recipe.cookTime ? "time-outline" : "book-outline"} size={13} color={C.muted} />
+            <Text style={styles.metaText}>{recipe.cookTime || "Explore recipe"}</Text>
           </View>
-        )}
-
-        <View style={styles.recipeHeart}>
-          <Ionicons
-            name="heart-outline"
-            size={16}
-            color={THEME.primary}
-          />
         </View>
-      </View>
-
-      <View style={styles.recipeTileContent}>
-        <Text
-          style={styles.recipeTileTitle}
-          numberOfLines={2}
-        >
-          {recipe.title}
-        </Text>
-
-        <View style={styles.recipeTileMeta}>
-          <Ionicons
-            name="time-outline"
-            size={14}
-            color={THEME.coral}
-          />
-
-          <Text style={styles.recipeTileMetaText}>
-            {recipe.cookTime || "Quick meal"}
-          </Text>
-        </View>
-      </View>
-    </TouchableOpacity>
+      </Pressable>
+      <Pressable
+        style={styles.saveButton} onPress={onSave} disabled={saving}
+        accessibilityRole="button" accessibilityState={{ disabled: saving, selected: saved }}
+        accessibilityLabel={`${saved ? "Remove" : "Save"} ${recipe.title} ${saved ? "from" : "to"} cookbook`}
+      >
+        {saving ? <ActivityIndicator size="small" color={C.green} /> :
+          <Ionicons name={saved ? "heart" : "heart-outline"} size={21} color={saved ? C.coral : C.green} />}
+      </Pressable>
+    </View>
   );
-};
+}
 
-const HomeScreen = () => {
+export default function HomeScreen() {
   const router = useRouter();
-  const { signOut } = useClerk();
   const { user } = useUser();
+  const { signOut } = useClerk();
+  const [selectedCountry, setSelectedCountry] = useState("all");
+  const [query, setQuery] = useState("");
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [countryQuery, setCountryQuery] = useState("");
+  const [collection, setCollection] = useState({ countryId: "all", recipes: CURATED_RECIPES, source: "curated" });
+  const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState("");
+  const [savedIds, setSavedIds] = useState([]);
+  const [savingIds, setSavingIds] = useState([]);
+  const requests = useRef(0);
+  const saveRequests = useRef(new Set());
+  const currentUser = useRef(user?.id);
+  currentUser.current = user?.id;
 
-  const [selectedCategory, setSelectedCategory] =
-    useState("All");
-  const [allRecipes, setAllRecipes] =
-    useState([]);
-  const [recipes, setRecipes] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [featuredRecipe, setFeaturedRecipe] =
-    useState(null);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] =
-    useState(false);
+  const country = COUNTRIES.find((item) => item.id === selectedCountry);
+  const availableRecipes = collection.countryId === selectedCountry ? collection.recipes : [];
+  const visibleRecipes = useMemo(() => searchRecipes(availableRecipes, query), [availableRecipes, query]);
+  const countryResults = useMemo(() => searchCountries(countryQuery), [countryQuery]);
+  const suggestions = query.trim() ? searchCountries(query).slice(0, 5) : [];
+  const displayName = user?.firstName || user?.username || "Chef";
+  const heroRecipe = CURATED_RECIPES[0];
+  const showHero = selectedCountry === "all" && !query.trim();
 
-  const displayName = useMemo(() => {
-    return (
-      user?.firstName ||
-      user?.username ||
-      user?.primaryEmailAddress?.emailAddress
-        ?.split("@")[0] ||
-      "Chef"
-    );
-  }, [user]);
-
-  const loadData = async () => {
+  const loadCollection = useCallback(async (refresh = false) => {
+    const requestId = ++requests.current;
+    setError("");
+    setLoading(true);
+    setRefreshing(refresh);
     try {
-      setLoading(true);
-
-      const [
-        apiCategories,
-        randomMeals,
-        featuredMeal,
-      ] = await Promise.all([
-        MealAPI.getCategories(),
-        MealAPI.getRandomMeals(12),
-        MealAPI.getRandomMeal(),
-      ]);
-
-      const transformedCategories =
-        Array.isArray(apiCategories)
-          ? apiCategories
-              .map((category, index) => ({
-                id: String(index + 1),
-                name: category.strCategory,
-                image: category.strCategoryThumb,
-                description:
-                  category.strCategoryDescription,
-              }))
-              .filter((category) => category.name)
-          : [];
-
-      const transformedMeals =
-        Array.isArray(randomMeals)
-          ? randomMeals
-              .map((meal) =>
-                MealAPI.transformMealData(meal)
-              )
-              .filter(Boolean)
-          : [];
-
-      setCategories(transformedCategories);
-      setAllRecipes(transformedMeals);
-
-      if (selectedCategory === "All") {
-        setRecipes(transformedMeals);
-      }
-
-      setFeaturedRecipe(
-        featuredMeal
-          ? MealAPI.transformMealData(featuredMeal)
-          : null
-      );
-    } catch (error) {
-      console.error(
-        "Error loading home recipes:",
-        error
-      );
-
-      setRecipes([]);
-      setAllRecipes([]);
-
-      if (Platform.OS !== "web") {
-        Alert.alert(
-          "Could not load recipes",
-          "Pull down to try again."
-        );
-      }
+      const result = await MealAPI.getHomeCollection(selectedCountry, { refresh });
+      if (requestId === requests.current) setCollection({ countryId: selectedCountry, ...result });
+    } catch (err) {
+      if (requestId === requests.current) setError(err.message || "Recipes could not be loaded.");
     } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadCategoryData = async (category) => {
-    try {
-      if (category === "All") {
-        setRecipes(allRecipes);
-        return;
+      if (requestId === requests.current) {
+        setLoading(false);
+        setRefreshing(false);
       }
-
-      const meals =
-        await MealAPI.filterByCategory(category);
-
-      const transformedMeals =
-        Array.isArray(meals)
-          ? meals
-              .map((meal) =>
-                MealAPI.transformMealData(meal)
-              )
-              .filter(Boolean)
-          : [];
-
-      setRecipes(transformedMeals);
-    } catch (error) {
-      console.error(
-        "Error loading category recipes:",
-        error
-      );
-
-      setRecipes([]);
     }
-  };
-
-  const handleCategorySelect = async (category) => {
-    setSelectedCategory(category);
-    await loadCategoryData(category);
-  };
-
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    await loadData();
-    setRefreshing(false);
-  };
-
-  const handleSignOut = async () => {
-    const signOutUser = async () => {
-      try {
-        await signOut();
-        router.replace("/(auth)/sign-in");
-      } catch (error) {
-        console.error("Sign out error:", error);
-
-        if (Platform.OS !== "web") {
-          Alert.alert(
-            "Could not sign out",
-            "Please try again."
-          );
-        }
-      }
-    };
-
-    if (Platform.OS === "web") {
-      const confirmed = window.confirm(
-        "Do you want to sign out of Recipe App?"
-      );
-
-      if (confirmed) {
-        await signOutUser();
-      }
-
-      return;
-    }
-
-    Alert.alert(
-      "Sign out?",
-      "You can sign back in anytime to access your cookbook.",
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Sign out",
-          style: "destructive",
-          onPress: signOutUser,
-        },
-      ]
-    );
-  };
+  }, [selectedCountry]);
 
   useEffect(() => {
-    loadData();
-  }, []);
+    loadCollection();
+    return () => { requests.current += 1; };
+  }, [loadCollection]);
 
-  if (loading && !refreshing) {
-    return (
-      <LoadingSpinner message="Setting your table..." />
-    );
-  }
+  useFocusEffect(useCallback(() => {
+    let active = true;
+    setSavedIds([]);
+    if (user?.id) MealAPI.getFavorites(user.id).then((favorites) => {
+      if (active) setSavedIds(favorites.map((favorite) => String(favorite.recipeId)));
+    }).catch(() => { /* Recipe browsing remains available if the cookbook is offline. */ });
+    return () => { active = false; };
+  }, [user?.id]));
+
+  const selectCountry = (id) => {
+    // Invalidate in-flight work immediately, before the effect for this selection runs.
+    if (id !== selectedCountry) requests.current += 1;
+    setSelectedCountry(id);
+    setError("");
+    setQuery("");
+    setPickerOpen(false);
+  };
+  const openRecipe = (recipe) => router.push({ pathname: "/recipe/[id]", params: { id: recipe.id } });
+  const openChef = () => router.push({ pathname: "/ai-recipe", params: {
+    prompt: country
+      ? `I'd like to explore ${country.dish} from ${country.name}. Help me choose a version that works with my ingredients and preferences.`
+      : query.trim() ? `I'd like to cook something with ${query.trim()}. Can we explore some options?` : "",
+  } });
+
+  const toggleSave = async (recipe) => {
+    if (!user?.id) return notice("Sign in required", "Sign in to save recipes to your cookbook.");
+    const id = String(recipe.id);
+    if (saveRequests.current.has(id)) return;
+    const userId = user.id;
+    const isSaved = savedIds.includes(id);
+    saveRequests.current.add(id);
+    setSavingIds((ids) => [...ids, id]);
+    try {
+      if (isSaved) await MealAPI.removeRecipeFromFavorites(userId, id);
+      else await MealAPI.saveRecipeToFavorites({ userId, recipe });
+      if (currentUser.current === userId) setSavedIds((ids) => isSaved
+        ? ids.filter((savedId) => savedId !== id) : [...new Set([...ids, id])]);
+    } catch (err) {
+      notice("Could not update cookbook", err.message || "Please try again.");
+    } finally {
+      saveRequests.current.delete(id);
+      setSavingIds((ids) => ids.filter((savedId) => savedId !== id));
+    }
+  };
+
+  const handleSignOut = () => {
+    const perform = async () => {
+      try { await signOut(); router.replace("/(auth)/sign-in"); }
+      catch { notice("Could not sign out", "Please try again."); }
+    };
+    if (Platform.OS === "web") {
+      if (window.confirm("Sign out of Recipe Chef?")) perform();
+    } else Alert.alert("Sign out?", "Your cookbook will be here when you return.", [
+      { text: "Cancel", style: "cancel" }, { text: "Sign out", style: "destructive", onPress: perform },
+    ]);
+  };
+
+  const chipIds = ["all", ...FEATURED_COUNTRIES,
+    ...(!FEATURED_COUNTRIES.includes(selectedCountry) && selectedCountry !== "all" ? [selectedCountry] : [])];
+  const collectionTitle = query.trim() ? "Find your next favorite" : country
+    ? `A taste of ${country.name}` : "Iconic dishes, new favorites";
+  const collectionCaption = collection.source === "cache"
+    ? "Showing previously loaded recipes. Pull down to try again."
+    : collection.source === "mealdb" && country
+      ? `More recipes to explore from ${country.name}.`
+      : "Home adaptations inspired by kitchens around the world.";
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={handleRefresh}
-              tintColor={THEME.primary}
-              colors={[THEME.primary]}
-            />
-          }
-        >
+    <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
+      <FlatList
+        data={visibleRecipes} numColumns={2} keyExtractor={(item) => String(item.id)}
+        style={styles.list} contentContainerStyle={styles.page} columnWrapperStyle={styles.recipeRow}
+        keyboardShouldPersistTaps="handled"
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => loadCollection(true)} tintColor={C.green} />}
+        renderItem={({ item }) => <RecipeTile recipe={item}
+          saved={savedIds.includes(String(item.id))} saving={savingIds.includes(String(item.id))}
+          onOpen={() => openRecipe(item)} onSave={() => toggleSave(item)} />}
+        ListHeaderComponent={<>
           <View style={styles.header}>
-            <View style={styles.greetingGroup}>
-              <Text style={styles.greeting}>
-                {getGreeting()}
+            <View style={styles.headerCopy}>
+              <Text style={styles.brand}>Recipe<Text style={styles.brandAccent}>Chef</Text></Text>
+              <Text style={styles.greeting} numberOfLines={1}>Welcome to your kitchen, {displayName}</Text>
+            </View>
+            <Pressable style={styles.headerButton} onPress={handleSignOut} accessibilityRole="button" accessibilityLabel="Sign out">
+              <Ionicons name="log-out-outline" size={21} color={C.green} />
+            </Pressable>
+          </View>
+
+          <Text style={styles.slogan}>A world of flavor.{"\n"}<Text style={styles.sloganAccent}>Made in your kitchen.</Text></Text>
+          <Text style={styles.subtitle}>Explore iconic dishes, find your next favorite, and make it yours with Recipe Chef.</Text>
+          <View style={styles.searchBox}>
+            <Ionicons name="search-outline" size={21} color={C.green} />
+            <TextInput value={query} onChangeText={setQuery} style={styles.searchInput}
+              placeholder="Search dishes, ingredients, countries…" placeholderTextColor={C.muted}
+              accessibilityLabel="Search dishes, ingredients, or countries" returnKeyType="search" autoCorrect={false} />
+            {!!query && <Pressable onPress={() => setQuery("")} style={styles.clearButton} accessibilityLabel="Clear search" accessibilityRole="button">
+              <Ionicons name="close-circle" size={20} color={C.muted} />
+            </Pressable>}
+          </View>
+          {suggestions.length > 0 && <View style={styles.suggestions}>
+            <Text style={styles.eyebrow}>EXPLORE A COUNTRY</Text>
+            {suggestions.map((item) => <Pressable key={item.id} style={styles.suggestion}
+              onPress={() => selectCountry(item.id)} accessibilityRole="button">
+              <View style={styles.grow}><Text style={styles.suggestionName}>{item.name}</Text><Text style={styles.smallText}>{item.dish}</Text></View>
+              <Ionicons name="arrow-forward" size={17} color={C.green} />
+            </Pressable>)}
+          </View>}
+
+          {showHero && <Pressable style={styles.hero} onPress={() => openRecipe(heroRecipe)} accessibilityRole="button" accessibilityLabel="View weeknight beef pho">
+            <DishImage recipe={heroRecipe} style={styles.heroImage} />
+            <LinearGradient colors={["transparent", "rgba(12,38,28,0.45)", "rgba(12,38,28,0.95)"]} style={StyleSheet.absoluteFillObject} />
+            <View style={styles.heroTop}><Text style={styles.heroBadge}>A TASTE OF VIETNAM</Text></View>
+            <View style={styles.heroContent}>
+              <Text style={styles.heroTitle}>Meet your next{"\n"}comfort bowl.</Text>
+              <Text style={styles.heroDescription}>Beef phở · Fragrant broth, rice noodles, fresh herbs.</Text>
+              <View style={styles.heroAction}><Text style={styles.heroActionText}>View recipe</Text><Ionicons name="arrow-forward" size={18} color={C.dark} /></View>
+            </View>
+          </Pressable>}
+
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Explore by country</Text>
+            <Pressable onPress={() => { setCountryQuery(""); setPickerOpen(true); }} style={styles.textButton} accessibilityRole="button">
+              <Text style={styles.textButtonLabel}>All countries</Text><Ionicons name="arrow-forward" size={16} color={C.green} />
+            </Pressable>
+          </View>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips} keyboardShouldPersistTaps="handled">
+            {chipIds.map((id) => <Pressable key={id} onPress={() => selectCountry(id)}
+              accessibilityRole="button" accessibilityState={{ selected: selectedCountry === id }}
+              style={[styles.chip, selectedCountry === id && styles.activeChip]}>
+              <Text style={[styles.chipText, selectedCountry === id && styles.activeChipText]}>
+                {id === "all" ? "Around the world" : COUNTRIES.find((item) => item.id === id)?.name}
               </Text>
-
-              <Text
-                style={styles.userName}
-                numberOfLines={1}
-              >
-                {displayName}
-              </Text>
-            </View>
-
-            <View style={styles.headerActions}>
-              <TouchableOpacity
-                style={styles.avatarButton}
-                onPress={() =>
-                  router.push("/favorites")
-                }
-                activeOpacity={0.8}
-                accessibilityLabel="Open favorites"
-              >
-                <Text style={styles.avatarText}>
-                  {getInitials(displayName)}
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.logoutButton}
-                onPress={handleSignOut}
-                activeOpacity={0.8}
-                accessibilityLabel="Sign out"
-              >
-                <Ionicons
-                  name="log-out-outline"
-                  size={21}
-                  color={THEME.primary}
-                />
-              </TouchableOpacity>
-            </View>
+            </Pressable>)}
+          </ScrollView>
+          <View style={styles.collectionHeading}>
+            <Text style={styles.sectionTitle}>{collectionTitle}</Text>
+            <Text style={styles.caption}>{collectionCaption}</Text>
           </View>
+          {loading && !refreshing && <View style={styles.loading}><ActivityIndicator color={C.green} /><Text style={styles.smallText}>Finding recipes…</Text></View>}
+          {!!error && <View style={styles.errorBox} accessibilityRole="alert">
+            <Text style={styles.errorTitle}>We couldn’t load this collection.</Text>
+            <Text style={styles.smallText}>{error}</Text>
+            <Pressable onPress={() => loadCollection(true)} accessibilityRole="button" style={styles.retry}><Text style={styles.textButtonLabel}>Try again</Text></Pressable>
+          </View>}
+        </>}
+        ListEmptyComponent={!loading && !error ? <View style={styles.empty}>
+          <Ionicons name="restaurant-outline" size={32} color={C.green} />
+          <Text style={styles.emptyTitle}>{query.trim() ? "Let’s find another idea" : "Let’s explore this together"}</Text>
+          <Text style={styles.emptyText}>{country
+            ? `We don’t have a complete recipe here yet. Ask Chef about ${country.dish}, or explore another country.`
+            : "Try another dish, ingredient, or country. Chef can help you work out what to cook."}</Text>
+          <Pressable style={styles.primaryButton} onPress={openChef} accessibilityRole="button"><Text style={styles.primaryButtonText}>Explore with Chef</Text></Pressable>
+        </View> : null}
+        ListFooterComponent={<>
+          <Pressable style={styles.chefCard} onPress={openChef} accessibilityRole="button" accessibilityLabel="Chat with Recipe Chef">
+            <View style={styles.chefIcon}><Ionicons name="sparkles" size={22} color={C.green} /></View>
+            <View style={styles.grow}><Text style={styles.chefTitle}>Make it yours with Chef.</Text><Text style={styles.chefCopy}>Have ingredients or a craving? Let’s work out dinner together.</Text><Text style={styles.chefLink}>Chat with Chef →</Text></View>
+          </Pressable>
+          <Text style={styles.footerText}>Good food. A little curiosity. Your kitchen.</Text>
+        </>}
+      />
 
-          <View style={styles.heroCard}>
-            <View style={styles.heroDecorOne} />
-            <View style={styles.heroDecorTwo} />
-
-            <View style={styles.heroIconCircle}>
-              <Ionicons
-                name="restaurant"
-                size={28}
-                color={THEME.primary}
-              />
-            </View>
-
-            <Text style={styles.heroEyebrow}>
-              MAKE SOMETHING GOOD
-            </Text>
-
-            <Text style={styles.heroTitle}>
-              What are we cooking today?
-            </Text>
-
-            <Text style={styles.heroDescription}>
-              Explore easy ideas, use your pantry,
-              or let Recipe Chef help you decide.
-            </Text>
-
-            <TouchableOpacity
-              style={styles.heroButton}
-              onPress={() => router.push("/search")}
-              activeOpacity={0.9}
-            >
-              <Ionicons
-                name="search-outline"
-                size={19}
-                color={THEME.white}
-              />
-
-              <Text style={styles.heroButtonText}>
-                Find a recipe
-              </Text>
-
-              <Ionicons
-                name="arrow-forward"
-                size={18}
-                color={THEME.white}
-              />
-            </TouchableOpacity>
+      <Modal visible={pickerOpen} animationType="slide" onRequestClose={() => setPickerOpen(false)} presentationStyle="pageSheet">
+        <SafeAreaView style={styles.safeArea}>
+          <View style={styles.pickerHeader}>
+            <View style={styles.grow}><Text style={styles.sectionTitle}>Where shall we cook?</Text><Text style={styles.caption}>{COUNTRIES.length} countries & territories to explore</Text></View>
+            <Pressable style={styles.headerButton} onPress={() => setPickerOpen(false)} accessibilityLabel="Close country picker" accessibilityRole="button"><Ionicons name="close" size={23} color={C.green} /></Pressable>
           </View>
-
-          <View style={styles.quickActionRow}>
-            <TouchableOpacity
-              style={[
-                styles.quickActionCard,
-                styles.quickActionChef,
-              ]}
-              onPress={() =>
-                router.push("/ai-recipe")
-              }
-              activeOpacity={0.9}
-            >
-              <View style={styles.quickActionIcon}>
-                <Ionicons
-                  name="sparkles"
-                  size={22}
-                  color={THEME.white}
-                />
-              </View>
-
-              <View style={styles.quickActionTextGroup}>
-                <Text style={styles.quickActionTitle}>
-                  Recipe Chef
-                </Text>
-
-                <Text style={styles.quickActionSubtitle}>
-                  Cook from your pantry
-                </Text>
-              </View>
-
-              <Ionicons
-                name="chevron-forward"
-                size={19}
-                color={THEME.white}
-              />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[
-                styles.quickActionCard,
-                styles.quickActionCookbook,
-              ]}
-              onPress={() =>
-                router.push("/favorites")
-              }
-              activeOpacity={0.9}
-            >
-              <View
-                style={[
-                  styles.quickActionIcon,
-                  styles.cookbookIcon,
-                ]}
-              >
-                <Ionicons
-                  name="heart"
-                  size={20}
-                  color={THEME.coral}
-                />
-              </View>
-
-              <View style={styles.quickActionTextGroup}>
-                <Text
-                  style={[
-                    styles.quickActionTitle,
-                    styles.cookbookTitle,
-                  ]}
-                >
-                  My Cookbook
-                </Text>
-
-                <Text
-                  style={[
-                    styles.quickActionSubtitle,
-                    styles.cookbookSubtitle,
-                  ]}
-                >
-                  Saved your way
-                </Text>
-              </View>
-            </TouchableOpacity>
+          <View style={[styles.searchBox, styles.pickerSearch]}>
+            <Ionicons name="search-outline" size={20} color={C.green} />
+            <TextInput autoFocus value={countryQuery} onChangeText={setCountryQuery} style={styles.searchInput}
+              placeholder="Find a country or dish…" placeholderTextColor={C.muted} accessibilityLabel="Find a country or dish" autoCorrect={false} />
           </View>
-
-          {featuredRecipe && (
-            <View style={styles.featuredSection}>
-              <View style={styles.sectionHeader}>
-                <View>
-                  <Text style={styles.sectionEyebrow}>
-                    COOK THIS NEXT
-                  </Text>
-
-                  <Text style={styles.sectionTitle}>
-                    Today&apos;s tasty pick
-                  </Text>
-                </View>
-
-                <TouchableOpacity
-                  style={styles.smallRefreshButton}
-                  onPress={handleRefresh}
-                  activeOpacity={0.8}
-                  accessibilityLabel="Refresh recipes"
-                >
-                  <Ionicons
-                    name="refresh-outline"
-                    size={19}
-                    color={THEME.primary}
-                  />
-                </TouchableOpacity>
-              </View>
-
-              <TouchableOpacity
-                style={styles.featuredCard}
-                onPress={() =>
-                  router.push(
-                    `/recipe/${featuredRecipe.id}`
-                  )
-                }
-                activeOpacity={0.92}
-              >
-                <FeaturedImage recipe={featuredRecipe} />
-
-                <View style={styles.featuredGradient} />
-
-                <View style={styles.featuredContent}>
-                  <View style={styles.featuredBadge}>
-                    <Ionicons
-                      name="star"
-                      size={13}
-                      color={THEME.primaryDark}
-                    />
-
-                    <Text style={styles.featuredBadgeText}>
-                      Featured today
-                    </Text>
-                  </View>
-
-                  <Text
-                    style={styles.featuredTitle}
-                    numberOfLines={2}
-                  >
-                    {featuredRecipe.title}
-                  </Text>
-
-                  <View style={styles.featuredMeta}>
-                    <View style={styles.featuredMetaItem}>
-                      <Ionicons
-                        name="time-outline"
-                        size={15}
-                        color={THEME.white}
-                      />
-
-                      <Text style={styles.featuredMetaText}>
-                        {featuredRecipe.cookTime ||
-                          "Easy meal"}
-                      </Text>
-                    </View>
-
-                    {featuredRecipe.area && (
-                      <View style={styles.featuredMetaItem}>
-                        <Ionicons
-                          name="location-outline"
-                          size={15}
-                          color={THEME.white}
-                        />
-
-                        <Text
-                          style={styles.featuredMetaText}
-                          numberOfLines={1}
-                        >
-                          {featuredRecipe.area}
-                        </Text>
-                      </View>
-                    )}
-                  </View>
-                </View>
-              </TouchableOpacity>
-            </View>
-          )}
-
-          <View style={styles.browseSection}>
-            <View style={styles.sectionHeader}>
-              <View>
-                <Text style={styles.sectionEyebrow}>
-                  EXPLORE YOUR MOOD
-                </Text>
-
-                <Text style={styles.sectionTitle}>
-                  Pick a craving
-                </Text>
-              </View>
-
-              <TouchableOpacity
-                onPress={() => router.push("/search")}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.seeAllText}>
-                  Search all
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={
-                styles.categoryScrollContent
-              }
-            >
-              <TouchableOpacity
-                style={[
-                  styles.categoryPill,
-                  selectedCategory === "All" &&
-                    styles.categoryPillSelected,
-                ]}
-                onPress={() =>
-                  handleCategorySelect("All")
-                }
-                activeOpacity={0.85}
-              >
-                <Ionicons
-                  name="apps-outline"
-                  size={17}
-                  color={
-                    selectedCategory === "All"
-                      ? THEME.white
-                      : THEME.primary
-                  }
-                />
-
-                <Text
-                  style={[
-                    styles.categoryPillText,
-                    selectedCategory === "All" &&
-                      styles.categoryPillTextSelected,
-                  ]}
-                >
-                  For you
-                </Text>
-              </TouchableOpacity>
-
-              {categories.map((category) => (
-                <TouchableOpacity
-                  key={category.id}
-                  style={[
-                    styles.categoryPill,
-                    selectedCategory ===
-                      category.name &&
-                      styles.categoryPillSelected,
-                  ]}
-                  onPress={() =>
-                    handleCategorySelect(
-                      category.name
-                    )
-                  }
-                  activeOpacity={0.85}
-                >
-                  <Ionicons
-                    name={
-                      CATEGORY_ICONS[
-                        category.name
-                      ] || "restaurant-outline"
-                    }
-                    size={17}
-                    color={
-                      selectedCategory ===
-                      category.name
-                        ? THEME.white
-                        : THEME.primary
-                    }
-                  />
-
-                  <Text
-                    style={[
-                      styles.categoryPillText,
-                      selectedCategory ===
-                        category.name &&
-                        styles.categoryPillTextSelected,
-                    ]}
-                  >
-                    {category.name}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
-
-          <View style={styles.recipeSection}>
-            <View style={styles.recipeGridHeader}>
-              <View>
-                <Text style={styles.recipeGridTitle}>
-                  {selectedCategory === "All"
-                    ? "Made for you"
-                    : selectedCategory}
-                </Text>
-
-                <Text style={styles.recipeGridSubtitle}>
-                  {recipes.length} ideas to try today
-                </Text>
-              </View>
-
-              <TouchableOpacity
-                style={styles.gridButton}
-                onPress={() => router.push("/search")}
-                activeOpacity={0.8}
-              >
-                <Ionicons
-                  name="grid-outline"
-                  size={19}
-                  color={THEME.primary}
-                />
-              </TouchableOpacity>
-            </View>
-
-            {recipes.length > 0 ? (
-              <FlatList
-                data={recipes}
-                renderItem={({ item }) => (
-                  <RecipeTile
-                    recipe={item}
-                    onPress={() =>
-                      router.push(
-                        `/recipe/${item.id}`
-                      )
-                    }
-                  />
-                )}
-                keyExtractor={(item) =>
-                  String(item.id)
-                }
-                numColumns={2}
-                columnWrapperStyle={styles.recipeRow}
-                contentContainerStyle={
-                  styles.recipeGrid
-                }
-                scrollEnabled={false}
-              />
-            ) : (
-              <View style={styles.emptyState}>
-                <View style={styles.emptyIcon}>
-                  <Ionicons
-                    name="restaurant-outline"
-                    size={32}
-                    color={THEME.primary}
-                  />
-                </View>
-
-                <Text style={styles.emptyTitle}>
-                  Nothing here yet
-                </Text>
-
-                <Text style={styles.emptyDescription}>
-                  Try another craving or search for
-                  your favorite dish.
-                </Text>
-
-                <TouchableOpacity
-                  style={styles.emptyButton}
-                  onPress={() =>
-                    router.push("/search")
-                  }
-                  activeOpacity={0.85}
-                >
-                  <Text style={styles.emptyButtonText}>
-                    Search recipes
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            )}
-          </View>
-
-          <View style={styles.bottomSpace} />
-        </ScrollView>
-      </View>
+          <FlatList data={countryResults} keyExtractor={(item) => item.id} keyboardShouldPersistTaps="handled"
+            contentContainerStyle={styles.countryList}
+            ListEmptyComponent={<Text style={styles.emptyText}>No matching countries or dishes. Try another name.</Text>}
+            renderItem={({ item }) => <Pressable style={styles.countryRow} accessibilityRole="button"
+              accessibilityState={{ selected: selectedCountry === item.id }} onPress={() => selectCountry(item.id)}>
+              <View style={styles.grow}><Text style={styles.countryName}>{item.name}</Text><Text style={styles.smallText}>{item.dish}</Text></View>
+              <Ionicons name={selectedCountry === item.id ? "checkmark-circle" : "chevron-forward"} size={21} color={C.green} />
+            </Pressable>} />
+        </SafeAreaView>
+      </Modal>
     </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: THEME.background,
-  },
-
-  container: {
-    flex: 1,
-    backgroundColor: THEME.background,
-  },
-
-  scrollContent: {
-    paddingHorizontal: 20,
-    paddingTop: 12,
-  },
-
-  header: {
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 22,
-  },
-
-  greetingGroup: {
-    flex: 1,
-    paddingRight: 12,
-  },
-
-  greeting: {
-    color: THEME.muted,
-    fontSize: 14,
-    fontWeight: "600",
-    marginBottom: 2,
-  },
-
-  userName: {
-    color: THEME.ink,
-    fontSize: 27,
-    fontWeight: "800",
-    letterSpacing: -0.7,
-  },
-
-  headerActions: {
-    alignItems: "center",
-    flexDirection: "row",
-    gap: 9,
-  },
-
-  avatarButton: {
-    alignItems: "center",
-    backgroundColor: THEME.primary,
-    borderRadius: 22,
-    height: 44,
-    justifyContent: "center",
-    width: 44,
-  },
-
-  avatarText: {
-    color: THEME.white,
-    fontSize: 14,
-    fontWeight: "800",
-  },
-
-  logoutButton: {
-    alignItems: "center",
-    backgroundColor: THEME.surface,
-    borderColor: THEME.border,
-    borderRadius: 22,
-    borderWidth: 1,
-    height: 44,
-    justifyContent: "center",
-    width: 44,
-  },
-
-  heroCard: {
-    backgroundColor: THEME.cream,
-    borderColor: "#F0DCA9",
-    borderRadius: 28,
-    borderWidth: 1,
-    marginBottom: 16,
-    overflow: "hidden",
-    padding: 24,
-  },
-
-  heroDecorOne: {
-    backgroundColor: THEME.saffron,
-    borderRadius: 60,
-    height: 120,
-    opacity: 0.32,
-    position: "absolute",
-    right: -34,
-    top: -48,
-    width: 120,
-  },
-
-  heroDecorTwo: {
-    backgroundColor: THEME.coral,
-    borderRadius: 36,
-    bottom: -24,
-    height: 72,
-    opacity: 0.16,
-    position: "absolute",
-    right: 52,
-    width: 72,
-  },
-
-  heroIconCircle: {
-    alignItems: "center",
-    backgroundColor: THEME.white,
-    borderRadius: 22,
-    height: 44,
-    justifyContent: "center",
-    marginBottom: 17,
-    width: 44,
-  },
-
-  heroEyebrow: {
-    color: THEME.coralDark,
-    fontSize: 11,
-    fontWeight: "800",
-    letterSpacing: 1.1,
-    marginBottom: 7,
-  },
-
-  heroTitle: {
-    color: THEME.primaryDark,
-    fontSize: 30,
-    fontWeight: "800",
-    letterSpacing: -0.9,
-    lineHeight: 36,
-    maxWidth: "88%",
-  },
-
-  heroDescription: {
-    color: "#5E625B",
-    fontSize: 15,
-    lineHeight: 22,
-    marginTop: 10,
-    maxWidth: "92%",
-  },
-
-  heroButton: {
-    alignItems: "center",
-    alignSelf: "flex-start",
-    backgroundColor: THEME.primary,
-    borderRadius: 15,
-    flexDirection: "row",
-    gap: 9,
-    marginTop: 21,
-    paddingHorizontal: 16,
-    paddingVertical: 13,
-  },
-
-  heroButtonText: {
-    color: THEME.white,
-    fontSize: 15,
-    fontWeight: "800",
-  },
-
-  quickActionRow: {
-    gap: 12,
-    marginBottom: 29,
-  },
-
-  quickActionCard: {
-    alignItems: "center",
-    borderRadius: 20,
-    flexDirection: "row",
-    minHeight: 76,
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-  },
-
-  quickActionChef: {
-    backgroundColor: THEME.primary,
-  },
-
-  quickActionCookbook: {
-    backgroundColor: THEME.surface,
-    borderColor: THEME.border,
-    borderWidth: 1,
-  },
-
-  quickActionIcon: {
-    alignItems: "center",
-    backgroundColor: "rgba(255,255,255,0.17)",
-    borderRadius: 16,
-    height: 48,
-    justifyContent: "center",
-    marginRight: 13,
-    width: 48,
-  },
-
-  cookbookIcon: {
-    backgroundColor: "#FDE5DD",
-  },
-
-  quickActionTextGroup: {
-    flex: 1,
-  },
-
-  quickActionTitle: {
-    color: THEME.white,
-    fontSize: 16,
-    fontWeight: "800",
-  },
-
-  cookbookTitle: {
-    color: THEME.ink,
-  },
-
-  quickActionSubtitle: {
-    color: "#D6E8E0",
-    fontSize: 13,
-    fontWeight: "500",
-    marginTop: 3,
-  },
-
-  cookbookSubtitle: {
-    color: THEME.muted,
-  },
-
-  featuredSection: {
-    marginBottom: 30,
-  },
-
-  sectionHeader: {
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 14,
-  },
-
-  sectionEyebrow: {
-    color: THEME.coral,
-    fontSize: 11,
-    fontWeight: "800",
-    letterSpacing: 1,
-    marginBottom: 4,
-  },
-
-  sectionTitle: {
-    color: THEME.ink,
-    fontSize: 21,
-    fontWeight: "800",
-    letterSpacing: -0.45,
-  },
-
-  smallRefreshButton: {
-    alignItems: "center",
-    backgroundColor: THEME.sage,
-    borderRadius: 18,
-    height: 36,
-    justifyContent: "center",
-    width: 36,
-  },
-
-  featuredCard: {
-    backgroundColor: THEME.primaryDark,
-    borderRadius: 25,
-    height: 265,
-    overflow: "hidden",
-  },
-
-  featuredImage: {
-    height: "100%",
-    width: "100%",
-  },
-
-  featuredImageFallback: {
-    alignItems: "center",
-    backgroundColor: THEME.primary,
-    height: "100%",
-    justifyContent: "center",
-    width: "100%",
-  },
-
-  featuredGradient: {
-    backgroundColor: "rgba(16, 40, 32, 0.52)",
-    bottom: 0,
-    left: 0,
-    position: "absolute",
-    right: 0,
-    top: 0,
-  },
-
-  featuredContent: {
-    bottom: 0,
-    left: 0,
-    padding: 20,
-    position: "absolute",
-    right: 0,
-  },
-
-  featuredBadge: {
-    alignItems: "center",
-    alignSelf: "flex-start",
-    backgroundColor: THEME.saffron,
-    borderRadius: 20,
-    flexDirection: "row",
-    gap: 5,
-    marginBottom: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-  },
-
-  featuredBadgeText: {
-    color: THEME.primaryDark,
-    fontSize: 11,
-    fontWeight: "800",
-  },
-
-  featuredTitle: {
-    color: THEME.white,
-    fontSize: 25,
-    fontWeight: "800",
-    letterSpacing: -0.65,
-    lineHeight: 30,
-    maxWidth: "90%",
-  },
-
-  featuredMeta: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 12,
-    marginTop: 13,
-  },
-
-  featuredMetaItem: {
-    alignItems: "center",
-    flexDirection: "row",
-    gap: 5,
-  },
-
-  featuredMetaText: {
-    color: THEME.white,
-    fontSize: 13,
-    fontWeight: "700",
-    maxWidth: 130,
-  },
-
-  browseSection: {
-    marginBottom: 29,
-  },
-
-  seeAllText: {
-    color: THEME.primary,
-    fontSize: 14,
-    fontWeight: "800",
-  },
-
-  categoryScrollContent: {
-    gap: 9,
-    paddingRight: 20,
-  },
-
-  categoryPill: {
-    alignItems: "center",
-    backgroundColor: THEME.surface,
-    borderColor: THEME.border,
-    borderRadius: 22,
-    borderWidth: 1,
-    flexDirection: "row",
-    gap: 7,
-    paddingHorizontal: 14,
-    paddingVertical: 11,
-  },
-
-  categoryPillSelected: {
-    backgroundColor: THEME.primary,
-    borderColor: THEME.primary,
-  },
-
-  categoryPillText: {
-    color: THEME.primary,
-    fontSize: 13,
-    fontWeight: "700",
-  },
-
-  categoryPillTextSelected: {
-    color: THEME.white,
-  },
-
-  recipeSection: {
-    marginBottom: 4,
-  },
-
-  recipeGridHeader: {
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 16,
-  },
-
-  recipeGridTitle: {
-    color: THEME.ink,
-    fontSize: 23,
-    fontWeight: "800",
-    letterSpacing: -0.55,
-  },
-
-  recipeGridSubtitle: {
-    color: THEME.muted,
-    fontSize: 13,
-    fontWeight: "500",
-    marginTop: 3,
-  },
-
-  gridButton: {
-    alignItems: "center",
-    backgroundColor: THEME.sage,
-    borderRadius: 18,
-    height: 36,
-    justifyContent: "center",
-    width: 36,
-  },
-
-  recipeGrid: {
-    gap: 14,
-  },
-
-  recipeRow: {
-    gap: 14,
-    justifyContent: "space-between",
-  },
-
-  recipeTile: {
-    backgroundColor: THEME.surface,
-    borderColor: THEME.border,
-    borderRadius: 20,
-    borderWidth: 1,
-    flex: 1,
-    maxWidth: "48%",
-    overflow: "hidden",
-  },
-
-  recipeImageContainer: {
-    backgroundColor: THEME.sage,
-    height: 132,
-    position: "relative",
-  },
-
-  recipeImage: {
-    height: "100%",
-    width: "100%",
-  },
-
-  recipeImageFallback: {
-    alignItems: "center",
-    backgroundColor: THEME.sage,
-    height: "100%",
-    justifyContent: "center",
-    width: "100%",
-  },
-
-  recipeHeart: {
-    alignItems: "center",
-    backgroundColor: THEME.white,
-    borderRadius: 16,
-    height: 32,
-    justifyContent: "center",
-    position: "absolute",
-    right: 9,
-    top: 9,
-    width: 32,
-  },
-
-  recipeTileContent: {
-    minHeight: 93,
-    padding: 12,
-  },
-
-  recipeTileTitle: {
-    color: THEME.ink,
-    fontSize: 14,
-    fontWeight: "800",
-    lineHeight: 19,
-  },
-
-  recipeTileMeta: {
-    alignItems: "center",
-    flexDirection: "row",
-    gap: 4,
-    marginTop: 8,
-  },
-
-  recipeTileMetaText: {
-    color: THEME.muted,
-    fontSize: 12,
-    fontWeight: "600",
-  },
-
-  emptyState: {
-    alignItems: "center",
-    backgroundColor: THEME.surface,
-    borderColor: THEME.border,
-    borderRadius: 24,
-    borderStyle: "dashed",
-    borderWidth: 1,
-    paddingHorizontal: 30,
-    paddingVertical: 35,
-  },
-
-  emptyIcon: {
-    alignItems: "center",
-    backgroundColor: THEME.sage,
-    borderRadius: 26,
-    height: 52,
-    justifyContent: "center",
-    marginBottom: 14,
-    width: 52,
-  },
-
-  emptyTitle: {
-    color: THEME.ink,
-    fontSize: 18,
-    fontWeight: "800",
-  },
-
-  emptyDescription: {
-    color: THEME.muted,
-    fontSize: 14,
-    lineHeight: 20,
-    marginTop: 7,
-    textAlign: "center",
-  },
-
-  emptyButton: {
-    backgroundColor: THEME.primary,
-    borderRadius: 14,
-    marginTop: 17,
-    paddingHorizontal: 16,
-    paddingVertical: 11,
-  },
-
-  emptyButtonText: {
-    color: THEME.white,
-    fontSize: 14,
-    fontWeight: "800",
-  },
-
-  bottomSpace: {
-    height: 30,
-  },
+  safeArea: { flex: 1, backgroundColor: C.background },
+  list: { flex: 1 },
+  page: { paddingHorizontal: 20, paddingBottom: 22, width: "100%", maxWidth: 850, alignSelf: "center" },
+  header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingTop: 16, marginBottom: 24, gap: 12 },
+  headerCopy: { flex: 1 },
+  brand: { fontSize: 21, fontWeight: "800", letterSpacing: -0.8, color: C.ink },
+  brandAccent: { color: C.coral },
+  greeting: { fontSize: 12, color: C.muted, marginTop: 3 },
+  headerButton: { width: 44, height: 44, borderRadius: 22, backgroundColor: C.surface, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: C.line },
+  slogan: { fontSize: 34, lineHeight: 40, letterSpacing: -1.3, fontWeight: "700", color: C.ink },
+  sloganAccent: { color: C.green },
+  subtitle: { color: C.muted, fontSize: 14, lineHeight: 21, marginTop: 12, marginBottom: 20, maxWidth: 520 },
+  searchBox: { flexDirection: "row", alignItems: "center", borderWidth: 1, borderColor: C.line, borderRadius: 15, backgroundColor: C.surface, paddingHorizontal: 13, gap: 9, minHeight: 52 },
+  searchInput: { flex: 1, minWidth: 0, color: C.ink, fontSize: 14, paddingVertical: 13 },
+  clearButton: { minHeight: 44, width: 30, alignItems: "center", justifyContent: "center" },
+  suggestions: { backgroundColor: C.surface, padding: 14, borderRadius: 15, marginTop: 10, borderWidth: 1, borderColor: C.line },
+  eyebrow: { color: C.coral, fontSize: 10, fontWeight: "800", letterSpacing: 1.3, marginBottom: 4 },
+  suggestion: { flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 10 },
+  suggestionName: { fontSize: 14, fontWeight: "700", color: C.ink },
+  grow: { flex: 1 },
+  smallText: { fontSize: 12, color: C.muted, lineHeight: 18 },
+  hero: { height: 315, marginTop: 23, borderRadius: 23, overflow: "hidden", backgroundColor: C.dark },
+  heroImage: { width: "100%", height: "100%", position: "absolute" },
+  heroTop: { position: "absolute", top: 18, left: 18 },
+  heroBadge: { color: C.dark, backgroundColor: C.yellow, fontSize: 10, fontWeight: "800", letterSpacing: 1, borderRadius: 12, paddingHorizontal: 11, paddingVertical: 7 },
+  heroContent: { position: "absolute", bottom: 22, left: 22, right: 22 },
+  heroTitle: { color: "#fff", fontSize: 31, lineHeight: 35, fontWeight: "800", letterSpacing: -0.6 },
+  heroDescription: { color: "#F3F5EE", fontSize: 12, lineHeight: 18, marginTop: 8, maxWidth: 330 },
+  heroAction: { flexDirection: "row", alignItems: "center", alignSelf: "flex-start", backgroundColor: C.yellow, borderRadius: 11, paddingHorizontal: 15, paddingVertical: 11, gap: 12, marginTop: 13 },
+  heroActionText: { fontSize: 13, fontWeight: "800", color: C.dark },
+  sectionHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8, marginTop: 24, marginBottom: 8 },
+  sectionTitle: { fontSize: 20, fontWeight: "800", letterSpacing: -0.5, color: C.ink, flexShrink: 1 },
+  textButton: { flexDirection: "row", alignItems: "center", gap: 5, minHeight: 44 },
+  textButtonLabel: { color: C.green, fontSize: 12, fontWeight: "800" },
+  chips: { gap: 8, paddingVertical: 4, paddingBottom: 12 },
+  chip: { minHeight: 44, justifyContent: "center", backgroundColor: C.surface, paddingHorizontal: 16, borderRadius: 24, borderColor: C.line, borderWidth: 1 },
+  activeChip: { backgroundColor: C.green, borderColor: C.green },
+  chipText: { color: C.ink, fontSize: 12, fontWeight: "600" },
+  activeChipText: { color: "#fff" },
+  collectionHeading: { marginTop: 16, marginBottom: 16 },
+  caption: { fontSize: 12, color: C.muted, lineHeight: 18, marginTop: 5 },
+  recipeRow: { gap: 14 },
+  tile: { flex: 1, maxWidth: "49%", backgroundColor: C.surface, borderWidth: 1, borderColor: C.line, borderRadius: 18, overflow: "hidden", marginBottom: 16 },
+  tileImage: { width: "100%", aspectRatio: 1.28 },
+  imageFallback: { alignItems: "center", justifyContent: "center", backgroundColor: C.sage },
+  tileBody: { padding: 13 },
+  countryLabel: { fontSize: 10, color: C.coral, fontWeight: "800", textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 5 },
+  tileTitle: { fontSize: 16, lineHeight: 21, fontWeight: "700", color: C.ink, minHeight: 42 },
+  tileMeta: { flexDirection: "row", alignItems: "center", gap: 5, marginTop: 10 },
+  metaText: { fontSize: 11, color: C.muted, flexShrink: 1 },
+  saveButton: { position: "absolute", right: 8, top: 8, width: 44, height: 44, borderRadius: 22, backgroundColor: "rgba(255,255,255,0.96)", alignItems: "center", justifyContent: "center" },
+  loading: { flexDirection: "row", alignItems: "center", gap: 9, marginBottom: 20 },
+  errorBox: { backgroundColor: C.cream, padding: 16, borderRadius: 15, marginBottom: 18 },
+  errorTitle: { color: C.ink, fontSize: 14, fontWeight: "700", marginBottom: 5 },
+  retry: { minHeight: 44, justifyContent: "center" },
+  empty: { backgroundColor: C.cream, alignItems: "center", padding: 24, borderRadius: 18, marginBottom: 16 },
+  emptyTitle: { fontSize: 18, color: C.ink, fontWeight: "800", marginTop: 13 },
+  emptyText: { color: C.muted, fontSize: 14, lineHeight: 21, textAlign: "center", marginTop: 10 },
+  primaryButton: { backgroundColor: C.green, borderRadius: 12, paddingHorizontal: 18, paddingVertical: 13, marginTop: 18 },
+  primaryButtonText: { color: "#fff", fontSize: 14, fontWeight: "800" },
+  chefCard: { backgroundColor: C.sage, borderRadius: 20, padding: 20, flexDirection: "row", alignItems: "flex-start", gap: 14, marginTop: 10 },
+  chefIcon: { backgroundColor: C.surface, width: 42, height: 42, borderRadius: 14, alignItems: "center", justifyContent: "center" },
+  chefTitle: { color: C.dark, fontSize: 19, fontWeight: "800", letterSpacing: -0.4 },
+  chefCopy: { color: C.green, fontSize: 13, lineHeight: 19, marginTop: 6 },
+  chefLink: { color: C.dark, fontSize: 13, fontWeight: "800", marginTop: 13 },
+  footerText: { textAlign: "center", color: C.muted, fontSize: 11, marginVertical: 23 },
+  pickerHeader: { flexDirection: "row", alignItems: "center", gap: 12, padding: 20 },
+  pickerSearch: { marginHorizontal: 20, marginBottom: 10 },
+  countryList: { paddingHorizontal: 20, paddingBottom: 30 },
+  countryRow: { flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 15, borderBottomColor: C.line, borderBottomWidth: 1 },
+  countryName: { color: C.ink, fontSize: 16, fontWeight: "700", marginBottom: 4 },
 });
-
-export default HomeScreen;

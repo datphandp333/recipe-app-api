@@ -48,11 +48,10 @@ const cleanChatMessages = (value) => {
             ? "assistant"
             : "user",
 
-        content: content.slice(0, 2000),
+        content: content.slice(0, 12000),
       };
     })
-    .filter(Boolean)
-    .slice(-16);
+    .filter(Boolean);
 };
 
 const cleanRecipeEntries = (value) => {
@@ -410,6 +409,7 @@ router.post(
       const result =
         await chatWithRecipeChef({
           messages,
+          finalize: request.body?.finalize === true,
         });
 
       return response.status(200).json({
@@ -417,6 +417,7 @@ router.post(
         message:
           "Recipe Chef replied successfully.",
         reply: result.reply,
+        suggestedReplies: result.suggestedReplies,
         suggestedRecipe:
           result.suggestedRecipe,
       });

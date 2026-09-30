@@ -25,6 +25,7 @@ import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 
 import { API_URL } from "../../constants/api";
+import { recipeImageSource } from "../../data/curatedImages";
 import LoadingSpinner from "../../components/LoadingSpinner";
 
 const THEME = {
@@ -45,7 +46,7 @@ const THEME = {
   danger: "#D64B43",
 };
 
-const FavoriteImage = ({ image }) => {
+const FavoriteImage = ({ image, recipeId }) => {
   const [showImage, setShowImage] =
     useState(Boolean(image));
 
@@ -63,7 +64,7 @@ const FavoriteImage = ({ image }) => {
 
   return (
     <Image
-      source={{ uri: image }}
+      source={recipeImageSource({ image, recipeId })}
       style={styles.recipeImage}
       contentFit="cover"
       transition={200}
@@ -82,7 +83,7 @@ const FavoriteCard = ({
   return (
     <View style={styles.recipeCard}>
       <View style={styles.recipeImageContainer}>
-        <FavoriteImage image={favorite.image} />
+        <FavoriteImage image={favorite.image} recipeId={favorite.recipeId} />
 
         <View style={styles.savedBadge}>
           <Ionicons

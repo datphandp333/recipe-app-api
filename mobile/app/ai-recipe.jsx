@@ -1,7 +1,7 @@
 import { useUser } from "@clerk/expo";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -312,10 +312,12 @@ const RecipeCard = ({
 
 export default function AiRecipeScreen() {
   const { user, isLoaded } = useUser();
+  const { prompt } = useLocalSearchParams();
 
   const scrollViewRef = useRef(null);
 
-  const [message, setMessage] = useState("");
+  const sendingRef = useRef(false);
+  const [message, setMessage] = useState(() => typeof prompt === "string" ? prompt.slice(0, 2000) : "");
   const [isSending, setIsSending] =
     useState(false);
 
@@ -334,7 +336,7 @@ export default function AiRecipeScreen() {
       id: "welcome",
       role: "assistant",
       content:
-        "Hi! I’m Recipe Chef. Tell me what you have in your kitchen, what you want to cook, or ask me any cooking question.",
+        "Hi! I’m Recipe Chef. Tell me what you have in your kitchen, what you want to cook, or ask me any cooking question. We’ll explore options together. Tap Create my dish when you’re ready for the final recipe.",
       recipe: null,
     },
   ]);
@@ -348,16 +350,24 @@ export default function AiRecipeScreen() {
   };
 
   const sendMessage = async (
-    presetMessage = ""
+    presetMessage = "",
+    finalize = false
   ) => {
     const text = (
       presetMessage || message
     ).trim();
 
-    if (!text || isSending) {
+    if (!text || sendingRef.current) {
       return;
     }
 
+    if (messages.length >= 79) {
+      Alert.alert("Conversation full", "Start a new conversation to keep cooking with Recipe Chef.");
+      return;
+    }
+
+    sendingRef.current = true;
+    const previousDraft = message;
     const userMessage = {
       id: `user-${Date.now()}`,
       role: "user",
@@ -380,8 +390,16 @@ export default function AiRecipeScreen() {
         await MealAPI.chatWithRecipeChef(
           updatedMessages.map((item) => ({
             role: item.role,
-            content: item.content,
-          }))
+            content: item.recipe
+              ? `${item.content}\nCompleted recipe: ${JSON.stringify({
+                  title: item.recipe.title,
+                  servings: item.recipe.servings,
+                  ingredients: item.recipe.ingredients,
+                  instructions: item.recipe.instructions,
+                })}`
+              : item.content,
+          })),
+          { finalize }
         );
 
       setMessages((currentMessages) => [
@@ -391,17 +409,21 @@ export default function AiRecipeScreen() {
           role: "assistant",
           content: result.reply,
           recipe: result.suggestedRecipe,
+          suggestedReplies: result.suggestedReplies,
         },
       ]);
 
       scrollToBottom();
     } catch (error) {
+      setMessages(messages);
+      setMessage(previousDraft || (finalize ? "" : text));
       Alert.alert(
         "Recipe Chef is unavailable",
         error.message ||
           "Please check that your backend is running, then try again."
       );
     } finally {
+      sendingRef.current = false;
       setIsSending(false);
     }
   };
@@ -452,6 +474,7 @@ export default function AiRecipeScreen() {
   };
 
   const startNewConversation = () => {
+    if (sendingRef.current) return;
     setMessages([
       {
         id: "welcome",
@@ -520,6 +543,7 @@ export default function AiRecipeScreen() {
 
           <Pressable
             onPress={startNewConversation}
+            disabled={isSending}
             style={styles.headerButton}
             accessibilityLabel="Start a new conversation"
           >
@@ -608,6 +632,21 @@ export default function AiRecipeScreen() {
                   </Text>
                 </View>
 
+                {!isUser && chatMessage.id === messages.at(-1)?.id && !isSending && (
+                  <View style={styles.promptList}>
+                    {(chatMessage.suggestedReplies || []).map((suggestion) => (
+                      <Pressable
+                        key={suggestion}
+                        accessibilityRole="button"
+                        onPress={() => sendMessage(suggestion)}
+                        style={styles.promptChip}
+                      >
+                        <Text style={styles.promptText}>{suggestion}</Text>
+                      </Pressable>
+                    ))}
+                  </View>
+                )}
+
                 {!!chatMessage.recipe && (
                   <RecipeCard
                     recipe={chatMessage.recipe}
@@ -687,6 +726,20 @@ export default function AiRecipeScreen() {
           )}
         </ScrollView>
 
+        {messages.some((item) => item.role === "user") && !messages.at(-1)?.recipe && (
+          <Pressable
+            accessibilityRole="button"
+            disabled={isSending}
+            onPress={() => sendMessage(
+              [message.trim(), "I'm ready. Create my final dish using our conversation."].filter(Boolean).join("\n"),
+              true
+            )}
+            style={[styles.finalizeButton, isSending && styles.sendButtonDisabled]}
+          >
+            <Text style={styles.saveButtonText}>Create my dish</Text>
+          </Pressable>
+        )}
+
         <View style={styles.composer}>
           <View style={styles.inputContainer}>
             <TextInput
@@ -695,6 +748,8 @@ export default function AiRecipeScreen() {
               placeholder="Ask Recipe Chef anything..."
               placeholderTextColor={THEME.softText}
               multiline
+              editable={!isSending}
+              maxLength={2000}
               style={styles.input}
               onSubmitEditing={() => sendMessage()}
             />
@@ -977,6 +1032,15 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: "700",
     lineHeight: 18,
+  },
+
+  finalizeButton: {
+    backgroundColor: THEME.primary,
+    borderRadius: 15,
+    alignItems: "center",
+    padding: 14,
+    marginHorizontal: 12,
+    marginBottom: 8,
   },
 
   composer: {

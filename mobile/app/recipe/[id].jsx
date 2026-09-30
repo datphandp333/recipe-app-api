@@ -5,6 +5,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Platform,
+  Linking,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
@@ -15,6 +16,7 @@ import { Ionicons } from "@expo/vector-icons";
 
 import { API_URL } from "../../constants/api";
 import { MealAPI } from "../../services/mealAPI";
+import { recipeImageSource } from "../../data/curatedImages";
 import { COLORS } from "../../constants/colors";
 import { recipeDetailStyles } from "../../assets/styles/recipe-detail.styles";
 import LoadingSpinner from "../../components/LoadingSpinner";
@@ -77,18 +79,21 @@ const RecipeDetailScreen = () => {
   };
 
   useEffect(() => {
+    let active = true;
+    setCompletedIngredients([]);
+    setCompletedSteps([]);
     const loadRecipeDetails = async () => {
       setLoading(true);
 
       try {
-        const mealData = await MealAPI.getMealById(recipeId);
+        const transformedRecipe = await MealAPI.getRecipeById(recipeId);
 
-        if (!mealData) {
+        if (!active) return;
+        if (!transformedRecipe) {
           setRecipe(null);
           return;
         }
 
-        const transformedRecipe = MealAPI.transformMealData(mealData);
 
         setRecipe({
           ...transformedRecipe,
@@ -101,16 +106,19 @@ const RecipeDetailScreen = () => {
         });
       } catch (error) {
         console.error("Error loading recipe details:", error);
-        setRecipe(null);
+        if (active) setRecipe(null);
       } finally {
-        setLoading(false);
+        if (active) setLoading(false);
       }
     };
 
     loadRecipeDetails();
+    return () => { active = false; };
   }, [recipeId]);
 
   useEffect(() => {
+    let active = true;
+    setIsSaved(false);
     const checkIfSaved = async () => {
       if (!userId || !recipeId) {
         return;
@@ -127,16 +135,17 @@ const RecipeDetailScreen = () => {
 
         const recipeIsSaved = favorites.some(
           (favorite) =>
-            Number(favorite.recipeId) === Number(recipeId)
+            String(favorite.recipeId) === String(recipeId)
         );
 
-        setIsSaved(recipeIsSaved);
+        if (active) setIsSaved(recipeIsSaved);
       } catch (error) {
         console.error("Error checking saved recipe:", error);
       }
     };
 
     checkIfSaved();
+    return () => { active = false; };
   }, [recipeId, userId]);
 
   const getYouTubeEmbedUrl = (url) => {
@@ -232,11 +241,14 @@ const RecipeDetailScreen = () => {
       } else {
         const payload = {
           userId,
-          recipeId: Number(recipeId),
+          recipeId: String(recipeId),
           title: recipe.title,
           image: recipe.image,
           cookTime: recipe.cookTime,
           servings: String(recipe.servings ?? ""),
+          ingredients: recipe.ingredients,
+          instructions: recipe.instructions,
+          personalNote: recipe.recipeNote || "",
         };
 
         const response = await fetch(`${API_URL}/favorites`, {
@@ -320,7 +332,7 @@ const RecipeDetailScreen = () => {
     );
   }
 
-  const youtubeEmbedUrl = getYouTubeEmbedUrl(recipe.youtubeUrl);
+  const youtubeEmbedUrl = getYouTubeEmbedUrl(recipe.youtubeUrl || recipe.youtube);
 
   return (
     <View style={recipeDetailStyles.container}>
@@ -328,7 +340,7 @@ const RecipeDetailScreen = () => {
         <View style={recipeDetailStyles.headerContainer}>
           <View style={recipeDetailStyles.imageContainer}>
             <Image
-              source={{ uri: recipe.image }}
+              source={recipeImageSource(recipe)}
               style={recipeDetailStyles.headerImage}
               contentFit="cover"
               transition={400}
@@ -411,6 +423,24 @@ const RecipeDetailScreen = () => {
         </View>
 
         <View style={recipeDetailStyles.contentSection}>
+          {!!recipe.description && <Text style={{ color: COLORS.text, fontSize: 16, lineHeight: 24, marginBottom: 12 }}>{recipe.description}</Text>}
+          {!!recipe.recipeNote && <Text style={{ color: COLORS.textLight, fontSize: 12, lineHeight: 18, marginBottom: 12 }}>{recipe.recipeNote}</Text>}
+          {!!recipe.imageCredit && <TouchableOpacity
+            accessibilityRole="link" accessibilityLabel="View image source"
+            onPress={() => Linking.openURL(recipe.imageSourceUrl).catch(() => showMessage("Could not open source", "Please try again."))}
+            style={{ paddingVertical: 12 }}
+          ><Text style={{ color: COLORS.primary, fontSize: 12 }}>{recipe.imageCredit} ↗</Text></TouchableOpacity>}
+          {!!recipe.imageLicenseUrl && <TouchableOpacity accessibilityRole="link"
+            onPress={() => Linking.openURL(recipe.imageLicenseUrl)} style={{ paddingVertical: 12 }}>
+            <Text style={{ color: COLORS.primary, fontSize: 12 }}>Photo license: CC BY 2.0 ↗</Text>
+          </TouchableOpacity>}
+          <TouchableOpacity
+            accessibilityRole="button"
+            onPress={() => router.push({ pathname: "/ai-recipe", params: {
+              prompt: `I'd like to adapt ${recipe.title}. Can we discuss ingredient swaps and my preferences?`,
+            } })}
+            style={{ padding: 14, borderRadius: 12, backgroundColor: "#DCECE4", marginBottom: 18 }}
+          ><Text style={{ color: "#245B4B", fontWeight: "700" }}>Make this dish yours with Recipe Chef →</Text></TouchableOpacity>
           <View style={recipeDetailStyles.statsContainer}>
             <View style={recipeDetailStyles.statCard}>
               <LinearGradient
@@ -429,7 +459,7 @@ const RecipeDetailScreen = () => {
               </Text>
 
               <Text style={recipeDetailStyles.statLabel}>
-                Cooking time
+                {recipe.timeIsEstimate ? "Estimated total time" : "Cooking time"}
               </Text>
             </View>
 

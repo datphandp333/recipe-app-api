@@ -30,5 +30,5 @@ const NATIVE_API_URL =
 
 export const API_URL =
   Platform.OS === "web"
-    ? WEB_API_URL
+    ? configuredApiUrl || WEB_API_URL
     : NATIVE_API_URL;
