@@ -1,3 +1,5 @@
+import { backOrReplace } from "../services/navigation";
+import IngredientPicture from "../components/IngredientPicture";
 import { useUser } from "@clerk/expo";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
@@ -204,16 +206,12 @@ const RecipeCard = ({
                     }
                     style={styles.ingredientRow}
                   >
-                    <View
-                      style={
-                        styles.ingredientBullet
-                      }
-                    />
+                    <IngredientPicture ingredient={ingredient} style={{ width: 58, height: 58, marginRight: 12 }} />
 
                     <Text
                       style={styles.ingredientText}
                     >
-                      {ingredient.label ||
+                      {(typeof ingredient === "string" ? ingredient : ingredient.label) ||
                         [
                           ingredient.amount,
                           ingredient.name,
@@ -510,7 +508,7 @@ export default function AiRecipeScreen() {
       >
         <View style={styles.header}>
           <Pressable
-            onPress={() => router.back()}
+            onPress={() => backOrReplace(router, "/(taps)")}
             style={styles.headerButton}
             accessibilityLabel="Go back"
           >
@@ -1227,6 +1225,7 @@ const styles = StyleSheet.create({
   },
 
   ingredientRow: {
+    alignItems: "center",
     flexDirection: "row",
     paddingLeft: 3,
   },

@@ -1,3 +1,5 @@
+import { backOrReplace } from "../services/navigation";
+import IngredientPicture from "../components/IngredientPicture";
 import { useUser } from "@clerk/expo";
 import { Ionicons } from "@expo/vector-icons";
 import {
@@ -492,7 +494,7 @@ export default function SecondServingScreen() {
         <TouchableOpacity
           accessibilityLabel="Go back"
           hitSlop={12}
-          onPress={() => router.back()}
+          onPress={() => backOrReplace(router, "/(taps)/favorites")}
           style={styles.headerButton}
         >
           <Ionicons
@@ -864,26 +866,12 @@ export default function SecondServingScreen() {
                   Ingredients
                 </Text>
 
-                {recipe.ingredients?.map(
-                  (ingredient, index) => (
-                    <Text
-                      key={
-                        ingredient.id ||
-                        `${ingredient.name}-${index}`
-                      }
-                      style={styles.recipeListItem}
-                    >
-                      •{" "}
-                      {ingredient.label ||
-                        [
-                          ingredient.amount,
-                          ingredient.name,
-                        ]
-                          .filter(Boolean)
-                          .join(" ")}
-                    </Text>
-                  )
-                )}
+                {recipe.ingredients?.map((ingredient, index) => (
+                  <View key={ingredient.id || index} style={{ flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 10 }}>
+                    <IngredientPicture ingredient={ingredient} style={{ width: 58, height: 58 }} />
+                    <Text style={[styles.recipeListItem, { flex: 1 }]}>{typeof ingredient === "string" ? ingredient : ingredient.label || [ingredient.amount, ingredient.name].filter(Boolean).join(" ")}</Text>
+                  </View>
+                ))}
 
                 <Text style={styles.recipeSectionTitle}>
                   Instructions

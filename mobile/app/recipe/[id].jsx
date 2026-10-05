@@ -1,3 +1,4 @@
+import { backOrReplace } from "../../services/navigation";
 import {
   View,
   Text,
@@ -14,6 +15,7 @@ import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 
+import IngredientPicture from "../../components/IngredientPicture";
 import { API_URL } from "../../constants/api";
 import { MealAPI } from "../../services/mealAPI";
 import { recipeImageSource } from "../../data/curatedImages";
@@ -65,6 +67,7 @@ const RecipeDetailScreen = () => {
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isSaved, setIsSaved] = useState(false);
+  const [cookbookUnavailable, setCookbookUnavailable] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [completedIngredients, setCompletedIngredients] = useState([]);
   const [completedSteps, setCompletedSteps] = useState([]);
@@ -125,22 +128,19 @@ const RecipeDetailScreen = () => {
       }
 
       try {
-        const response = await fetch(`${API_URL}/favorites/${userId}`);
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch favorites: ${response.status}`);
-        }
-
-        const favorites = await response.json();
+        const favorites = await MealAPI.getFavorites(userId);
 
         const recipeIsSaved = favorites.some(
           (favorite) =>
             String(favorite.recipeId) === String(recipeId)
         );
 
-        if (active) setIsSaved(recipeIsSaved);
-      } catch (error) {
-        console.error("Error checking saved recipe:", error);
+        if (active) {
+          setIsSaved(recipeIsSaved);
+          setCookbookUnavailable(false);
+        }
+      } catch {
+        if (active) setCookbookUnavailable(true);
       }
     };
 
@@ -321,7 +321,7 @@ const RecipeDetailScreen = () => {
 
           <TouchableOpacity
             style={recipeDetailStyles.notFoundButton}
-            onPress={() => router.back()}
+            onPress={() => backOrReplace(router, "/(taps)")}
           >
             <Text style={recipeDetailStyles.notFoundButtonText}>
               Go back
@@ -359,7 +359,7 @@ const RecipeDetailScreen = () => {
           <View style={recipeDetailStyles.floatingButtons}>
             <TouchableOpacity
               style={recipeDetailStyles.floatingButton}
-              onPress={() => router.back()}
+              onPress={() => backOrReplace(router, "/(taps)")}
               accessibilityLabel="Go back"
             >
               <Ionicons
@@ -423,6 +423,7 @@ const RecipeDetailScreen = () => {
         </View>
 
         <View style={recipeDetailStyles.contentSection}>
+          {cookbookUnavailable && <Text accessibilityLiveRegion="polite" style={{ color: COLORS.textLight, fontSize: 13, marginBottom: 12 }}>Cookbook is temporarily unavailable. You can still read and prepare this recipe. Reopen it after reconnecting to check its saved status.</Text>}
           {!!recipe.description && <Text style={{ color: COLORS.text, fontSize: 16, lineHeight: 24, marginBottom: 12 }}>{recipe.description}</Text>}
           {!!recipe.recipeNote && <Text style={{ color: COLORS.textLight, fontSize: 12, lineHeight: 18, marginBottom: 12 }}>{recipe.recipeNote}</Text>}
           {!!recipe.imageCredit && <TouchableOpacity
@@ -594,20 +595,7 @@ const RecipeDetailScreen = () => {
                         recipeDetailStyles.ingredientImageContainer
                       }
                     >
-                      {ingredientData.imageUrl ? (
-                        <Image
-                          source={{ uri: ingredientData.imageUrl }}
-                          style={recipeDetailStyles.ingredientImage}
-                          contentFit="contain"
-                          transition={250}
-                        />
-                      ) : (
-                        <Ionicons
-                          name="leaf-outline"
-                          size={42}
-                          color={COLORS.primary}
-                        />
-                      )}
+                      <IngredientPicture ingredient={ingredientData} style={recipeDetailStyles.ingredientImage} />
 
                       <View
                         style={recipeDetailStyles.ingredientNumber}

@@ -1,3 +1,5 @@
+import { backOrReplace } from "../services/navigation";
+import IngredientPicture from "../components/IngredientPicture";
 import {
   View,
   Text,
@@ -81,6 +83,7 @@ export default function FavoriteEditorScreen() {
   const { favoriteId } = useLocalSearchParams();
   const { user } = useUser();
 
+  const [recipeId, setRecipeId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -109,7 +112,7 @@ export default function FavoriteEditorScreen() {
 
       try {
         const response = await fetch(
-          `${API_URL}/favorites/${user.id}/record/${favoriteId}`
+          `${API_URL}/favorites/${encodeURIComponent(user.id)}`
         );
 
         const data = await response.json();
@@ -120,7 +123,9 @@ export default function FavoriteEditorScreen() {
           );
         }
 
-        const favorite = data.favorite;
+        const favorite = Array.isArray(data) ? data.find(item => String(item.id) === String(favoriteId)) : null;
+        if (!favorite) throw new Error("This saved recipe could not be found.");
+        setRecipeId(String(favorite.recipeId));
 
         let ingredients = Array.isArray(favorite.ingredients)
           ? favorite.ingredients
@@ -132,7 +137,7 @@ export default function FavoriteEditorScreen() {
 
         /*
          * Favorites saved before this feature have empty arrays.
-         * For those recipes, load the original MealDB recipe once
+         * For those recipes, load the original catalog recipe once
          * so the user can begin editing it.
          */
         if (
@@ -140,13 +145,11 @@ export default function FavoriteEditorScreen() {
           instructions.length === 0
         ) {
           try {
-            const mealData = await MealAPI.getMealById(
+            const originalRecipe = await MealAPI.getRecipeById(
               favorite.recipeId
             );
 
-            if (mealData) {
-              const originalRecipe =
-                MealAPI.transformMealData(mealData);
+            if (originalRecipe) {
 
               if (ingredients.length === 0) {
                 ingredients = originalRecipe.ingredients || [];
@@ -185,7 +188,7 @@ export default function FavoriteEditorScreen() {
             "Could not load this saved recipe."
         );
 
-        router.back();
+        backOrReplace(router, "/(taps)/favorites");
       } finally {
         setLoading(false);
       }
@@ -195,7 +198,8 @@ export default function FavoriteEditorScreen() {
   }, [favoriteId, router, user?.id]);
 
   const handleSave = async () => {
-    if (!user?.id || !favoriteId) {
+    if (saving) return;
+    if (!user?.id || !favoriteId || !recipeId) {
       showMessage("Please sign in again and try one more time.");
       return;
     }
@@ -222,7 +226,7 @@ export default function FavoriteEditorScreen() {
       setSaving(true);
 
       const response = await fetch(
-        `${API_URL}/favorites/${user.id}/record/${favoriteId}`,
+        `${API_URL}/favorites/${encodeURIComponent(user.id)}/${encodeURIComponent(recipeId)}`,
         {
           method: "PUT",
           headers: {
@@ -251,7 +255,7 @@ export default function FavoriteEditorScreen() {
         "Your personalized recipe has been saved."
       );
 
-      router.back();
+      backOrReplace(router, "/(taps)/favorites");
     } catch (error) {
       console.error("Error saving favorite:", error);
 
@@ -314,7 +318,7 @@ export default function FavoriteEditorScreen() {
           }}
         >
           <TouchableOpacity
-            onPress={() => router.back()}
+            onPress={() => backOrReplace(router, "/(taps)/favorites")}
             style={{
               width: 42,
               height: 42,
@@ -474,6 +478,13 @@ export default function FavoriteEditorScreen() {
         >
           Put one ingredient on each line.
         </Text>
+
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12, paddingBottom: 14 }}>
+          {textToList(ingredientsText).map((ingredient, index) => <View key={`${ingredient}:${index}`} style={{ width: 110 }}>
+            <IngredientPicture ingredient={ingredient} style={{ width: 110, height: 86 }} />
+            <Text numberOfLines={2} style={{ color: COLORS.text, fontSize: 12, marginTop: 5 }}>{ingredient}</Text>
+          </View>)}
+        </ScrollView>
 
         <TextInput
           value={ingredientsText}

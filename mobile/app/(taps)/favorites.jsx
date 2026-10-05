@@ -1,1003 +1,142 @@
-import {
-  Alert,
-  FlatList,
-  Platform,
-  RefreshControl,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import {
-  useCallback,
-  useState,
-} from "react";
-import {
-  useFocusEffect,
-  useRouter,
-} from "expo-router";
-import {
-  useClerk,
-  useUser,
-} from "@clerk/expo";
-import { Image } from "expo-image";
+import { useUser } from "@clerk/expo";
 import { Ionicons } from "@expo/vector-icons";
-
+import { Image } from "expo-image";
+import { useFocusEffect, useRouter } from "expo-router";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { ActivityIndicator, FlatList, Modal, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { API_URL } from "../../constants/api";
 import { recipeImageSource } from "../../data/curatedImages";
-import LoadingSpinner from "../../components/LoadingSpinner";
+import { cookbookList } from "../../services/kitchenLists";
 
-const THEME = {
-  background: "#FFF8F0",
-  surface: "#FFFFFF",
-  primary: "#245B4B",
-  primaryDark: "#173E33",
-  coral: "#E76F51",
-  coralDark: "#C9563B",
-  saffron: "#F4C95D",
-  sage: "#DCECE4",
-  cream: "#FFF2D8",
-  border: "#E9E1D7",
-  ink: "#20302A",
-  muted: "#77817C",
-  softText: "#9AA29F",
-  white: "#FFFFFF",
-  danger: "#D64B43",
-};
-
-const FavoriteImage = ({ image, recipeId }) => {
-  const [showImage, setShowImage] =
-    useState(Boolean(image));
-
-  if (!showImage) {
-    return (
-      <View style={styles.recipeImageFallback}>
-        <Ionicons
-          name="restaurant-outline"
-          size={34}
-          color={THEME.primary}
-        />
-      </View>
-    );
-  }
-
-  return (
-    <Image
-      source={recipeImageSource({ image, recipeId })}
-      style={styles.recipeImage}
-      contentFit="cover"
-      transition={200}
-      onError={() => setShowImage(false)}
-    />
-  );
-};
-
-const FavoriteCard = ({
-  favorite,
-  isDeleting,
-  onEdit,
-  onSecondServing,
-  onDelete,
-}) => {
-  return (
-    <View style={styles.recipeCard}>
-      <View style={styles.recipeImageContainer}>
-        <FavoriteImage image={favorite.image} recipeId={favorite.recipeId} />
-
-        <View style={styles.savedBadge}>
-          <Ionicons
-            name="heart"
-            size={13}
-            color={THEME.coral}
-          />
-
-          <Text style={styles.savedBadgeText}>
-            Saved
-          </Text>
-        </View>
-      </View>
-
-      <View style={styles.recipeCardContent}>
-        <Text
-          style={styles.recipeTitle}
-          numberOfLines={2}
-        >
-          {favorite.title}
-        </Text>
-
-        <View style={styles.recipeMeta}>
-          <Ionicons
-            name="time-outline"
-            size={14}
-            color={THEME.coral}
-          />
-
-          <Text
-            style={styles.recipeMetaText}
-            numberOfLines={1}
-          >
-            {favorite.cookTime || "Your recipe"}
-          </Text>
-        </View>
-
-        {favorite.personalNote ? (
-          <View style={styles.notePreview}>
-            <Ionicons
-              name="chatbubble-ellipses-outline"
-              size={13}
-              color={THEME.primary}
-            />
-
-            <Text
-              style={styles.notePreviewText}
-              numberOfLines={1}
-            >
-              Your note added
-            </Text>
-          </View>
-        ) : (
-          <View style={styles.notePreview}>
-            <Ionicons
-              name="create-outline"
-              size={13}
-              color={THEME.muted}
-            />
-
-            <Text
-              style={[
-                styles.notePreviewText,
-                styles.notePreviewMuted,
-              ]}
-              numberOfLines={1}
-            >
-              Make it your own
-            </Text>
-          </View>
-        )}
-
-        <TouchableOpacity
-          style={styles.editButton}
-          onPress={onEdit}
-          activeOpacity={0.85}
-        >
-          <Ionicons
-            name="create-outline"
-            size={16}
-            color={THEME.white}
-          />
-
-          <Text style={styles.editButtonText}>
-            Edit recipe
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.secondServingButton}
-          onPress={onSecondServing}
-          activeOpacity={0.85}
-        >
-          <Ionicons
-            name="sparkles-outline"
-            size={16}
-            color={THEME.primary}
-          />
-
-          <Text style={styles.secondServingButtonText}>
-            Second serving
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.deleteButton}
-          onPress={onDelete}
-          disabled={isDeleting}
-          activeOpacity={0.8}
-        >
-          <Ionicons
-            name="trash-outline"
-            size={16}
-            color={THEME.danger}
-          />
-
-          <Text style={styles.deleteButtonText}>
-            {isDeleting ? "Removing..." : "Remove"}
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-};
-
-const FavoritesScreen = () => {
-  const router = useRouter();
-  const { signOut } = useClerk();
+const C = { green: "#245B4B", ink: "#20302A", muted: "#65736B", cream: "#FFF8F0", border: "#E9E1D7", sage: "#DCECE4", coral: "#A74531" };
+function DishPhoto({ recipe }) {
+  const source = recipeImageSource({ recipeId: recipe.recipeId, image: recipe.image });
+  const imageKey = `${recipe.recipeId}:${recipe.image || ""}`;
+  const [failedKey, setFailedKey] = useState(null);
+  return source && failedKey !== imageKey ? <Image source={source} style={s.photo} contentFit="cover" onError={() => setFailedKey(imageKey)} accessibilityLabel={recipe.title} />
+    : <View style={[s.photo, s.photoFallback]}><Ionicons name="restaurant-outline" size={38} color={C.green} /></View>;
+}
+export default function FavoritesScreen() {
   const { user, isLoaded } = useUser();
-
-  const [
-    favoriteRecipes,
-    setFavoriteRecipes,
-  ] = useState([]);
-
-  const [loading, setLoading] =
-    useState(true);
-
-  const [refreshing, setRefreshing] =
-    useState(false);
-
-  const [
-    deletingFavoriteId,
-    setDeletingFavoriteId,
-  ] = useState(null);
-
-  const loadFavorites = useCallback(
-    async ({ showLoader = true } = {}) => {
-      if (!user?.id) {
-        setFavoriteRecipes([]);
-        setLoading(false);
-        return;
-      }
-
-      try {
-        if (showLoader) {
-          setLoading(true);
-        }
-
-        const response = await fetch(
-          `${API_URL}/favorites/${user.id}`
-        );
-
-        if (!response.ok) {
-          throw new Error(
-            `Failed to fetch favorites: ${response.status}`
-          );
-        }
-
-        const favorites =
-          await response.json();
-
-        setFavoriteRecipes(
-          Array.isArray(favorites)
-            ? favorites
-            : []
-        );
-      } catch (error) {
-        console.error(
-          "Error loading favorites:",
-          error
-        );
-
-        if (Platform.OS === "web") {
-          window.alert(
-            "Could not load your saved recipes."
-          );
-        } else {
-          Alert.alert(
-            "Could not load favorites",
-            "Please check your connection and try again."
-          );
-        }
-      } finally {
-        setLoading(false);
-      }
-    },
-    [user?.id]
-  );
-
-  useFocusEffect(
-    useCallback(() => {
-      if (isLoaded) {
-        loadFavorites();
-      }
-    }, [isLoaded, loadFavorites])
-  );
-
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    await loadFavorites({ showLoader: false });
-    setRefreshing(false);
+  if (!isLoaded) return <View style={s.center}><ActivityIndicator color={C.green} /></View>;
+  if (!user) return <View style={s.center}><Text style={s.body}>Sign in to open your cookbook.</Text></View>;
+  return <Cookbook key={user.id} userId={user.id} />;
+}
+function Cookbook({ userId }) {
+  const router = useRouter();
+  const [recipes, setRecipes] = useState([]);
+  const [query, setQuery] = useState("");
+  const [sort, setSort] = useState("recent");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [selected, setSelected] = useState(null);
+  const [confirm, setConfirm] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [notice, setNotice] = useState("");
+  const revision = useRef(0);
+  const mutation = useRef(false);
+  const active = useRef(true);
+  useEffect(() => { active.current = true; return () => { active.current = false; revision.current += 1; }; }, []);
+  const request = useCallback(async (path, options = {}) => {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
+    try {
+      const response = await fetch(`${API_URL}/favorites/${encodeURIComponent(userId)}${path}`, { ...options, signal: controller.signal });
+      const data = response.status === 204 ? null : await response.json();
+      if (!response.ok) throw new Error(data?.message || "Your cookbook could not be updated.");
+      return data;
+    } catch (failure) {
+      if (failure.name === "AbortError") throw new Error("The request timed out. Please try again.");
+      throw failure;
+    } finally { clearTimeout(timeout); }
+  }, [userId]);
+  const load = useCallback(async () => {
+    if (mutation.current) return;
+    const current = ++revision.current;
+    setLoading(true); setError("");
+    try {
+      const data = await request("");
+      if (!Array.isArray(data)) throw new Error("Your cookbook could not be loaded.");
+      if (current === revision.current) setRecipes(data);
+    } catch (failure) { if (current === revision.current) setError(failure.message); }
+    finally { if (current === revision.current) setLoading(false); }
+  }, [request]);
+  useFocusEffect(useCallback(() => { load(); return () => { revision.current += 1; }; }, [load]));
+  const remove = async () => {
+    if (!selected || mutation.current) return;
+    const recipe = selected;
+    mutation.current = true; revision.current += 1; setBusy(true); setLoading(false); setError("");
+    try {
+      await request(`/${encodeURIComponent(recipe.recipeId)}`, { method: "DELETE" });
+      if (!active.current) return;
+      setRecipes(previous => previous.filter(item => String(item.id) !== String(recipe.id)));
+      setSelected(null); setConfirm(false); setNotice(`${recipe.title} removed from your cookbook.`);
+    } catch (failure) { if (active.current) setError(failure.message); }
+    finally { mutation.current = false; if (active.current) setBusy(false); }
   };
-
-  const handleDeleteFavorite = async (
-    favorite
-  ) => {
-    if (!user?.id || deletingFavoriteId) {
-      return;
-    }
-
-    const deleteRecipe = async () => {
-      try {
-        setDeletingFavoriteId(favorite.id);
-
-        const response = await fetch(
-          `${API_URL}/favorites/${user.id}/record/${favorite.id}`,
-          {
-            method: "DELETE",
-          }
-        );
-
-        const responseData =
-          await response.json();
-
-        if (!response.ok) {
-          throw new Error(
-            responseData.message ||
-              "Could not delete this saved recipe."
-          );
-        }
-
-        setFavoriteRecipes(
-          (currentFavorites) =>
-            currentFavorites.filter(
-              (savedRecipe) =>
-                Number(savedRecipe.id) !==
-                Number(favorite.id)
-            )
-        );
-      } catch (error) {
-        console.error(
-          "Error deleting favorite:",
-          error
-        );
-
-        const message =
-          error.message ||
-          "Could not delete this saved recipe.";
-
-        if (Platform.OS === "web") {
-          window.alert(message);
-        } else {
-          Alert.alert(
-            "Could not remove recipe",
-            message
-          );
-        }
-      } finally {
-        setDeletingFavoriteId(null);
-      }
-    };
-
-    const message = `Remove "${favorite.title}" from your cookbook?`;
-
-    if (Platform.OS === "web") {
-      const confirmed =
-        window.confirm(message);
-
-      if (confirmed) {
-        await deleteRecipe();
-      }
-
-      return;
-    }
-
-    Alert.alert(
-      "Remove saved recipe?",
-      message,
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Remove",
-          style: "destructive",
-          onPress: deleteRecipe,
-        },
-      ]
-    );
+  const openRecipe = recipe => router.push({ pathname: "/favorite-editor", params: { favoriteId: String(recipe.id) } });
+  const secondServing = recipe => {
+    setSelected(null);
+    router.push({ pathname: "/second-serving", params: { title: recipe.title || "My saved recipe", favorite: JSON.stringify({
+      title: recipe.title, image: recipe.image || null, cookTime: recipe.cookTime || "", servings: recipe.servings || "",
+      ingredients: Array.isArray(recipe.ingredients) ? recipe.ingredients.slice(0, 12) : [], instructions: [], personalNote: recipe.personalNote || "",
+    }) } });
   };
-
-  const handleEditFavorite = (favorite) => {
-    router.push({
-      pathname: "/favorite-editor",
-      params: {
-        favoriteId: String(favorite.id),
-      },
-    });
-  };
-
-  const handleSecondServing = (favorite) => {
-    router.push({
-      pathname: "/second-serving",
-      params: {
-        title: favorite.title || "My saved recipe",
-
-        favorite: JSON.stringify({
-          title:
-            favorite.title || "My saved recipe",
-
-          image: favorite.image || null,
-
-          cookTime: favorite.cookTime || "",
-
-          servings: favorite.servings || "",
-
-          ingredients: Array.isArray(
-            favorite.ingredients
-          )
-            ? favorite.ingredients.slice(0, 12)
-            : [],
-
-          instructions: [],
-
-          personalNote:
-            favorite.personalNote || "",
-        }),
-      },
-    });
-  };
-
-  const handleSignOut = async () => {
-    const signOutUser = async () => {
-      try {
-        await signOut();
-        router.replace("/(auth)/sign-in");
-      } catch (error) {
-        console.error(
-          "Sign out error:",
-          error
-        );
-      }
-    };
-
-    if (Platform.OS === "web") {
-      const confirmed = window.confirm(
-        "Are you sure you want to log out?"
-      );
-
-      if (confirmed) {
-        await signOutUser();
-      }
-
-      return;
-    }
-
-    Alert.alert(
-      "Log out?",
-      "You can sign back in anytime to access your cookbook.",
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Log out",
-          style: "destructive",
-          onPress: signOutUser,
-        },
-      ]
-    );
-  };
-
-  const renderFavoriteCard = ({ item }) => {
-    const isDeleting =
-      Number(deletingFavoriteId) ===
-      Number(item.id);
-
-    return (
-      <FavoriteCard
-        favorite={item}
-        isDeleting={isDeleting}
-        onEdit={() => handleEditFavorite(item)}
-        onSecondServing={() =>
-          handleSecondServing(item)
-        }
-        onDelete={() =>
-          handleDeleteFavorite(item)
-        }
-      />
-    );
-  };
-
-  const renderHeader = () => {
-    return (
-      <>
-        <View style={styles.header}>
-          <View style={styles.headerText}>
-            <Text style={styles.eyebrow}>
-              YOUR PERSONAL RECIPE BOX
-            </Text>
-
-            <Text style={styles.title}>
-              My Cookbook
-            </Text>
-
-            <Text style={styles.subtitle}>
-              Save recipes, adjust them, and
-              cook them your way.
-            </Text>
-          </View>
-
-          <TouchableOpacity
-            style={styles.logoutButton}
-            onPress={handleSignOut}
-            activeOpacity={0.8}
-            accessibilityLabel="Log out"
-          >
-            <Ionicons
-              name="log-out-outline"
-              size={21}
-              color={THEME.primary}
-            />
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.summaryCard}>
-          <View style={styles.summaryIcon}>
-            <Ionicons
-              name="heart"
-              size={22}
-              color={THEME.coral}
-            />
-          </View>
-
-          <View style={styles.summaryText}>
-            <Text style={styles.summaryTitle}>
-              {favoriteRecipes.length === 1
-                ? "1 saved recipe"
-                : `${favoriteRecipes.length} saved recipes`}
-            </Text>
-
-            <Text style={styles.summaryDescription}>
-              Your collection is ready whenever
-              hunger calls.
-            </Text>
-          </View>
-
-          <TouchableOpacity
-            style={styles.exploreCircle}
-            onPress={() => router.push("/search")}
-            activeOpacity={0.8}
-            accessibilityLabel="Explore recipes"
-          >
-            <Ionicons
-              name="arrow-forward"
-              size={19}
-              color={THEME.white}
-            />
-          </TouchableOpacity>
-        </View>
-
-        {favoriteRecipes.length > 0 && (
-          <View style={styles.listHeader}>
-            <View>
-              <Text style={styles.listEyebrow}>
-                YOUR SAVED DISHES
-              </Text>
-
-              <Text style={styles.listTitle}>
-                Cook it your way
-              </Text>
-            </View>
-
-            <TouchableOpacity
-              style={styles.refreshButton}
-              onPress={handleRefresh}
-              activeOpacity={0.8}
-              accessibilityLabel="Refresh favorites"
-            >
-              <Ionicons
-                name="refresh-outline"
-                size={18}
-                color={THEME.primary}
-              />
-            </TouchableOpacity>
-          </View>
-        )}
-      </>
-    );
-  };
-
-  const renderEmptyState = () => {
-    return (
-      <View style={styles.emptyState}>
-        <View style={styles.emptyIcon}>
-          <Ionicons
-            name="heart-outline"
-            size={48}
-            color={THEME.coral}
-          />
-        </View>
-
-        <Text style={styles.emptyTitle}>
-          Your cookbook is waiting
-        </Text>
-
-        <Text style={styles.emptyDescription}>
-          Save recipes you love, then personalize
-          their ingredients, instructions, and notes.
-        </Text>
-
-        <TouchableOpacity
-          style={styles.exploreButton}
-          onPress={() => router.push("/search")}
-          activeOpacity={0.88}
-        >
-          <Ionicons
-            name="search-outline"
-            size={18}
-            color={THEME.white}
-          />
-
-          <Text style={styles.exploreButtonText}>
-            Explore recipes
-          </Text>
-        </TouchableOpacity>
-      </View>
-    );
-  };
-
-  if (!isLoaded || loading) {
-    return (
-      <LoadingSpinner message="Opening your cookbook..." />
-    );
-  }
-
-  return (
-    <SafeAreaView style={styles.safeArea}>
-      <FlatList
-        data={favoriteRecipes}
-        renderItem={renderFavoriteCard}
-        keyExtractor={(item) => String(item.id)}
-        numColumns={2}
-        columnWrapperStyle={
-          favoriteRecipes.length > 1
-            ? styles.recipeRow
-            : undefined
-        }
-        contentContainerStyle={styles.listContent}
-        showsVerticalScrollIndicator={false}
-        ListHeaderComponent={renderHeader}
-        ListEmptyComponent={renderEmptyState}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={handleRefresh}
-            tintColor={THEME.primary}
-            colors={[THEME.primary]}
-          />
-        }
-      />
-    </SafeAreaView>
-  );
-};
-
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: THEME.background,
-  },
-
-  listContent: {
-    paddingHorizontal: 20,
-    paddingTop: 14,
-    paddingBottom: 130,
-  },
-
-  header: {
-    alignItems: "flex-start",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 22,
-  },
-
-  headerText: {
-    flex: 1,
-    paddingRight: 14,
-  },
-
-  eyebrow: {
-    color: THEME.coral,
-    fontSize: 10,
-    fontWeight: "800",
-    letterSpacing: 1.05,
-    marginBottom: 6,
-  },
-
-  title: {
-    color: THEME.ink,
-    fontSize: 31,
-    fontWeight: "800",
-    letterSpacing: -0.9,
-  },
-
-  subtitle: {
-    color: THEME.muted,
-    fontSize: 14,
-    lineHeight: 20,
-    marginTop: 5,
-  },
-
-  logoutButton: {
-    alignItems: "center",
-    backgroundColor: THEME.surface,
-    borderColor: THEME.border,
-    borderRadius: 21,
-    borderWidth: 1,
-    height: 43,
-    justifyContent: "center",
-    width: 43,
-  },
-
-  summaryCard: {
-    alignItems: "center",
-    backgroundColor: THEME.cream,
-    borderColor: "#F0DCA9",
-    borderRadius: 22,
-    borderWidth: 1,
-    flexDirection: "row",
-    marginBottom: 30,
-    padding: 16,
-  },
-
-  summaryIcon: {
-    alignItems: "center",
-    backgroundColor: THEME.white,
-    borderRadius: 20,
-    height: 42,
-    justifyContent: "center",
-    marginRight: 12,
-    width: 42,
-  },
-
-  summaryText: {
-    flex: 1,
-  },
-
-  summaryTitle: {
-    color: THEME.primaryDark,
-    fontSize: 16,
-    fontWeight: "800",
-  },
-
-  summaryDescription: {
-    color: "#6A6F68",
-    fontSize: 12,
-    lineHeight: 17,
-    marginTop: 2,
-  },
-
-  exploreCircle: {
-    alignItems: "center",
-    backgroundColor: THEME.primary,
-    borderRadius: 18,
-    height: 36,
-    justifyContent: "center",
-    marginLeft: 10,
-    width: 36,
-  },
-
-  listHeader: {
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 15,
-  },
-
-  listEyebrow: {
-    color: THEME.coral,
-    fontSize: 10,
-    fontWeight: "800",
-    letterSpacing: 1,
-    marginBottom: 3,
-  },
-
-  listTitle: {
-    color: THEME.ink,
-    fontSize: 21,
-    fontWeight: "800",
-    letterSpacing: -0.45,
-  },
-
-  refreshButton: {
-    alignItems: "center",
-    backgroundColor: THEME.sage,
-    borderRadius: 18,
-    height: 36,
-    justifyContent: "center",
-    width: 36,
-  },
-
-  recipeRow: {
-    gap: 14,
-    justifyContent: "space-between",
-  },
-
-  recipeCard: {
-    backgroundColor: THEME.surface,
-    borderColor: THEME.border,
-    borderRadius: 20,
-    borderWidth: 1,
-    flex: 1,
-    marginBottom: 15,
-    maxWidth: "48%",
-    overflow: "hidden",
-  },
-
-  recipeImageContainer: {
-    backgroundColor: THEME.sage,
-    height: 126,
-    position: "relative",
-  },
-
-  recipeImage: {
-    height: "100%",
-    width: "100%",
-  },
-
-  recipeImageFallback: {
-    alignItems: "center",
-    backgroundColor: THEME.sage,
-    height: "100%",
-    justifyContent: "center",
-    width: "100%",
-  },
-
-  savedBadge: {
-    alignItems: "center",
-    backgroundColor: THEME.white,
-    borderRadius: 14,
-    flexDirection: "row",
-    gap: 4,
-    left: 9,
-    paddingHorizontal: 8,
-    paddingVertical: 5,
-    position: "absolute",
-    top: 9,
-  },
-
-  savedBadgeText: {
-    color: THEME.coralDark,
-    fontSize: 10,
-    fontWeight: "800",
-  },
-
-  recipeCardContent: {
-    padding: 12,
-  },
-
-  recipeTitle: {
-    color: THEME.ink,
-    fontSize: 15,
-    fontWeight: "800",
-    lineHeight: 20,
-    minHeight: 40,
-  },
-
-  recipeMeta: {
-    alignItems: "center",
-    flexDirection: "row",
-    gap: 4,
-    marginTop: 8,
-  },
-
-  recipeMetaText: {
-    color: THEME.muted,
-    fontSize: 12,
-    fontWeight: "600",
-  },
-
-  notePreview: {
-    alignItems: "center",
-    flexDirection: "row",
-    gap: 4,
-    marginTop: 8,
-  },
-
-  notePreviewText: {
-    color: THEME.primary,
-    fontSize: 11,
-    fontWeight: "700",
-  },
-
-  notePreviewMuted: {
-    color: THEME.muted,
-  },
-
-  editButton: {
-    alignItems: "center",
-    backgroundColor: THEME.primary,
-    borderRadius: 11,
-    flexDirection: "row",
-    gap: 5,
-    justifyContent: "center",
-    marginTop: 13,
-    paddingVertical: 10,
-  },
-
-  editButtonText: {
-    color: THEME.white,
-    fontSize: 12,
-    fontWeight: "800",
-  },
-
-  secondServingButton: {
-    alignItems: "center",
-    backgroundColor: THEME.sage,
-    borderColor: "#BFDCD0",
-    borderRadius: 11,
-    borderWidth: 1,
-    flexDirection: "row",
-    gap: 5,
-    justifyContent: "center",
-    marginTop: 7,
-    paddingVertical: 9,
-  },
-
-  secondServingButtonText: {
-    color: THEME.primary,
-    fontSize: 12,
-    fontWeight: "800",
-  },
-
-  deleteButton: {
-    alignItems: "center",
-    flexDirection: "row",
-    gap: 5,
-    justifyContent: "center",
-    marginTop: 5,
-    paddingVertical: 7,
-  },
-
-  deleteButtonText: {
-    color: THEME.danger,
-    fontSize: 12,
-    fontWeight: "800",
-  },
-
-  emptyState: {
-    alignItems: "center",
-    backgroundColor: THEME.surface,
-    borderColor: THEME.border,
-    borderRadius: 26,
-    borderStyle: "dashed",
-    borderWidth: 1,
-    marginTop: 8,
-    paddingHorizontal: 28,
-    paddingVertical: 42,
-  },
-
-  emptyIcon: {
-    alignItems: "center",
-    backgroundColor: "#FDE5DD",
-    borderRadius: 38,
-    height: 76,
-    justifyContent: "center",
-    marginBottom: 19,
-    width: 76,
-  },
-
-  emptyTitle: {
-    color: THEME.ink,
-    fontSize: 22,
-    fontWeight: "800",
-    textAlign: "center",
-  },
-
-  emptyDescription: {
-    color: THEME.muted,
-    fontSize: 14,
-    lineHeight: 21,
-    marginTop: 9,
-    textAlign: "center",
-  },
-
-  exploreButton: {
-    alignItems: "center",
-    backgroundColor: THEME.primary,
-    borderRadius: 14,
-    flexDirection: "row",
-    gap: 8,
-    marginTop: 22,
-    paddingHorizontal: 18,
-    paddingVertical: 13,
-  },
-
-  exploreButtonText: {
-    color: THEME.white,
-    fontSize: 14,
-    fontWeight: "800",
-  },
+  const visible = cookbookList(recipes, query, sort);
+  return <SafeAreaView style={s.page} edges={["top", "left", "right"]}>
+    <FlatList data={visible} numColumns={2} keyExtractor={item => String(item.id)} columnWrapperStyle={s.row}
+      contentContainerStyle={s.content} keyboardShouldPersistTaps="handled"
+      refreshControl={<RefreshControl refreshing={loading} onRefresh={load} tintColor={C.green} enabled={!busy} />}
+      ListHeaderComponent={<>
+        <View style={s.header}><View style={s.grow}><Text style={s.eyebrow}>SAVED WITH LOVE. COOKED YOUR WAY.</Text><Text style={s.title}>Your next favorite{"\n"}is already here.</Text></View><View style={s.heart}><Ionicons name="heart-outline" size={28} color={C.coral} /></View></View>
+        <Text style={s.body}>A personal cookbook for dishes worth making again.</Text>
+        <View style={s.banner}><View style={s.grow}><Text style={s.bannerTitle}>My cookbook</Text><Text style={s.body}>{loading && !recipes.length ? "Opening your collection…" : `${recipes.length} saved recipe${recipes.length === 1 ? "" : "s"}`}</Text></View><Pressable accessibilityRole="button" accessibilityLabel="Discover recipes" style={s.discover} onPress={() => router.push("/(taps)")}><Ionicons name="add" size={18} color={C.green} /><Text style={s.link}>Discover</Text></Pressable></View>
+        <View style={s.search}><Ionicons name="search-outline" size={20} color={C.green} /><TextInput accessibilityLabel="Search cookbook" placeholder="Search recipes, ingredients, notes…" placeholderTextColor={C.muted} value={query} onChangeText={setQuery} style={s.input} />{!!query && <Pressable accessibilityRole="button" accessibilityLabel="Clear cookbook search" onPress={() => setQuery("")} style={s.iconButton}><Ionicons name="close" size={18} color={C.green} /></Pressable>}</View>
+        <View style={s.toolbar}><View style={s.sortOptions}>{[["recent", "Newest saved"], ["az", "A–Z"]].map(([id, label]) => <Pressable key={id} accessibilityRole="button" accessibilityState={{ selected: sort === id }} onPress={() => setSort(id)} style={[s.chip, sort === id && s.chipActive]}><Text style={[s.chipText, sort === id && { color: "white" }]}>{label}</Text></Pressable>)}</View><Pressable accessibilityRole="button" accessibilityLabel="Refresh cookbook" onPress={load} disabled={loading || busy} style={s.iconButton}><Ionicons name="refresh-outline" size={20} color={C.green} /></Pressable></View>
+        {!!notice && <Text accessibilityLiveRegion="polite" style={s.notice}>{notice}</Text>}
+        {!!error && !selected && <View style={s.error} accessibilityRole="alert"><Text style={s.errorText}>{error}</Text><Pressable accessibilityRole="button" onPress={load} style={s.textButton}><Text style={s.link}>Try again</Text></Pressable></View>}
+        <View style={s.section}><Text style={s.sectionTitle}>{query ? "Search results" : "Made to be made again"}</Text><Text style={s.small}>{visible.length} recipes</Text></View>
+      </>}
+      renderItem={({ item }) => <View style={s.card}>
+        <Pressable accessibilityRole="button" accessibilityLabel={`Open saved recipe ${item.title}`} onPress={() => openRecipe(item)}>
+          <DishPhoto recipe={item} /><View style={s.cardBody}><Text style={s.cardTitle} numberOfLines={2}>{item.title}</Text><Text style={s.small}>{item.cookTime || "Your saved recipe"}{item.servings ? ` · Serves ${item.servings}` : ""}</Text></View>
+        </Pressable>
+        <View style={s.cardFooter}><Pressable accessibilityRole="button" accessibilityLabel={`Edit ${item.title}`} onPress={() => openRecipe(item)} style={s.edit}><Text style={s.link}>View & edit</Text></Pressable><Pressable accessibilityRole="button" accessibilityLabel={`More options for ${item.title}`} style={s.iconButton} onPress={() => { setSelected(item); setConfirm(false); setError(""); }}><Ionicons name="ellipsis-horizontal" size={22} color={C.green} /></Pressable></View>
+      </View>}
+      ListEmptyComponent={!loading && !error ? <View style={s.empty}><View style={s.heart}><Ionicons name={query ? "search-outline" : "book-outline"} size={30} color={C.green} /></View><Text style={s.sectionTitle}>{query ? "No recipes found" : "Start a delicious collection"}</Text><Text style={s.emptyText}>{query ? "Try a dish name or an ingredient you remember." : "Tap the heart on a recipe you love. We’ll keep it here for your next dinner."}</Text><Pressable accessibilityRole="button" style={s.primary} onPress={() => query ? setQuery("") : router.push("/(taps)")}><Text style={s.white}>{query ? "Clear search" : "Find your first favorite"}</Text></Pressable></View> : null}
+      ListFooterComponent={<Text style={s.footer}>Keep the inspiration. Add your own touch.</Text>} />
+    <Modal visible={!!selected} transparent animationType="fade" onRequestClose={() => { if (!busy) setSelected(null); }}>
+      <View style={s.overlay}><View style={s.sheet} accessibilityViewIsModal>
+        <ScrollView keyboardShouldPersistTaps="handled"><View style={s.section}><Text style={[s.sectionTitle, s.grow]}>{selected?.title}</Text><Pressable accessibilityRole="button" accessibilityLabel="Close recipe options" disabled={busy} onPress={() => setSelected(null)} style={s.iconButton}><Ionicons name="close" size={24} color={C.green} /></Pressable></View>
+        {!!error && <Text accessibilityRole="alert" style={s.errorText}>{error}</Text>}
+        {confirm ? <><Text style={s.body}>Remove this recipe from your cookbook? Your saved edits and notes will also be removed.</Text><Pressable accessibilityRole="button" disabled={busy} style={[s.primary, { backgroundColor: C.coral }]} onPress={remove}><Text style={s.white}>{busy ? "Removing…" : "Remove recipe"}</Text></Pressable><Pressable accessibilityRole="button" disabled={busy} style={s.textButton} onPress={() => setConfirm(false)}><Text style={s.link}>Keep recipe</Text></Pressable></> : <>
+          <Pressable accessibilityRole="button" style={s.menuRow} onPress={() => { const recipe = selected; setSelected(null); openRecipe(recipe); }}><Ionicons name="create-outline" size={23} color={C.green} /><View style={s.grow}><Text style={s.menuTitle}>View & edit recipe</Text><Text style={s.small}>Ingredients, instructions, and your notes</Text></View></Pressable>
+          <Pressable accessibilityRole="button" style={s.menuRow} onPress={() => secondServing(selected)}><Ionicons name="sparkles-outline" size={23} color={C.green} /><View style={s.grow}><Text style={s.menuTitle}>Second serving</Text><Text style={s.small}>Find a new way to enjoy this dish</Text></View></Pressable>
+          <Pressable accessibilityRole="button" style={s.menuRow} onPress={() => setConfirm(true)}><Ionicons name="trash-outline" size={23} color={C.coral} /><Text style={s.errorText}>Remove from cookbook</Text></Pressable>
+        </>}
+        </ScrollView>
+      </View></View>
+    </Modal>
+  </SafeAreaView>;
+}
+const s = StyleSheet.create({
+  page: { flex: 1, backgroundColor: C.cream }, center: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: C.cream, padding: 24 },
+  content: { padding: 20, paddingBottom: 35, width: "100%", maxWidth: 850, alignSelf: "center" }, grow: { flex: 1 },
+  header: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 12 }, eyebrow: { color: C.coral, fontWeight: "800", fontSize: 10, letterSpacing: 1.1, marginBottom: 10 },
+  title: { fontSize: 31, lineHeight: 36, letterSpacing: -0.8, fontWeight: "800", color: C.ink }, heart: { width: 54, height: 54, borderRadius: 18, backgroundColor: "#F7E5DC", alignItems: "center", justifyContent: "center" },
+  body: { fontSize: 14, lineHeight: 21, color: C.muted }, banner: { backgroundColor: C.sage, borderRadius: 20, padding: 20, marginVertical: 22, flexDirection: "row", alignItems: "center", gap: 10 },
+  bannerTitle: { fontSize: 21, fontWeight: "800", color: C.green, marginBottom: 5 }, discover: { flexDirection: "row", alignItems: "center", gap: 4, backgroundColor: "white", borderRadius: 13, paddingHorizontal: 12, minHeight: 44 },
+  link: { color: C.green, fontSize: 12, fontWeight: "700" }, search: { flexDirection: "row", alignItems: "center", gap: 9, paddingHorizontal: 12, borderWidth: 1, borderColor: C.border, backgroundColor: "white", borderRadius: 15 },
+  input: { flex: 1, minWidth: 0, color: C.ink, fontSize: 14, paddingVertical: 16 }, toolbar: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginVertical: 14, gap: 8 },
+  sortOptions: { flexDirection: "row", gap: 8 }, chip: { borderWidth: 1, borderColor: C.border, borderRadius: 22, backgroundColor: "white", paddingHorizontal: 15, minHeight: 44, justifyContent: "center" }, chipActive: { backgroundColor: C.green, borderColor: C.green }, chipText: { fontSize: 12, fontWeight: "700", color: C.green },
+  iconButton: { width: 44, height: 44, justifyContent: "center", alignItems: "center" }, section: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 16 }, sectionTitle: { fontSize: 20, fontWeight: "800", color: C.ink, flexShrink: 1 },
+  row: { gap: 14 }, card: { flex: 1, maxWidth: "49%", backgroundColor: "white", borderWidth: 1, borderColor: C.border, borderRadius: 18, overflow: "hidden", marginBottom: 16 },
+  photo: { width: "100%", aspectRatio: 1.15 }, photoFallback: { alignItems: "center", justifyContent: "center", backgroundColor: C.sage }, cardBody: { padding: 12, gap: 8 }, cardTitle: { color: C.ink, fontSize: 16, lineHeight: 21, fontWeight: "700", minHeight: 42 }, small: { color: C.muted, fontSize: 12, lineHeight: 18 },
+  cardFooter: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderTopWidth: 1, borderColor: C.border, paddingHorizontal: 12 }, edit: { minHeight: 48, justifyContent: "center", flex: 1 },
+  empty: { backgroundColor: "white", borderRadius: 22, borderWidth: 1, borderColor: C.border, padding: 28, alignItems: "center", gap: 15 }, emptyText: { textAlign: "center", color: C.muted, fontSize: 14, lineHeight: 21 },
+  primary: { backgroundColor: C.green, borderRadius: 13, padding: 15, alignItems: "center", marginTop: 12 }, white: { color: "white", fontSize: 14, fontWeight: "700" }, footer: { textAlign: "center", color: C.muted, fontSize: 12, paddingVertical: 25 },
+  error: { padding: 16, borderRadius: 14, backgroundColor: "#FBE6E0", marginBottom: 15 }, errorText: { color: C.coral, fontSize: 14, lineHeight: 21, fontWeight: "600" }, notice: { color: C.green, fontSize: 13, marginBottom: 15 }, textButton: { minHeight: 44, justifyContent: "center", alignItems: "center" },
+  overlay: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(15,35,26,0.5)", padding: 20 }, sheet: { backgroundColor: C.cream, borderRadius: 24, width: "100%", maxWidth: 480, maxHeight: "85%", padding: 22 },
+  menuRow: { flexDirection: "row", gap: 14, paddingVertical: 18, alignItems: "center", borderTopWidth: 1, borderColor: C.border }, menuTitle: { color: C.green, fontSize: 16, fontWeight: "700", marginBottom: 4 },
 });
-
-export default FavoritesScreen;

@@ -276,7 +276,7 @@ export default function SignUpScreen() {
 
             <TouchableOpacity
               style={authStyles.linkContainer}
-              onPress={() => router.back()}
+              onPress={() => router.replace("/(auth)/sign-in")}
             >
               <Text style={authStyles.linkText}>
                 Already have an account? <Text style={authStyles.link}>Sign In</Text>

@@ -6,20 +6,11 @@ import { ActivityIndicator, KeyboardAvoidingView, Platform, RefreshControl, Scro
 import { SafeAreaView } from "react-native-safe-area-context";
 import { API_URL } from "../../constants/api";
 
+import { expiryInfo, pantryList } from "../../services/kitchenLists";
+
 const UNITS = ["items", "g", "kg", "ml", "l", "cups", "tbsp", "tsp"];
 const EMPTY = { name: "", quantity: "1", unit: "items", expiresOn: "" };
 const GREEN = "#245B4B";
-
-function expiryLabel(value) {
-  if (!value) return "No expiry date";
-  const now = new Date();
-  const today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
-  const days = Math.round((Date.parse(`${value}T00:00:00Z`) - today) / 86400000);
-  if (days < 0) return `Past expiry · ${value}`;
-  if (days === 0) return "Expires today";
-  if (days <= 3) return `Use soon · ${days} day${days === 1 ? "" : "s"} left`;
-  return `Expires ${value}`;
-}
 
 export default function PantryScreen() {
   const { userId, isLoaded, getToken } = useAuth();
@@ -31,6 +22,10 @@ export default function PantryScreen() {
 
 function Pantry({ getToken }) {
   const router = useRouter();
+  const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState("all");
+  const [formOpen, setFormOpen] = useState(false);
+  const [notice, setNotice] = useState("");
   const [items, setItems] = useState([]);
   const [form, setForm] = useState(EMPTY);
   const [editingId, setEditingId] = useState(null);
@@ -82,7 +77,7 @@ function Pantry({ getToken }) {
     return () => { revision.current += 1; };
   }, [load]));
 
-  const resetForm = () => { setForm(EMPTY); setEditingId(null); };
+  const resetForm = () => { setForm(EMPTY); setEditingId(null); setFormOpen(false); };
   const change = (key, value) => setForm(previous => ({ ...previous, [key]: value }));
   const save = async () => {
     if (mutation.current) return;
@@ -98,6 +93,7 @@ function Pantry({ getToken }) {
       setItems(previous => editingId
         ? previous.map(item => item.id === editingId ? data.item : item)
         : [...previous, data.item]);
+      setNotice(editingId ? "Ingredient updated." : "Ingredient added to your pantry.");
       resetForm();
     });
   };
@@ -117,21 +113,38 @@ function Pantry({ getToken }) {
     setItems(previous => previous.filter(entry => entry.id !== item.id));
     if (editingId === item.id) resetForm();
     setDeleteId(null);
+    setNotice(`${item.name} removed.`);
   });
-  const sorted = [...items].sort((a, b) => (a.expiresOn || "9999").localeCompare(b.expiresOn || "9999") || a.name.localeCompare(b.name));
+  const sorted = pantryList(items, query, filter);
+  const counts = items.reduce((result, item) => {
+    result[expiryInfo(item.expiresOn).group] += 1;
+    return result;
+  }, { soon: 0, past: 0, undated: 0, later: 0 });
+
 
   return (
     <SafeAreaView style={styles.page} edges={["top"]}>
       <KeyboardAvoidingView style={styles.page} behavior={Platform.OS === "ios" ? "padding" : undefined}>
         <ScrollView ref={scroll} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled"
           refreshControl={<RefreshControl refreshing={loading} onRefresh={load} tintColor={GREEN} enabled={!busy} />}>
-          <View style={styles.heading}><Ionicons name="basket-outline" size={32} color={GREEN} /><Text style={styles.title}>My pantry</Text></View>
-          <Text style={styles.subtitle}>Know what you have. Use what expires first.</Text>
-          <TouchableOpacity accessibilityRole="button" style={styles.button} onPress={() => router.push("/meal-planner")}>
-            <Text style={styles.white}>Plan dinners</Text>
+          <View style={styles.heading}>
+            <View style={{ flex: 1 }}><Text style={styles.eyebrow}>YOUR EVERYDAY INGREDIENTS</Text><Text style={styles.title}>A little pantry.{"\n"}A lot of possibility.</Text></View>
+            <View style={styles.heroIcon}><Ionicons name="basket-outline" size={28} color={GREEN} /></View>
+          </View>
+          <Text style={styles.subtitle}>See what’s on hand. Make something good.</Text>
+          <View style={styles.overview}>
+            {[['all', items.length, 'Ingredients'], ['soon', counts.soon, 'Due in 3 days'], ['past', counts.past, 'Past date']].map(([id, count, label]) =>
+              <TouchableOpacity key={id} accessibilityRole="button" accessibilityLabel={`Show ${label.toLowerCase()}`} accessibilityState={{ selected: filter === id }} onPress={() => setFilter(id)} style={[styles.stat, filter === id && styles.statSelected]}>
+                <Text style={styles.statNumber}>{loading && !items.length ? '—' : count}</Text><Text style={styles.statLabel}>{label}</Text>
+              </TouchableOpacity>)}
+          </View>
+          <TouchableOpacity accessibilityRole="button" style={styles.planner} onPress={() => router.push("/meal-planner")}>
+            <Ionicons name="sparkles-outline" size={24} color={GREEN} /><View style={{ flex: 1 }}><Text style={styles.plannerTitle}>Turn your pantry into dinner</Text><Text style={styles.small}>Build a meal plan around what you have.</Text></View><Ionicons name="arrow-forward" size={20} color={GREEN} />
           </TouchableOpacity>
+          <View style={styles.sectionRow}><Text style={styles.sectionTitle}>On your shelves</Text><TouchableOpacity accessibilityRole="button" accessibilityLabel="Add ingredient" style={styles.addButton} disabled={busy} onPress={() => { resetForm(); setFormOpen(true); setError(""); }}><Ionicons name="add" size={18} color="white" /><Text style={styles.white}>Add item</Text></TouchableOpacity></View>
+          {!!notice && <Text style={styles.link} accessibilityLiveRegion="polite">{notice}</Text>}
           {error ? <View style={styles.error} accessibilityLiveRegion="polite"><Text style={styles.errorText}>{error}</Text><TouchableOpacity onPress={load} disabled={busy}><Text style={styles.link}>Retry loading pantry</Text></TouchableOpacity></View> : null}
-          <View style={styles.card}>
+          {formOpen && <View style={styles.card}>
             <Text style={styles.sectionTitle}>{editingId ? "Edit ingredient" : "Add an ingredient"}</Text>
             <Text style={styles.label}>Ingredient</Text>
             <TextInput accessibilityLabel="Ingredient name" style={styles.input} placeholder="e.g. Spinach" value={form.name} onChangeText={value => change("name", value)} maxLength={100} editable={!busy} />
@@ -142,20 +155,26 @@ function Pantry({ getToken }) {
             <Text style={styles.label}>Expiry date · optional</Text>
             <TextInput accessibilityLabel="Expiry date, YYYY-MM-DD" style={styles.input} placeholder="YYYY-MM-DD" autoCapitalize="none" maxLength={10} value={form.expiresOn} onChangeText={value => change("expiresOn", value)} editable={!busy} />
             <TouchableOpacity accessibilityRole="button" style={[styles.button, busy && styles.disabled]} onPress={save} disabled={busy}><Text style={styles.white}>{busy ? "Saving…" : editingId ? "Save changes" : "Add to pantry"}</Text></TouchableOpacity>
-            {editingId ? <TouchableOpacity style={styles.cancel} onPress={resetForm} disabled={busy}><Text style={styles.link}>Cancel editing</Text></TouchableOpacity> : null}
-          </View>
-          <Text style={styles.sectionTitle}>Your ingredients · {items.length}</Text>
-          {!loading && !error && !items.length ? <View style={styles.card}><Text style={styles.subtitle}>Your pantry is ready to fill. Add your first ingredient above.</Text></View> : null}
+            <TouchableOpacity accessibilityRole="button" style={styles.cancel} onPress={resetForm} disabled={busy}><Text style={styles.link}>Cancel</Text></TouchableOpacity>
+          </View>}
+          <View style={styles.search}><Ionicons name="search-outline" size={20} color={GREEN} /><TextInput accessibilityLabel="Search pantry" placeholder="Find an ingredient…" placeholderTextColor="#65736B" value={query} onChangeText={setQuery} style={styles.searchInput} /></View>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filters}>
+            {[["all", "All items"], ["soon", "Due soon"], ["past", "Past date"], ["undated", "No date"]].map(([id, label]) => <TouchableOpacity key={id} accessibilityRole="button" accessibilityState={{ selected: filter === id }} onPress={() => setFilter(id)} style={[styles.chip, filter === id && styles.selected]}><Text style={filter === id ? styles.white : styles.link}>{label}</Text></TouchableOpacity>)}
+          </ScrollView>
+          <Text style={styles.small}>{sorted.length} ingredient{sorted.length === 1 ? "" : "s"} · Earliest dates first</Text>
+          {!loading && items.length > 0 && !sorted.length && <View style={styles.card}><Text style={styles.itemName}>Nothing on this shelf yet</Text><Text style={styles.subtitle}>Try another search or filter.</Text><TouchableOpacity accessibilityRole="button" style={styles.cancel} onPress={() => { setQuery(""); setFilter("all"); }}><Text style={styles.link}>Show all ingredients</Text></TouchableOpacity></View>}
+          {!loading && !error && !items.length ? <View style={styles.card}><Text style={styles.subtitle}>Start with a few everyday staples. Tap Add item to put your first ingredient on the shelf.</Text></View> : null}
           {sorted.map(item => <View key={item.id} style={styles.card}>
             <Text style={styles.itemName}>{item.name}</Text>
             <Text style={styles.subtitle}>{Number(item.quantity)} {item.unit}</Text>
-            <View style={styles.expiry}><Ionicons name="calendar-outline" size={16} color={GREEN} /><Text style={styles.expiryText}>{expiryLabel(item.expiresOn)}</Text></View>
+            <View style={[styles.expiry, expiryInfo(item.expiresOn).group === "past" && { backgroundColor: "#FBE6E0" }, expiryInfo(item.expiresOn).group === "later" && { backgroundColor: "#EAF2ED" }]}><Ionicons name="calendar-outline" size={16} color={GREEN} /><Text style={styles.expiryText}>{expiryInfo(item.expiresOn).label}</Text></View>
             <View style={styles.actions}>
-              <TouchableOpacity disabled={busy} accessibilityLabel={`Edit ${item.name}`} onPress={() => { setEditingId(item.id); setForm({ name: item.name, quantity: String(Number(item.quantity)), unit: item.unit, expiresOn: item.expiresOn || "" }); setError(""); scroll.current?.scrollTo({ y: 0, animated: true }); }}><Text style={styles.link}>Edit</Text></TouchableOpacity>
-              <TouchableOpacity disabled={busy} accessibilityLabel={`Remove ${item.name}`} onPress={() => setDeleteId(item.id)}><Text style={styles.errorText}>Remove</Text></TouchableOpacity>
+              <TouchableOpacity accessibilityRole="button" style={styles.actionButton} disabled={busy} accessibilityLabel={`Edit ${item.name}`} onPress={() => { setFormOpen(true); setEditingId(item.id); setForm({ name: item.name, quantity: String(Number(item.quantity)), unit: item.unit, expiresOn: item.expiresOn || "" }); setError(""); scroll.current?.scrollTo({ y: 0, animated: true }); }}><Text style={styles.link}>Edit</Text></TouchableOpacity>
+              <TouchableOpacity accessibilityRole="button" style={styles.actionButton} disabled={busy} accessibilityLabel={`Remove ${item.name}`} onPress={() => setDeleteId(item.id)}><Text style={styles.errorText}>Remove</Text></TouchableOpacity>
             </View>
-            {deleteId === item.id ? <View style={styles.confirm}><Text>Remove {item.name} from your pantry?</Text><View style={styles.actions}><TouchableOpacity disabled={busy} onPress={() => remove(item)}><Text style={styles.errorText}>Yes, remove</Text></TouchableOpacity><TouchableOpacity disabled={busy} onPress={() => setDeleteId(null)}><Text style={styles.link}>Keep it</Text></TouchableOpacity></View></View> : null}
+            {deleteId === item.id ? <View style={styles.confirm}><Text>Remove {item.name} from your pantry?</Text><View style={styles.actions}><TouchableOpacity accessibilityRole="button" style={styles.actionButton} disabled={busy} onPress={() => remove(item)}><Text style={styles.errorText}>Yes, remove</Text></TouchableOpacity><TouchableOpacity accessibilityRole="button" style={styles.actionButton} disabled={busy} onPress={() => setDeleteId(null)}><Text style={styles.link}>Keep it</Text></TouchableOpacity></View></View> : null}
           </View>)}
+          <Text style={styles.small}>Dates reflect the labels you enter; they don’t determine food safety.</Text>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -163,11 +182,26 @@ function Pantry({ getToken }) {
 }
 
 const styles = StyleSheet.create({
+  eyebrow: { color: "#A74531", fontSize: 10, letterSpacing: 1.3, fontWeight: "800", marginBottom: 10 },
+  heroIcon: { backgroundColor: "#DCECE4", width: 54, height: 54, borderRadius: 18, alignItems: "center", justifyContent: "center" },
+  overview: { flexDirection: "row", gap: 8 },
+  stat: { flex: 1, borderWidth: 1, borderColor: "#E9E1D7", borderRadius: 18, paddingVertical: 17, paddingHorizontal: 10, backgroundColor: "white", minHeight: 90 },
+  statSelected: { borderColor: GREEN, backgroundColor: "#EAF2ED" },
+  statNumber: { color: GREEN, fontSize: 27, fontWeight: "800" },
+  statLabel: { color: "#52665C", fontSize: 11, marginTop: 5 },
+  planner: { backgroundColor: "#DCECE4", borderRadius: 20, padding: 18, flexDirection: "row", gap: 12, alignItems: "center" },
+  plannerTitle: { color: GREEN, fontSize: 16, fontWeight: "700", marginBottom: 5 },
+  small: { color: "#65736B", fontSize: 12, lineHeight: 18 },
+  sectionRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8, marginTop: 8 },
+  addButton: { backgroundColor: GREEN, borderRadius: 13, minHeight: 44, paddingHorizontal: 14, flexDirection: "row", alignItems: "center", gap: 5 },
+  search: { backgroundColor: "white", borderWidth: 1, borderColor: "#E9E1D7", borderRadius: 14, flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 14 },
+  searchInput: { flex: 1, minWidth: 0, paddingVertical: 15, fontSize: 15, color: "#20302A" },
+  filters: { gap: 8 },
   page: { flex: 1, backgroundColor: "#FFF8F0" },
   center: { flex: 1, alignItems: "center", justifyContent: "center", padding: 24, backgroundColor: "#FFF8F0" },
   content: { padding: 20, gap: 16, paddingBottom: 40, maxWidth: 700, width: "100%", alignSelf: "center" },
   heading: { flexDirection: "row", alignItems: "center", gap: 10 },
-  title: { color: GREEN, fontSize: 30, fontWeight: "800" },
+  title: { color: GREEN, fontSize: 31, lineHeight: 36, letterSpacing: -0.8, fontWeight: "800" },
   subtitle: { color: "#66736D", fontSize: 15, lineHeight: 23 },
   card: { backgroundColor: "white", borderRadius: 20, padding: 18, borderWidth: 1, borderColor: "#E8DED1", gap: 10 },
   sectionTitle: { color: GREEN, fontSize: 20, fontWeight: "700" },
@@ -186,6 +220,7 @@ const styles = StyleSheet.create({
   itemName: { color: "#20302A", fontSize: 19, fontWeight: "700" },
   expiry: { flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: "#FFF2D8", padding: 10, borderRadius: 10 },
   expiryText: { color: GREEN, flexShrink: 1 },
-  actions: { flexDirection: "row", gap: 28, paddingVertical: 12 },
+  actionButton: { minHeight: 44, minWidth: 44, justifyContent: "center" },
+  actions: { flexDirection: "row", gap: 28, minHeight: 44, alignItems: "center", paddingVertical: 12 },
   confirm: { borderTopWidth: 1, borderColor: "#E8DED1", paddingTop: 12 },
 });
