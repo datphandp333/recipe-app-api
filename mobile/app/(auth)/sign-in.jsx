@@ -1,18 +1,18 @@
+import { verificationMethods, sendVerification, verifySignInCode, VERIFICATION_LABELS } from "../../services/signInVerification";
 import { useAuth, useSignIn } from "@clerk/expo";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
   View,
   Text,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { Image } from "expo-image";
+import AuthFrame from "../../components/auth/AuthFrame";
+import SocialButtons from "../../components/auth/SocialButtons";
+import useAuthAction from "../../components/auth/useAuthAction";
 
 import { authStyles } from "../../assets/styles/auth.styles";
 import { COLORS } from "../../constants/colors";
@@ -37,16 +37,17 @@ const SignInScreen = () => {
     useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [needsClientTrust, setNeedsClientTrust] =
-    useState(false);
+  const [verificationMethod, setVerificationMethod] = useState(null);
+  const [availableMethods, setAvailableMethods] = useState([]);
 
-  const isLoading = fetchStatus === "fetching";
+  const { busy, run } = useAuthAction();
+  const isLoading = busy || fetchStatus === "fetching";
 
   const finishSignIn = async () => {
     const { error } = await signIn.finalize({
       navigate: ({ decorateUrl, session }) => {
         if (session?.currentTask) {
-          console.log("Clerk session task:", session.currentTask);
+          router.replace("/account-tasks");
           return;
         }
 
@@ -69,6 +70,16 @@ const SignInScreen = () => {
         getErrorMessage(error, "Sign in could not be completed.")
       );
     }
+  };
+
+  const selectVerification = async (method) => {
+    setErrorMessage("");
+    setVerificationCode("");
+    setVerificationMethod(method);
+    try {
+      const { error } = await sendVerification(signIn, method);
+      if (error) setErrorMessage(getErrorMessage(error, "We could not send a code. Try again or use another method."));
+    } catch (error) { setErrorMessage(getErrorMessage(error, "Verification could not be started.")); }
   };
 
   const handleSignIn = async () => {
@@ -103,46 +114,19 @@ const SignInScreen = () => {
         return;
       }
 
-      if (signIn.status === "needs_client_trust") {
-        const emailCodeFactor =
-          signIn.supportedSecondFactors?.find(
-            (factor) => factor.strategy === "email_code"
-          );
-
-        if (!emailCodeFactor) {
-          setErrorMessage(
-            "Your account needs an additional verification step that is not available."
-          );
+      if (["needs_client_trust", "needs_second_factor"].includes(signIn.status)) {
+        const methods = verificationMethods(signIn);
+        setAvailableMethods(methods);
+        if (!methods.length) {
+          router.push("/(auth)/complete-account");
           return;
         }
-
-        const { error: sendCodeError } =
-          await signIn.mfa.sendEmailCode();
-
-        if (sendCodeError) {
-          setErrorMessage(
-            getErrorMessage(
-              sendCodeError,
-              "We could not send a verification code."
-            )
-          );
-          return;
-        }
-
-        setNeedsClientTrust(true);
+        setPassword("");
+        await selectVerification(methods[0]);
         return;
       }
 
-      if (signIn.status === "needs_second_factor") {
-        setErrorMessage(
-          "This account requires two-factor authentication."
-        );
-        return;
-      }
-
-      setErrorMessage(
-        "Sign in could not be completed. Please try again."
-      );
+      router.push("/(auth)/complete-account");
     } catch (error) {
       console.error("SIGN IN ERROR:", error);
       setErrorMessage(
@@ -163,9 +147,7 @@ const SignInScreen = () => {
     }
 
     try {
-      const { error } = await signIn.mfa.verifyEmailCode({
-        code: verificationCode.trim(),
-      });
+      const { error } = await verifySignInCode(signIn, verificationMethod, verificationCode);
 
       if (error) {
         setErrorMessage(
@@ -200,7 +182,7 @@ const SignInScreen = () => {
     setErrorMessage("");
 
     try {
-      const { error } = await signIn.mfa.sendEmailCode();
+      const { error } = await sendVerification(signIn, verificationMethod);
 
       if (error) {
         setErrorMessage(
@@ -227,7 +209,8 @@ const SignInScreen = () => {
   const resetToSignIn = async () => {
     setErrorMessage("");
     setVerificationCode("");
-    setNeedsClientTrust(false);
+    setVerificationMethod(null);
+    setAvailableMethods([]);
 
     try {
       await signIn.reset();
@@ -273,19 +256,26 @@ const SignInScreen = () => {
       <Text
         style={{
           color: COLORS.textLight,
-          textAlign: "center",
+          textAlign: "left",
           marginBottom: 20,
           fontSize: 16,
         }}
       >
-        We sent a verification code to {email.trim()}.
+        {verificationMethod === "totp" ? "Enter the current code from your authenticator app."
+          : verificationMethod === "backup_code" ? "Enter one of the backup codes you saved when setting up two-factor authentication."
+          : verificationMethod === "phone_code" ? "Enter the code sent to your registered phone number."
+          : `Enter the verification code sent to ${email.trim()}.`}
       </Text>
 
       {renderError()}
+      <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
+        {availableMethods.filter(method => method !== verificationMethod).map(method => <TouchableOpacity key={method} accessibilityRole="button" disabled={isLoading} onPress={() => run(() => selectVerification(method))} style={{ padding: 12, backgroundColor: "#DCECE4", borderRadius: 12 }}><Text style={authStyles.link}>Use {VERIFICATION_LABELS[method].toLowerCase()}</Text></TouchableOpacity>)}
+      </View>
 
       <View style={authStyles.inputContainer}>
         <TextInput
           style={authStyles.textInput}
+          accessibilityLabel="Verification code"
           placeholder="Enter verification code"
           placeholderTextColor={COLORS.textLight}
           value={verificationCode}
@@ -293,7 +283,7 @@ const SignInScreen = () => {
             setVerificationCode(value);
             setErrorMessage("");
           }}
-          keyboardType="number-pad"
+          keyboardType={verificationMethod === "backup_code" ? "default" : "number-pad"}
           autoCapitalize="none"
           autoCorrect={false}
           textContentType="oneTimeCode"
@@ -307,7 +297,7 @@ const SignInScreen = () => {
           (!verificationCode.trim() || isLoading) &&
             authStyles.buttonDisabled,
         ]}
-        onPress={handleVerifyDevice}
+        onPress={() => run(handleVerifyDevice)}
         disabled={!verificationCode.trim() || isLoading}
         activeOpacity={0.8}
       >
@@ -320,18 +310,19 @@ const SignInScreen = () => {
         )}
       </TouchableOpacity>
 
+      {["phone_code", "email_code"].includes(verificationMethod) && (
       <TouchableOpacity
         style={{
           alignSelf: "center",
           marginTop: 18,
         }}
-        onPress={handleResendVerificationCode}
+        onPress={() => run(handleResendVerificationCode)}
         disabled={isLoading}
       >
         <Text style={authStyles.link}>
           Send another code
         </Text>
-      </TouchableOpacity>
+      </TouchableOpacity>)}
 
       <TouchableOpacity
         style={{
@@ -350,25 +341,28 @@ const SignInScreen = () => {
 
   const renderSignInScreen = () => (
     <>
-      <Text style={authStyles.title}>Welcome Back</Text>
+      <Text style={authStyles.title}>Welcome back</Text>
+      <SocialButtons />
 
       <Text
         style={{
           color: COLORS.textLight,
-          textAlign: "center",
+          textAlign: "left",
           marginBottom: 20,
           fontSize: 16,
         }}
       >
-        Sign in to discover recipes and access your saved favorites.
+        Your next good meal starts here.
       </Text>
 
       {renderError()}
 
+      <Text style={authStyles.label}>Email address</Text>
       <View style={authStyles.inputContainer}>
         <TextInput
           style={authStyles.textInput}
-          placeholder="Enter email"
+          accessibilityLabel="Email address"
+          placeholder="you@example.com"
           placeholderTextColor={COLORS.textLight}
           value={email}
           onChangeText={(value) => {
@@ -383,9 +377,11 @@ const SignInScreen = () => {
         />
       </View>
 
+      <Text style={authStyles.label}>Password</Text>
       <View style={authStyles.inputContainer}>
         <TextInput
           style={authStyles.textInput}
+          accessibilityLabel="Password"
           placeholder="Enter password"
           placeholderTextColor={COLORS.textLight}
           value={password}
@@ -399,10 +395,11 @@ const SignInScreen = () => {
           autoComplete="current-password"
           editable={!isLoading}
           returnKeyType="done"
-          onSubmitEditing={handleSignIn}
+          onSubmitEditing={() => run(handleSignIn)}
         />
 
         <TouchableOpacity
+          accessibilityRole="button" accessibilityLabel={showPassword ? "Hide password" : "Show password"}
           style={authStyles.eyeButton}
           onPress={() =>
             setShowPassword((currentValue) => !currentValue)
@@ -443,7 +440,7 @@ const SignInScreen = () => {
           (isLoading || !email.trim() || !password) &&
             authStyles.buttonDisabled,
         ]}
-        onPress={handleSignIn}
+        onPress={() => run(handleSignIn)}
         disabled={isLoading || !email.trim() || !password}
         activeOpacity={0.8}
       >
@@ -469,35 +466,8 @@ const SignInScreen = () => {
     </>
   );
 
-  return (
-    <View style={authStyles.container}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={authStyles.keyboardView}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
-      >
-        <ScrollView
-          contentContainerStyle={authStyles.scrollContent}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-        >
-          <View style={authStyles.imageContainer}>
-            <Image
-              source={require("../../assets/images/i1.png")}
-              style={authStyles.image}
-              contentFit="contain"
-            />
-          </View>
-
-          <View style={authStyles.formContainer}>
-            {needsClientTrust
-              ? renderVerificationScreen()
-              : renderSignInScreen()}
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </View>
-  );
+  return <AuthFrame><View style={authStyles.formContainer}>
+    {verificationMethod ? renderVerificationScreen() : renderSignInScreen()}
+  </View></AuthFrame>;
 };
-
 export default SignInScreen;

@@ -141,6 +141,9 @@ function Pantry({ getToken }) {
           <TouchableOpacity accessibilityRole="button" style={styles.planner} onPress={() => router.push("/meal-planner")}>
             <Ionicons name="sparkles-outline" size={24} color={GREEN} /><View style={{ flex: 1 }}><Text style={styles.plannerTitle}>Turn your pantry into dinner</Text><Text style={styles.small}>Build a meal plan around what you have.</Text></View><Ionicons name="arrow-forward" size={20} color={GREEN} />
           </TouchableOpacity>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Scan ingredients from a photo" style={styles.planner} onPress={() => router.push("/scan-ingredients")}>
+            <Ionicons name="camera-outline" size={26} color={GREEN} /><View style={{ flex: 1 }}><Text style={styles.plannerTitle}>Stock your pantry with a photo</Text><Text style={styles.small}>Scan ingredients, review, then add.</Text></View><Ionicons name="arrow-forward" size={20} color={GREEN} />
+          </TouchableOpacity>
           <View style={styles.sectionRow}><Text style={styles.sectionTitle}>On your shelves</Text><TouchableOpacity accessibilityRole="button" accessibilityLabel="Add ingredient" style={styles.addButton} disabled={busy} onPress={() => { resetForm(); setFormOpen(true); setError(""); }}><Ionicons name="add" size={18} color="white" /><Text style={styles.white}>Add item</Text></TouchableOpacity></View>
           {!!notice && <Text style={styles.link} accessibilityLiveRegion="polite">{notice}</Text>}
           {error ? <View style={styles.error} accessibilityLiveRegion="polite"><Text style={styles.errorText}>{error}</Text><TouchableOpacity onPress={load} disabled={busy}><Text style={styles.link}>Retry loading pantry</Text></TouchableOpacity></View> : null}

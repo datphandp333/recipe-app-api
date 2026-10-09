@@ -31,6 +31,9 @@ test("pantry API validates sessions, input and ownership for CRUD", async () => 
   try {
     assert.equal((await request("GET", "", null, "")).status, 401);
     assert.equal((await request("GET", "", null, "invalid")).status, 401);
+    assert.equal((await request("POST", "/scan", {}, "")).status, 401);
+    assert.equal((await request("POST", "/scan", {}, "invalid")).status, 401);
+    assert.equal((await request("POST", "/scan", {})).status, 400);
     assert.equal((await request("GET")).status, 200);
     assert.deepEqual(filter.params, ["user-a"]);
     const item = { name: "Spinach", quantity: 2, unit: "cups", userId: "user-b" };

@@ -160,7 +160,7 @@ export default function HomeScreen() {
 
   const handleSignOut = () => {
     const perform = async () => {
-      try { await signOut(); router.replace("/(auth)/sign-in"); }
+      try { await signOut(); }
       catch { notice("Could not sign out", "Please try again."); }
     };
     if (Platform.OS === "web") {

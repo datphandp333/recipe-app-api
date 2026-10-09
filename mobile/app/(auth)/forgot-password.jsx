@@ -14,7 +14,11 @@ import { useRouter } from "expo-router";
 import { useSignIn } from "@clerk/expo";
 import { Ionicons } from "@expo/vector-icons";
 
-import { COLORS } from "../../constants/colors";
+import { COLORS as APP_COLORS } from "../../constants/colors";
+import SimmerliBrand from "../../components/auth/SimmerliBrand";
+import useAuthAction from "../../components/auth/useAuthAction";
+import { SafeAreaView } from "react-native-safe-area-context";
+const COLORS = { ...APP_COLORS, background: "#FFFFFF", border: "#DDE2DF" };
 
 const ForgotPasswordScreen = () => {
   const router = useRouter();
@@ -32,7 +36,8 @@ const ForgotPasswordScreen = () => {
     useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const isLoading = fetchStatus === "fetching";
+  const { busy, run } = useAuthAction();
+  const isLoading = busy || fetchStatus === "fetching";
 
   const getErrorMessage = (error) => {
     return (
@@ -170,10 +175,7 @@ const ForgotPasswordScreen = () => {
           await signIn.finalize({
             navigate: ({ decorateUrl, session }) => {
               if (session?.currentTask) {
-                console.log(
-                  "Clerk session task:",
-                  session.currentTask
-                );
+                router.replace("/account-tasks");
                 return;
               }
 
@@ -201,9 +203,7 @@ const ForgotPasswordScreen = () => {
       }
 
       if (signIn.status === "needs_second_factor") {
-        setErrorMessage(
-          "Your password was changed, but this account requires two-factor authentication."
-        );
+        router.replace("/(auth)/sign-in");
         return;
       }
 
@@ -338,8 +338,8 @@ const ForgotPasswordScreen = () => {
       </Text>
 
       <Text style={styles.description}>
-        Enter the email connected to your recipe account.
-        Clerk will send you a verification code.
+        Enter the email connected to your Simmerli account.
+        We’ll send you a verification code.
       </Text>
 
       <Text style={styles.inputLabel}>
@@ -355,6 +355,7 @@ const ForgotPasswordScreen = () => {
 
         <TextInput
           style={styles.input}
+          accessibilityLabel="Email address"
           placeholder="Enter your email"
           placeholderTextColor={COLORS.textLight}
           value={email}
@@ -368,7 +369,7 @@ const ForgotPasswordScreen = () => {
           textContentType="emailAddress"
           editable={!isLoading}
           returnKeyType="send"
-          onSubmitEditing={handleSendCode}
+          onSubmitEditing={() => run(handleSendCode)}
         />
       </View>
 
@@ -379,7 +380,7 @@ const ForgotPasswordScreen = () => {
           styles.primaryButton,
           isLoading && styles.disabledButton,
         ]}
-        onPress={handleSendCode}
+        onPress={() => run(handleSendCode)}
         disabled={isLoading}
       >
         {isLoading ? (
@@ -433,6 +434,7 @@ const ForgotPasswordScreen = () => {
 
         <TextInput
           style={[styles.input, styles.codeInput]}
+          accessibilityLabel="Verification code"
           placeholder="Enter code"
           placeholderTextColor={COLORS.textLight}
           value={verificationCode}
@@ -447,7 +449,7 @@ const ForgotPasswordScreen = () => {
           editable={!isLoading}
           maxLength={6}
           returnKeyType="done"
-          onSubmitEditing={handleVerifyCode}
+          onSubmitEditing={() => run(handleVerifyCode)}
         />
       </View>
 
@@ -458,7 +460,7 @@ const ForgotPasswordScreen = () => {
           styles.primaryButton,
           isLoading && styles.disabledButton,
         ]}
-        onPress={handleVerifyCode}
+        onPress={() => run(handleVerifyCode)}
         disabled={isLoading}
       >
         {isLoading ? (
@@ -480,7 +482,7 @@ const ForgotPasswordScreen = () => {
 
       <TouchableOpacity
         style={styles.secondaryButton}
-        onPress={handleResendCode}
+        onPress={() => run(handleResendCode)}
         disabled={isLoading}
       >
         <Ionicons
@@ -528,6 +530,7 @@ const ForgotPasswordScreen = () => {
 
         <TextInput
           style={styles.input}
+          accessibilityLabel="New password"
           placeholder="Enter new password"
           placeholderTextColor={COLORS.textLight}
           value={newPassword}
@@ -575,6 +578,7 @@ const ForgotPasswordScreen = () => {
 
         <TextInput
           style={styles.input}
+          accessibilityLabel="Confirm password"
           placeholder="Enter the password again"
           placeholderTextColor={COLORS.textLight}
           value={confirmPassword}
@@ -588,7 +592,7 @@ const ForgotPasswordScreen = () => {
           textContentType="newPassword"
           editable={!isLoading}
           returnKeyType="done"
-          onSubmitEditing={handleResetPassword}
+          onSubmitEditing={() => run(handleResetPassword)}
         />
 
         <TouchableOpacity
@@ -618,7 +622,7 @@ const ForgotPasswordScreen = () => {
           styles.primaryButton,
           isLoading && styles.disabledButton,
         ]}
-        onPress={handleResetPassword}
+        onPress={() => run(handleResetPassword)}
         disabled={isLoading}
       >
         {isLoading ? (
@@ -641,7 +645,7 @@ const ForgotPasswordScreen = () => {
   );
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
         style={styles.keyboardView}
         behavior={
@@ -666,6 +670,7 @@ const ForgotPasswordScreen = () => {
           </TouchableOpacity>
 
           <View style={styles.card}>
+            <SimmerliBrand compact />
             {renderProgress()}
 
             {step === "email" && renderEmailStep()}
@@ -690,7 +695,7 @@ const ForgotPasswordScreen = () => {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -728,18 +733,11 @@ const styles = StyleSheet.create({
 
   card: {
     backgroundColor: COLORS.card,
-    borderRadius: 26,
+    borderRadius: 16,
     borderWidth: 1,
     borderColor: COLORS.border,
     padding: 24,
-    shadowColor: COLORS.shadow,
-    shadowOffset: {
-      width: 0,
-      height: 8,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 18,
-    elevation: 5,
+
   },
 
   progressContainer: {

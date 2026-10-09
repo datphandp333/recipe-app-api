@@ -1,3 +1,4 @@
+import { ingredientScanHandler } from "./ingredientScanRoute.js";
 import { Router } from "express";
 import { and, asc, eq } from "drizzle-orm";
 import { verifyToken } from "@clerk/backend";
@@ -26,6 +27,8 @@ export function createPantryRouter({ db, verifySession = verifyToken, env = proc
       res.status(401).json({ message: "Your session has expired. Please sign in again." });
     }
   });
+
+  router.post("/scan", ingredientScanHandler());
 
   router.get("/", async (req, res, next) => {
     try {

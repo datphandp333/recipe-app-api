@@ -1,290 +1,48 @@
-import { useAuth, useSignUp } from "@clerk/expo";
-import { useRouter } from "expo-router";
-import { useState } from "react";
-import {
-  View,
-  Text,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  TextInput,
-  TouchableOpacity,
-} from "react-native";
-import { Image } from "expo-image";
-import { Ionicons } from "@expo/vector-icons";
-import { authStyles } from "../../assets/styles/auth.styles";
-import { COLORS } from "../../constants/colors";
-
+import { useSignUp } from '@clerk/expo';
+import { useRouter } from 'expo-router';
+import { useState } from 'react';
+import { Text, TextInput, View, Pressable } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import AuthFrame,{AuthButton,AuthMessage,ui} from '../../components/auth/AuthFrame';
+import SocialButtons from '../../components/auth/SocialButtons';
+import useAuthAction from '../../components/auth/useAuthAction';
+import { authError } from '../../services/authFlow';
 export default function SignUpScreen() {
-  const router = useRouter();
-  const { isSignedIn } = useAuth();
-  const { signUp, errors, fetchStatus } = useSignUp();
-
-  const [emailAddress, setEmailAddress] = useState("");
-  const [password, setPassword] = useState("");
-  const [code, setCode] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [debugMessage, setDebugMessage] = useState("");
-
-  const handleSubmit = async () => {
-    setDebugMessage("");
-
-    if (!emailAddress || !password) {
-      setDebugMessage("Please fill in all fields.");
-      return;
-    }
-
-    try {
-      const { error } = await signUp.password({
-        emailAddress: emailAddress.trim(),
-        password,
-      });
-
-      if (error) {
-        console.error("SIGN UP ERROR:", JSON.stringify(error, null, 2));
-        setDebugMessage(error.message || "Failed to create account.");
-        return;
-      }
-
-      await signUp.verifications.sendEmailCode();
-      setDebugMessage("Verification code sent.");
-    } catch (err) {
-      console.error("SIGN UP ERROR:", err);
-      setDebugMessage("Failed to create account.");
-    }
-  };
-
-  const handleVerify = async () => {
-    setDebugMessage("");
-
-    if (!code) {
-      setDebugMessage("Please enter the verification code.");
-      return;
-    }
-
-    try {
-      await signUp.verifications.verifyEmailCode({
-        code: code.trim(),
-      });
-
-      if (signUp.status === "complete") {
-        await signUp.finalize({
-          navigate: ({ decorateUrl, session }) => {
-            if (session?.currentTask) {
-              console.log("Session task:", session.currentTask);
-              return;
-            }
-
-            const url = decorateUrl("/");
-            if (url.startsWith("http")) {
-              window.location.href = url;
-            } else {
-              router.push(url);
-            }
-          },
-        });
-      } else {
-        console.error("Sign-up attempt not complete:", signUp);
-        setDebugMessage("Verification did not complete.");
-      }
-    } catch (err) {
-      console.error("VERIFY ERROR:", err);
-      setDebugMessage("Verification failed.");
-    }
-  };
-
-  if (signUp.status === "complete" || isSignedIn) {
-    return null;
-  }
-
-  const showVerifyScreen =
-    signUp.status === "missing_requirements" &&
-    signUp.unverifiedFields.includes("email_address") &&
-    signUp.missingFields.length === 0;
-
-  if (showVerifyScreen) {
-    return (
-      <View style={authStyles.container}>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
-          style={authStyles.keyboardView}
-        >
-          <ScrollView
-            contentContainerStyle={authStyles.scrollContent}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-          >
-            <View style={authStyles.imageContainer}>
-              <Image
-                source={require("../../assets/images/i3.png")}
-                style={authStyles.image}
-                contentFit="contain"
-              />
-            </View>
-
-            <Text style={authStyles.title}>Verify Your Email</Text>
-            <Text style={authStyles.subtitle}>
-              We&apos;ve sent a verification code to {emailAddress}
-            </Text>
-
-            {!!debugMessage && (
-              <Text style={{ textAlign: "center", marginBottom: 12, color: "red" }}>
-                {debugMessage}
-              </Text>
-            )}
-
-            {errors?.fields?.code && (
-              <Text style={{ textAlign: "center", marginBottom: 12, color: "red" }}>
-                {errors.fields.code.message}
-              </Text>
-            )}
-
-            <View style={authStyles.formContainer}>
-              <View style={authStyles.inputContainer}>
-                <TextInput
-                  style={authStyles.textInput}
-                  placeholder="Enter verification code"
-                  placeholderTextColor={COLORS.textLight}
-                  value={code}
-                  onChangeText={setCode}
-                  keyboardType="number-pad"
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                />
-              </View>
-
-              <TouchableOpacity
-                style={[
-                  authStyles.authButton,
-                  fetchStatus === "fetching" && authStyles.buttonDisabled,
-                ]}
-                onPress={handleVerify}
-                disabled={fetchStatus === "fetching"}
-                activeOpacity={0.8}
-              >
-                <Text style={authStyles.buttonText}>
-                  {fetchStatus === "fetching" ? "Verifying..." : "Verify Email"}
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={authStyles.linkContainer}
-                onPress={() => signUp.verifications.sendEmailCode()}
-              >
-                <Text style={authStyles.linkText}>
-                  <Text style={authStyles.link}>I need a new code</Text>
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </ScrollView>
-        </KeyboardAvoidingView>
-      </View>
-    );
-  }
-
-  return (
-    <View style={authStyles.container}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
-        style={authStyles.keyboardView}
-      >
-        <ScrollView
-          contentContainerStyle={authStyles.scrollContent}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-        >
-          <View style={authStyles.imageContainer}>
-            <Image
-              source={require("../../assets/images/i2.png")}
-              style={authStyles.image}
-              contentFit="contain"
-            />
-          </View>
-
-          <Text style={authStyles.title}>Create Account</Text>
-
-          {!!debugMessage && (
-            <Text style={{ textAlign: "center", marginBottom: 12, color: "red" }}>
-              {debugMessage}
-            </Text>
-          )}
-
-          {errors?.fields?.emailAddress && (
-            <Text style={{ textAlign: "center", marginBottom: 8, color: "red" }}>
-              {errors.fields.emailAddress.message}
-            </Text>
-          )}
-
-          {errors?.fields?.password && (
-            <Text style={{ textAlign: "center", marginBottom: 8, color: "red" }}>
-              {errors.fields.password.message}
-            </Text>
-          )}
-
-          <View style={authStyles.formContainer}>
-            <View style={authStyles.inputContainer}>
-              <TextInput
-                style={authStyles.textInput}
-                placeholder="Enter email"
-                placeholderTextColor={COLORS.textLight}
-                value={emailAddress}
-                onChangeText={setEmailAddress}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-              />
-            </View>
-
-            <View style={authStyles.inputContainer}>
-              <TextInput
-                style={authStyles.textInput}
-                placeholder="Enter password"
-                placeholderTextColor={COLORS.textLight}
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry={!showPassword}
-                autoCapitalize="none"
-                autoCorrect={false}
-              />
-              <TouchableOpacity
-                style={authStyles.eyeButton}
-                onPress={() => setShowPassword((prev) => !prev)}
-              >
-                <Ionicons
-                  name={showPassword ? "eye-outline" : "eye-off-outline"}
-                  size={20}
-                  color={COLORS.textLight}
-                />
-              </TouchableOpacity>
-            </View>
-
-            <TouchableOpacity
-              style={[
-                authStyles.authButton,
-                fetchStatus === "fetching" && authStyles.buttonDisabled,
-              ]}
-              onPress={handleSubmit}
-              disabled={fetchStatus === "fetching"}
-              activeOpacity={0.8}
-            >
-              <Text style={authStyles.buttonText}>
-                {fetchStatus === "fetching" ? "Creating Account..." : "Sign Up"}
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={authStyles.linkContainer}
-              onPress={() => router.replace("/(auth)/sign-in")}
-            >
-              <Text style={authStyles.linkText}>
-                Already have an account? <Text style={authStyles.link}>Sign In</Text>
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </View>
-  );
+ const {signUp,fetchStatus}=useSignUp();const router=useRouter();
+ const [email,setEmail]=useState('');const [password,setPassword]=useState('');const [code,setCode]=useState('');
+ const [showPassword,setShowPassword]=useState(false);const [error,setError]=useState('');const [notice,setNotice]=useState('');
+ const {busy,run}=useAuthAction();const loading=busy||fetchStatus==='fetching';
+ const verifying=signUp.status==='missing_requirements'&&signUp.unverifiedFields?.includes('email_address');
+ async function finalize(){
+   const result=await signUp.finalize({navigate:({session})=>router.replace(session?.currentTask?'/account-tasks':'/')});
+   if(result.error)throw result.error;
+ }
+ async function sendCode(){const result=await signUp.verifications.sendEmailCode();if(result.error)throw result.error;setNotice('A verification code has been sent to your email.');}
+ async function submit(){
+  setError('');setNotice('');
+  try{
+   if(!email.trim()||!password)throw new Error('Enter your email address and a password.');
+   const result=await signUp.password({emailAddress:email.trim(),password});if(result.error)throw result.error;
+   setPassword('');
+   if(signUp.status==='complete')await finalize();
+   else if(signUp.missingFields?.length)router.push({pathname:'/(auth)/complete-account',params:{mode:'signUp'}});
+   else if(signUp.unverifiedFields?.includes('email_address'))await sendCode();
+   else router.push({pathname:'/(auth)/complete-account',params:{mode:'signUp'}});
+  }catch(failure){setError(authError(failure));}
+ }
+ async function verify(){
+  setError('');setNotice('');
+  try{const result=await signUp.verifications.verifyEmailCode({code:code.trim()});if(result.error)throw result.error;
+   if(signUp.status==='complete')await finalize();else router.push({pathname:'/(auth)/complete-account',params:{mode:'signUp'}});
+  }catch(failure){setError(authError(failure));}
+ }
+ return <AuthFrame><Text style={ui.title}>{verifying?'Check your email':'Make yourself at home'}</Text><Text style={ui.body}>{verifying?`Enter the verification code sent to ${email||signUp.emailAddress}.`:'Create your Simmerli account to save recipes and make more of your pantry.'}</Text>
+ {!verifying&&<SocialButtons/>}<AuthMessage>{error}</AuthMessage>{!!notice&&<Text accessibilityLiveRegion="polite" style={ui.body}>{notice}</Text>}
+ {verifying?<><Text style={ui.label}>Verification code</Text><TextInput accessibilityLabel="Verification code" style={ui.input} value={code} onChangeText={setCode} keyboardType="number-pad" textContentType="oneTimeCode" autoComplete="one-time-code" autoCapitalize="none" editable={!loading}/><AuthButton title={loading?'Verifying…':'Verify and continue'} disabled={loading||!code.trim()} onPress={()=>run(verify)}/><AuthButton secondary title="Send another code" disabled={loading} onPress={()=>run(async()=>{setError('');try{await sendCode();}catch(failure){setError(authError(failure));}})}/></>:<>
+ <Text style={ui.label}>Email address</Text><TextInput accessibilityLabel="Email address" style={ui.input} placeholder="you@example.com" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" autoCorrect={false} autoComplete="email" editable={!loading}/>
+ <Text style={ui.label}>Password</Text><View><TextInput accessibilityLabel="Password" style={[ui.input,{paddingRight:56}]} placeholder="Create a password" value={password} onChangeText={setPassword} secureTextEntry={!showPassword} autoCapitalize="none" autoCorrect={false} textContentType="newPassword" editable={!loading} onSubmitEditing={()=>run(submit)}/><Pressable accessibilityRole="button" accessibilityLabel={showPassword?'Hide password':'Show password'} onPress={()=>setShowPassword(!showPassword)} style={{position:'absolute',right:4,top:4,padding:12,minHeight:44,minWidth:44}}><Ionicons name={showPassword?'eye-off-outline':'eye-outline'} size={22} color="#66736D"/></Pressable></View>
+ <AuthButton title={loading?'Creating your account…':'Create account'} disabled={loading||!email.trim()||!password} onPress={()=>run(submit)}/></>}
+ <View nativeID="clerk-captcha"/>
+ <AuthButton secondary title="Already have an account? Sign in" disabled={loading} onPress={()=>router.replace('/(auth)/sign-in')}/>
+ </AuthFrame>;
 }

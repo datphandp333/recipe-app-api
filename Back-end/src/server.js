@@ -25,6 +25,9 @@ app.use(
   })
 );
 
+// Photo uploads have a bounded, route-specific payload limit.
+app.use("/api/pantry/scan", express.json({ limit: "5mb" }));
+
 app.use(
   express.json({
     limit: "1mb",

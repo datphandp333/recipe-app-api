@@ -1,12 +1,12 @@
-import { StyleSheet, Dimensions } from "react-native";
+import { StyleSheet } from "react-native";
 import { COLORS } from "../../constants/colors";
 
-const { height } = Dimensions.get("window");
+
 
 export const authStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: "#FFFFFF",
   },
   keyboardView: {
     flex: 1,
@@ -17,26 +17,26 @@ export const authStyles = StyleSheet.create({
     paddingTop: 40,
   },
   imageContainer: {
-    height: height * 0.3,
+    height: 80,
     marginBottom: 30,
     justifyContent: "center",
     alignItems: "center",
   },
   image: {
-    width: 320,
-    height: 320,
+    width: 80,
+    height: 80,
   },
   title: {
     fontSize: 28,
     fontWeight: "bold",
     color: COLORS.text,
-    textAlign: "center",
-    marginBottom: 40,
+    textAlign: "left",
+    marginBottom: 12,
   },
   subtitle: {
     fontSize: 16,
     color: COLORS.textLight,
-    textAlign: "center",
+    textAlign: "left",
     marginBottom: 30,
   },
   formContainer: {
@@ -50,17 +50,20 @@ export const authStyles = StyleSheet.create({
     fontSize: 16,
     color: COLORS.text,
     paddingVertical: 16,
-    paddingHorizontal: 20,
-    backgroundColor: COLORS.background,
+    paddingLeft: 16,
+    paddingRight: 56,
+    backgroundColor: "#FFFFFF",
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: "#DDE2DF",
   },
   eyeButton: {
     position: "absolute",
-    right: 16,
-    top: 16,
-    padding: 4,
+    right: 4,
+    top: 4,
+    padding: 12,
+    minWidth: 44,
+    minHeight: 44,
   },
   authButton: {
     backgroundColor: COLORS.primary,
@@ -72,6 +75,7 @@ export const authStyles = StyleSheet.create({
   buttonDisabled: {
     opacity: 0.7,
   },
+  label: { fontSize: 14, fontWeight: "600", color: COLORS.text, marginBottom: 8 },
   buttonText: {
     fontSize: 16,
     fontWeight: "600",

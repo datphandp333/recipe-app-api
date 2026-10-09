@@ -1,16 +1,5 @@
-import { Redirect, Stack } from "expo-router";
-import { useAuth } from "@clerk/expo";
-
+import { Stack } from 'expo-router';
+export const unstable_settings = { initialRouteName: 'welcome' };
 export default function AuthRoutesLayout() {
-  const { isSignedIn, isLoaded } = useAuth();
-
-  if (!isLoaded) {
-    return null;
-  }
-
-  if (isSignedIn) {
-    return <Redirect href="/" />;
-  }
-
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return <Stack initialRouteName="welcome" screenOptions={{headerShown:false}} />;
 }
