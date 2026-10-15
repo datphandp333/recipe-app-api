@@ -1,3 +1,8 @@
+import KitchenCompanion from "../components/chef/KitchenCompanion";
+import Pressable from "../components/motion/MotionPressable";
+import { randomUUID } from "expo-crypto";
+import { EDITORIAL_COLORS as E, EDITORIAL_FONT as editorialFont } from "../constants/editorialTheme";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { backOrReplace } from "../services/navigation";
 import IngredientPicture from "../components/IngredientPicture";
 import { useUser } from "@clerk/expo";
@@ -10,8 +15,6 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
-  Pressable,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -22,21 +25,9 @@ import {
 import { MealAPI } from "../services/mealAPI";
 
 const THEME = {
-  background: "#FFF8F0",
-  surface: "#FFFFFF",
-  primary: "#245B4B",
-  primaryDark: "#173E33",
-  coral: "#E76F51",
-  coralDark: "#C9563B",
-  saffron: "#F4C95D",
-  sage: "#DCECE4",
-  cream: "#FFF2D8",
-  border: "#E9E1D7",
-  ink: "#20302A",
-  muted: "#77817C",
-  softText: "#9AA29F",
-  white: "#FFFFFF",
-  success: "#2E7D5B",
+  background: E.background, surface: E.surface, primary: E.green, primaryDark: E.dark,
+  coral: E.gold, coralDark: E.gold, saffron: E.cream, sage: E.sage, cream: E.cream,
+  border: E.line, ink: E.ink, muted: E.muted, softText: E.muted, white: E.white, success: "#2E7D5B",
 };
 
 const QUICK_PROMPTS = [
@@ -367,7 +358,7 @@ export default function AiRecipeScreen() {
     sendingRef.current = true;
     const previousDraft = message;
     const userMessage = {
-      id: `user-${Date.now()}`,
+      id: `user-${randomUUID()}`,
       role: "user",
       content: text,
       recipe: null,
@@ -403,7 +394,7 @@ export default function AiRecipeScreen() {
       setMessages((currentMessages) => [
         ...currentMessages,
         {
-          id: `chef-${Date.now()}`,
+          id: `chef-${randomUUID()}`,
           role: "assistant",
           content: result.reply,
           recipe: result.suggestedRecipe,
@@ -415,6 +406,7 @@ export default function AiRecipeScreen() {
     } catch (error) {
       setMessages(messages);
       setMessage(previousDraft || (finalize ? "" : text));
+      if (error.data?.code === "quota_exceeded") return;
       Alert.alert(
         "Recipe Chef is unavailable",
         error.message ||
@@ -677,10 +669,7 @@ export default function AiRecipeScreen() {
               </View>
 
               <View style={styles.typingBubble}>
-                <ActivityIndicator
-                  size="small"
-                  color={THEME.primary}
-                />
+                <KitchenCompanion size={40} mood="thinking" />
 
                 <Text style={styles.typingText}>
                   Recipe Chef is thinking...
@@ -833,7 +822,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: THEME.ink,
     fontSize: 17,
-    fontWeight: "800",
+    fontFamily: editorialFont,
   },
 
   headerSubtitle: {
@@ -900,7 +889,7 @@ const styles = StyleSheet.create({
   heroTitle: {
     color: THEME.primaryDark,
     fontSize: 23,
-    fontWeight: "800",
+    fontFamily: editorialFont,
     letterSpacing: -0.55,
     marginTop: 6,
   },
@@ -1011,6 +1000,7 @@ const styles = StyleSheet.create({
 
   promptList: {
     gap: 9,
+    width: "100%",
   },
 
   promptChip: {
@@ -1027,6 +1017,7 @@ const styles = StyleSheet.create({
   promptText: {
     color: THEME.primary,
     flex: 1,
+    minWidth: 0,
     fontSize: 13,
     fontWeight: "700",
     lineHeight: 18,
@@ -1159,7 +1150,7 @@ const styles = StyleSheet.create({
   recipeTitle: {
     color: THEME.ink,
     fontSize: 23,
-    fontWeight: "800",
+    fontFamily: editorialFont,
     letterSpacing: -0.6,
     lineHeight: 29,
   },
@@ -1217,7 +1208,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: THEME.ink,
     fontSize: 17,
-    fontWeight: "800",
+    fontFamily: editorialFont,
   },
 
   ingredientList: {

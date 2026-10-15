@@ -1,28 +1,29 @@
+import { EDITORIAL_COLORS as E } from "./editorialTheme";
 const recipeTheme = {
-  primary: "#245B4B",
-  primaryDark: "#173E33",
-  primaryLight: "#DDEDE5",
+  primary: E.green,
+  primaryDark: E.dark,
+  primaryLight: E.sage,
 
-  background: "#FFF8F0",
-  surface: "#FFFDFC",
+  background: E.background,
+  surface: E.surface,
   card: "#FFFFFF",
   white: "#FFFFFF",
 
-  text: "#20302A",
-  textLight: "#66736D",
+  text: E.ink,
+  textLight: E.muted,
   textMuted: "#8A948F",
 
-  border: "#E8DED1",
+  border: E.line,
   borderLight: "#F2EAE0",
 
-  accent: "#E76F51",
-  accentLight: "#FCE0D8",
-  saffron: "#F4C95D",
+  accent: E.gold,
+  accentLight: E.cream,
+  saffron: E.cream,
 
   success: "#2E7D32",
   danger: "#C73E3A",
 
-  shadow: "#20302A",
+  shadow: E.ink,
 };
 
 export const THEMES = {

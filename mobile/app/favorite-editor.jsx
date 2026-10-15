@@ -1,3 +1,5 @@
+import { EDITORIAL_FONT as editorialFont } from "../constants/editorialTheme";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { backOrReplace } from "../services/navigation";
 import IngredientPicture from "../components/IngredientPicture";
 import {
@@ -269,96 +271,85 @@ export default function FavoriteEditorScreen() {
   };
 
   if (loading) {
-    return (
-      <View
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          backgroundColor: COLORS.background,
-          gap: 12,
-        }}
-      >
-        <ActivityIndicator
-          size="large"
-          color={COLORS.primary}
-        />
-
-        <Text
-          style={{
-            color: COLORS.textLight,
-            fontSize: 15,
-          }}
-        >
-          Loading your saved recipe...
-        </Text>
+    return <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
+      <TouchableOpacity accessibilityRole="button" accessibilityLabel="Back to favorites" hitSlop={8}
+        onPress={() => backOrReplace(router, "/(taps)/favorites")}
+        style={{ width: 44, height: 44, margin: 16, alignItems: "center", justifyContent: "center" }}>
+        <Ionicons name="arrow-back" size={22} color={COLORS.primary} />
+      </TouchableOpacity>
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", gap: 12 }}>
+        <ActivityIndicator size="large" color={COLORS.primary} />
+        <Text style={{ color: COLORS.textLight, fontSize: 15 }}>Opening your saved recipe…</Text>
       </View>
-    );
+    </SafeAreaView>;
   }
 
   return (
-    <View
+    <SafeAreaView
+      edges={["top", "left", "right", "bottom"]}
       style={{
         flex: 1,
         backgroundColor: COLORS.background,
       }}
     >
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          padding: 20,
-          paddingBottom: 48,
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          paddingHorizontal: 20,
+          paddingTop: 12,
+          paddingBottom: 16,
         }}
       >
-        <View
+        <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel="Back to favorites"
+          hitSlop={8}
+          onPress={() => backOrReplace(router, "/(taps)/favorites")}
           style={{
-            flexDirection: "row",
+            width: 44,
+            height: 44,
+            borderRadius: 21,
+            justifyContent: "center",
             alignItems: "center",
-            marginBottom: 20,
+            backgroundColor: COLORS.card,
+            marginRight: 12,
           }}
         >
-          <TouchableOpacity
-            onPress={() => backOrReplace(router, "/(taps)/favorites")}
+          <Ionicons
+            name="arrow-back"
+            size={22}
+            color={COLORS.text}
+          />
+        </TouchableOpacity>
+
+        <View style={{ flex: 1 }}>
+          <Text
             style={{
-              width: 42,
-              height: 42,
-              borderRadius: 21,
-              justifyContent: "center",
-              alignItems: "center",
-              backgroundColor: COLORS.card,
-              marginRight: 12,
+              color: COLORS.text,
+              fontSize: 25,
+              fontFamily: editorialFont,
             }}
           >
-            <Ionicons
-              name="arrow-back"
-              size={22}
-              color={COLORS.text}
-            />
-          </TouchableOpacity>
+            Make it your own
+          </Text>
 
-          <View style={{ flex: 1 }}>
-            <Text
-              style={{
-                color: COLORS.text,
-                fontSize: 25,
-                fontWeight: "800",
-              }}
-            >
-              Make it your own
-            </Text>
-
-            <Text
-              style={{
-                color: COLORS.textLight,
-                fontSize: 14,
-                marginTop: 2,
-              }}
-            >
-              Adjust this saved recipe to your taste.
-            </Text>
-          </View>
+          <Text
+            style={{
+              color: COLORS.textLight,
+              fontSize: 14,
+              marginTop: 2,
+            }}
+          >
+            Adjust this saved recipe to your taste.
+          </Text>
         </View>
-
+      </View>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 48 }}
+      >
         <Text
           style={{
             color: COLORS.text,
@@ -460,7 +451,8 @@ export default function FavoriteEditorScreen() {
         <Text
           style={{
             color: COLORS.text,
-            fontSize: 18,
+            fontSize: 24,
+            fontFamily: editorialFont,
             fontWeight: "800",
             marginTop: 6,
             marginBottom: 6,
@@ -511,7 +503,8 @@ export default function FavoriteEditorScreen() {
         <Text
           style={{
             color: COLORS.text,
-            fontSize: 18,
+            fontSize: 24,
+            fontFamily: editorialFont,
             fontWeight: "800",
             marginBottom: 6,
           }}
@@ -556,7 +549,8 @@ export default function FavoriteEditorScreen() {
         <Text
           style={{
             color: COLORS.text,
-            fontSize: 18,
+            fontSize: 24,
+            fontFamily: editorialFont,
             fontWeight: "800",
             marginBottom: 6,
           }}
@@ -629,6 +623,6 @@ export default function FavoriteEditorScreen() {
           </Text>
         </TouchableOpacity>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }

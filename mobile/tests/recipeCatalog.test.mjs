@@ -1,8 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
-  COUNTRIES, CURATED_RECIPES, createRecipeCatalog, belongsToCountry,
-  searchCountries, searchRecipes, favoritePayload,
+  COUNTRIES, CURATED_RECIPES, BUNDLED_RECIPES, createRecipeCatalog, belongsToCountry,
+  searchCountries, searchRecipes, favoritePayload, countryDishPreviews,
 } from "../services/recipeCatalog.js";
 
 const country = (id) => COUNTRIES.find((item) => item.id === id);
@@ -31,7 +31,7 @@ test("all 195 country identities are unique, including ambiguous MealDB labels",
 test("bundled collection and recipe details work without making provider requests", async () => {
   const never = () => { throw new Error("Should not contact MealDB"); };
   const catalog = service({ searchMeals: never, filterByArea: never, getMeal: never });
-  assert.equal((await catalog.getCollection()).recipes.length, 8);
+  assert.equal((await catalog.getCollection()).recipes.length, BUNDLED_RECIPES.length);
   assert.equal((await catalog.getCollection("vietnam")).source, "curated");
   for (const recipe of CURATED_RECIPES) {
     assert.equal((await catalog.getRecipe(recipe.id)).id, recipe.id);
@@ -104,4 +104,67 @@ test("cookbook payload preserves catalog IDs and full recipe content", () => {
   assert.deepEqual(payload.ingredients, recipe.ingredients);
   assert.deepEqual(payload.instructions, recipe.instructions);
   assert.equal(payload.servings, "4");
+});
+
+test("Cambodia and France work offline in country browsing, details, and searches", async () => {
+  const never = () => assert.fail("Bundled country must not depend on MealDB");
+  const catalog = service({ searchMeals: never, filterByArea: never, getMeal: never });
+  const cambodia = await catalog.getCollection("cambodia", { refresh: true });
+  assert.equal(cambodia.source, "curated");
+  assert.equal(cambodia.recipes.length, 3);
+  for (const recipe of cambodia.recipes) {
+    assert.equal((await catalog.getRecipe(recipe.id)).countryId, "cambodia");
+    assert.ok(recipe.contextSource.author && recipe.contextSource.url);
+    assert.match(recipe.adaptationNote, /not .*recipe or an endorsed version/);
+    assert.match(favoritePayload(recipe, "user").personalNote, /home adaptation/);
+  }
+  assert.equal(searchRecipes(BUNDLED_RECIPES, "Cambodia").length, 3);
+  assert.equal((await catalog.getCollection("france")).recipes.length, 2);
+});
+
+test("every country has traceable context and every bundled adaptation preserves its disclosure", async () => {
+  for (const country of COUNTRIES) {
+    assert.ok(country.name && country.area && country.dish);
+    assert.equal(new URL(country.sourceUrl).protocol, "https:");
+  }
+  const catalog = service();
+  assert.equal(new Set(BUNDLED_RECIPES.map(recipe => recipe.id)).size, BUNDLED_RECIPES.length);
+  for (const recipe of BUNDLED_RECIPES) {
+    assert.ok(country(recipe.countryId), recipe.id);
+    assert.equal(new URL(recipe.source).protocol, "https:");
+    assert.ok(recipe.adaptationNote, recipe.id);
+    assert.ok(favoritePayload(recipe, "test-user").personalNote.includes(recipe.adaptationNote), recipe.id);
+    const collection = await catalog.getCollection(recipe.countryId);
+    assert.ok(collection.recipes.some(item => item.id === recipe.id), recipe.id);
+    assert.ok(collection.recipes.every(item => item.countryId === recipe.countryId));
+  }
+});
+
+test("Afghanistan, Andorra, and Belize each have three complete offline adaptations", async () => {
+  const never = () => assert.fail("Offline expansion must not call provider");
+  const catalog = service({ searchMeals: never, filterByArea: never, getMeal: never });
+  for (const id of ["afghanistan", "andorra", "belize"]) {
+    const collection = await catalog.getCollection(id, { refresh: true });
+    assert.equal(collection.source, "curated");
+    assert.equal(collection.recipes.length, 3);
+    assert.equal(searchRecipes(BUNDLED_RECIPES, country(id).name).length, 3);
+    for (const recipe of collection.recipes) {
+      assert.match(recipe.title, /home adaptation/);
+      assert.ok(recipe.ingredients.length >= 5 && recipe.instructions.length >= 4);
+      assert.equal((await catalog.getRecipe(recipe.id)).id, recipe.id);
+      assert.ok(recipe.contextSource.author && recipe.contextSource.url);
+    }
+  }
+});
+test("all 195 country dish previews have source context without invented recipe instructions", () => {
+  for (const country of COUNTRIES) {
+    const preview = countryDishPreviews(country.name).find(item => item.id === country.id);
+    assert.ok(preview, country.name);
+    assert.equal(preview.kind, "source-preview");
+    assert.equal(preview.sourceUrl, country.sourceUrl);
+    assert.equal(preview.ingredients, undefined);
+    assert.equal(preview.instructions, undefined);
+  }
+  assert.deepEqual(countryDishPreviews(""), []);
+  assert.deepEqual(countryDishPreviews("not-a-real-country"), []);
 });

@@ -1,0 +1,50 @@
+[
+  {
+    "id": "discover-parmesan-risotto",
+    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ed/Mushroom_and_Leek_Risotto_%2849535206656%29.jpg/1280px-Mushroom_and_Leek_Risotto_%2849535206656%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageSourceUrl": "https://commons.wikimedia.org/wiki/File:Mushroom_and_Leek_Risotto_(49535206656).jpg",
+    "imageLicense": "CC BY 2.0",
+    "imageLicenseUrl": "https://creativecommons.org/licenses/by/2.0",
+    "artist": "spurekar"
+  },
+  {
+    "id": "discover-lemon-roast-chicken",
+    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d9/Max%27s_Roasted_Chicken_-_Evan_Swigart.jpg/1280px-Max%27s_Roasted_Chicken_-_Evan_Swigart.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageSourceUrl": "https://commons.wikimedia.org/wiki/File:Max%27s_Roasted_Chicken_-_Evan_Swigart.jpg",
+    "imageLicense": "CC BY 2.0",
+    "imageLicenseUrl": "https://creativecommons.org/licenses/by/2.0",
+    "artist": "Evan Swigart from Chicago, USA"
+  },
+  {
+    "id": "discover-pan-seared-steak",
+    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/52/Steak_Diane_%2811484836483%29.jpg/1280px-Steak_Diane_%2811484836483%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageSourceUrl": "https://commons.wikimedia.org/wiki/File:Steak_Diane_(11484836483).jpg",
+    "imageLicense": "CC BY 2.0",
+    "imageLicenseUrl": "https://creativecommons.org/licenses/by/2.0",
+    "artist": "Ruth Hartnup from Vancouver, Canada"
+  },
+  {
+    "id": "discover-coffee-tiramisu",
+    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/42/Dolce_Tiramis%C3%B9_monoporzione.jpg/1280px-Dolce_Tiramis%C3%B9_monoporzione.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageSourceUrl": "https://commons.wikimedia.org/wiki/File:Dolce_Tiramis%C3%B9_monoporzione.jpg",
+    "imageLicense": "CC BY 4.0",
+    "imageLicenseUrl": "https://creativecommons.org/licenses/by/4.0",
+    "artist": "Anna.Massini"
+  },
+  {
+    "id": "discover-garlic-pasta",
+    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3e/Spaghetti_aglio_e_olio_KB.jpg/1280px-Spaghetti_aglio_e_olio_KB.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageSourceUrl": "https://commons.wikimedia.org/wiki/File:Spaghetti_aglio_e_olio_KB.jpg",
+    "imageLicense": "CC BY-SA 4.0",
+    "imageLicenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "artist": "Bairuilong"
+  },
+  {
+    "id": "discover-honey-soy-salmon",
+    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a4/TERIYAKI_SALMON_SALAD_-_Jonny%27s_2025-05-27.jpg/1280px-TERIYAKI_SALMON_SALAD_-_Jonny%27s_2025-05-27.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageSourceUrl": "https://commons.wikimedia.org/wiki/File:TERIYAKI_SALMON_SALAD_-_Jonny%27s_2025-05-27.jpg",
+    "imageLicense": "CC0",
+    "imageLicenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "artist": "Andy Li"
+  }
+]

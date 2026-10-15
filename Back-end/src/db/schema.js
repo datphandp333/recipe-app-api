@@ -1,5 +1,9 @@
+import { sql } from "drizzle-orm";
 import {
   pgTable,
+  integer,
+  primaryKey,
+  check,
   serial,
   text,
   timestamp,
@@ -69,3 +73,30 @@ export const favoritesTable = pgTable("favorites", {
 
   updatedAt: timestamp("updated_at").defaultNow(),
 });
+
+// Beta usage persists across installs and resets monthly, independently of billing.
+export const membershipAccountsTable = pgTable('membership_accounts', {
+  userId: text('user_id').primaryKey(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+});
+export const membershipUsageTable = pgTable('membership_usage', {
+  userId: text('user_id').notNull().references(() => membershipAccountsTable.userId),
+  period: text('period').notNull(),
+  feature: text('feature').notNull(),
+  used: integer('used').default(0).notNull(),
+}, table => [primaryKey({ columns: [table.userId, table.period, table.feature] }),
+  check('membership_usage_feature_check', sql`${table.feature} IN ('chat','recipes','scans','plans')`),
+  check('membership_usage_used_check', sql`${table.used} >= 0`)]);
+export const membershipRequestsTable = pgTable('membership_requests', {
+  userId: text('user_id').notNull().references(() => membershipAccountsTable.userId),
+  requestId: text('request_id').notNull(),
+  fingerprint: text('fingerprint').notNull(),
+  period: text('period').notNull(),
+  features: jsonb('features').notNull(),
+  state: text('state').notNull(),
+  leaseUntil: timestamp('lease_until', { withTimezone: true }).notNull(),
+  response: jsonb('response'),
+  responseStatus: integer('response_status'),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, table => [primaryKey({ columns: [table.userId, table.requestId] }),
+  check('membership_requests_state_check', sql`${table.state} IN ('pending','completed','released')`)]);

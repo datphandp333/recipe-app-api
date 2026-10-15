@@ -8,6 +8,10 @@ This app allows users to browse recipes, search recipes, view recipe details, wa
 
 ## Features
 
+Discovery dishes and the editorial UI: [docs/discovery.md](docs/discovery.md).
+
+Free beta setup and AI allowances: [Back-end/BETA.md](Back-end/BETA.md).
+
 Pantry setup and validation instructions: [Back-end/PANTRY.md](Back-end/PANTRY.md).
 
 - User authentication with Clerk

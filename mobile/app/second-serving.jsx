@@ -1,3 +1,6 @@
+import { SafeAreaView } from "react-native-safe-area-context";
+import { EDITORIAL_FONT as editorialFont } from "../constants/editorialTheme";
+import { betaFetch } from "../services/betaRequest";
 import { backOrReplace } from "../services/navigation";
 import IngredientPicture from "../components/IngredientPicture";
 import { useUser } from "@clerk/expo";
@@ -335,7 +338,7 @@ export default function SecondServingScreen() {
     setIsGenerating(true);
 
     try {
-      const response = await fetch(
+      const response = await betaFetch(
         `${API_URL}/ai/recipes/second-serving`,
         {
           method: "POST",
@@ -489,7 +492,7 @@ export default function SecondServingScreen() {
   const recipe = result?.suggestedRecipe;
 
   return (
-    <View style={styles.screen}>
+    <SafeAreaView style={styles.screen} edges={["top", "left", "right", "bottom"]}>
       <View style={styles.header}>
         <TouchableOpacity
           accessibilityLabel="Go back"
@@ -941,7 +944,7 @@ export default function SecondServingScreen() {
           </View>
         ) : null}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -964,15 +967,15 @@ const styles = StyleSheet.create({
 
   headerButton: {
     alignItems: "center",
-    height: 42,
+    height: 44,
     justifyContent: "center",
-    width: 42,
+    width: 44,
   },
 
   headerTitle: {
     color: COLORS.text,
     fontSize: 18,
-    fontWeight: "900",
+    fontFamily: editorialFont,
     textAlign: "center",
   },
 
@@ -988,9 +991,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: COLORS.primary,
     borderRadius: 15,
-    height: 42,
+    height: 44,
     justifyContent: "center",
-    width: 42,
+    width: 44,
   },
 
   content: {
@@ -1027,7 +1030,7 @@ const styles = StyleSheet.create({
   heroTitle: {
     color: COLORS.text,
     fontSize: 27,
-    fontWeight: "900",
+    fontFamily: editorialFont,
     marginTop: 8,
     textAlign: "center",
   },
@@ -1086,7 +1089,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: COLORS.text,
     fontSize: 19,
-    fontWeight: "900",
+    fontFamily: editorialFont,
   },
 
   sectionDescription: {
@@ -1337,7 +1340,7 @@ const styles = StyleSheet.create({
   recipeTitle: {
     color: COLORS.text,
     fontSize: 24,
-    fontWeight: "900",
+    fontFamily: editorialFont,
   },
 
   recipeDescription: {

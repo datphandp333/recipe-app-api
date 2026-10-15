@@ -37,9 +37,9 @@
           "image": "./assets/images/simmerli-splash.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
+          "backgroundColor": "#FBF7EF",
           "dark": {
-            "backgroundColor": "#ffffff"
+            "backgroundColor": "#FBF7EF"
           }
         }
       ],

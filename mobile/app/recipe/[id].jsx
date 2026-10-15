@@ -1,10 +1,14 @@
+import CookingProgress from "../../components/motion/CookingProgress";
+import TouchableOpacity from "../../components/motion/MotionPressable";
+import { EDITORIAL_FONT as editorialFont } from "../../constants/editorialTheme";
+import { getCuratedRecipe } from "../../services/recipeCatalog";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { backOrReplace } from "../../services/navigation";
 import {
   View,
   Text,
   Alert,
   ScrollView,
-  TouchableOpacity,
   Platform,
   Linking,
 } from "react-native";
@@ -57,15 +61,15 @@ const getIngredientData = (ingredient, index) => {
   };
 };
 
-const RecipeDetailScreen = () => {
-  const { id: recipeId } = useLocalSearchParams();
+const RecipeDetailContent = ({ recipeId }) => {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { user } = useUser();
 
   const userId = user?.id;
 
-  const [recipe, setRecipe] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [recipe, setRecipe] = useState(() => getCuratedRecipe(recipeId));
+  const [loading, setLoading] = useState(() => !getCuratedRecipe(recipeId));
   const [isSaved, setIsSaved] = useState(false);
   const [cookbookUnavailable, setCookbookUnavailable] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -83,10 +87,7 @@ const RecipeDetailScreen = () => {
 
   useEffect(() => {
     let active = true;
-    setCompletedIngredients([]);
-    setCompletedSteps([]);
     const loadRecipeDetails = async () => {
-      setLoading(true);
 
       try {
         const transformedRecipe = await MealAPI.getRecipeById(recipeId);
@@ -121,7 +122,6 @@ const RecipeDetailScreen = () => {
 
   useEffect(() => {
     let active = true;
-    setIsSaved(false);
     const checkIfSaved = async () => {
       if (!userId || !recipeId) {
         return;
@@ -356,45 +356,6 @@ const RecipeDetailScreen = () => {
             style={recipeDetailStyles.gradientOverlay}
           />
 
-          <View style={recipeDetailStyles.floatingButtons}>
-            <TouchableOpacity
-              style={recipeDetailStyles.floatingButton}
-              onPress={() => backOrReplace(router, "/(taps)")}
-              accessibilityLabel="Go back"
-            >
-              <Ionicons
-                name="arrow-back"
-                size={24}
-                color={COLORS.white}
-              />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[
-                recipeDetailStyles.floatingButton,
-                {
-                  backgroundColor: isSaving
-                    ? COLORS.textLight
-                    : COLORS.primary,
-                },
-              ]}
-              onPress={handleToggleSave}
-              disabled={isSaving}
-            >
-              <Ionicons
-                name={
-                  isSaving
-                    ? "hourglass-outline"
-                    : isSaved
-                      ? "bookmark"
-                      : "bookmark-outline"
-                }
-                size={24}
-                color={COLORS.white}
-              />
-            </TouchableOpacity>
-          </View>
-
           <View style={recipeDetailStyles.titleSection}>
             <View style={recipeDetailStyles.categoryBadge}>
               <Text style={recipeDetailStyles.categoryText}>
@@ -406,7 +367,7 @@ const RecipeDetailScreen = () => {
               {recipe.title}
             </Text>
 
-            {recipe.area && (
+            {(recipe.cuisine || recipe.area) && (
               <View style={recipeDetailStyles.locationRow}>
                 <Ionicons
                   name="location"
@@ -415,7 +376,7 @@ const RecipeDetailScreen = () => {
                 />
 
                 <Text style={recipeDetailStyles.locationText}>
-                  {recipe.area} cuisine
+                  {recipe.cuisine || recipe.area} cuisine
                 </Text>
               </View>
             )}
@@ -425,6 +386,25 @@ const RecipeDetailScreen = () => {
         <View style={recipeDetailStyles.contentSection}>
           {cookbookUnavailable && <Text accessibilityLiveRegion="polite" style={{ color: COLORS.textLight, fontSize: 13, marginBottom: 12 }}>Cookbook is temporarily unavailable. You can still read and prepare this recipe. Reopen it after reconnecting to check its saved status.</Text>}
           {!!recipe.description && <Text style={{ color: COLORS.text, fontSize: 16, lineHeight: 24, marginBottom: 12 }}>{recipe.description}</Text>}
+          {!!recipe.inspiration && <View style={{ backgroundColor: "#F3EBDD", borderRadius: 16, padding: 18, marginBottom: 18, gap: 8 }}>
+            <Text style={{ color: "#8A643D", fontSize: 11, letterSpacing: 1, fontWeight: "700" }}>CHEF INSPIRATION</Text>
+            <Text style={{ color: COLORS.text, fontSize: 22, fontFamily: editorialFont }}>{recipe.inspiration.title}</Text>
+            {!!recipe.inspiration.restaurant && <Text style={{ color: COLORS.textLight }}>{recipe.inspiration.restaurant}</Text>}
+            <Text style={{ color: COLORS.textLight, fontSize: 13, lineHeight: 20 }}>{recipe.inspiration.note}</Text>
+            <TouchableOpacity accessibilityRole="link" onPress={() => Linking.openURL(recipe.inspiration.url).catch(() => showMessage("Could not open source", "Please try again."))} style={{ paddingVertical: 10 }}>
+              <Text style={{ color: COLORS.primary, fontWeight: "700" }}>Read the {recipe.inspiration.publisher} feature ↗</Text>
+            </TouchableOpacity>
+          </View>}
+          {!!recipe.isCurated && <Text style={{ color: COLORS.primary, fontWeight: "700", marginBottom: 10 }}>Simmerli home adaptation</Text>}
+          {!!recipe.adaptationNote && <Text style={{ color: COLORS.text, fontSize: 14, lineHeight: 21, marginBottom: 12 }}>{recipe.adaptationNote}</Text>}
+          {!!recipe.contextSource && <View style={{ backgroundColor: "#F3EBDD", borderRadius: 16, padding: 18, marginBottom: 18, gap: 8 }}>
+            <Text style={{ color: COLORS.primary, fontWeight: "700" }}>SOURCE & CULINARY CONTEXT</Text>
+            <Text style={{ color: COLORS.text, fontSize: 18 }}>{recipe.contextSource.author}</Text>
+            <Text style={{ color: COLORS.textLight, lineHeight: 20 }}>Learn about {recipe.contextSource.title}. The version below is Simmerli’s own adaptation.</Text>
+            <TouchableOpacity accessibilityRole="link" style={{ paddingVertical: 12 }} onPress={() => Linking.openURL(recipe.contextSource.url).catch(() => showMessage("Could not open source", "Please try again."))}><Text style={{ color: COLORS.primary, fontWeight: "700" }}>Visit the original source ↗</Text></TouchableOpacity>
+          </View>}
+          {!!recipe.source && !recipe.inspiration && !recipe.contextSource && <TouchableOpacity accessibilityRole="link" style={{ paddingVertical: 12 }} onPress={() => Linking.openURL(recipe.source).catch(() => showMessage("Could not open source", "Please try again."))}><Text style={{ color: COLORS.primary }}>Explore this dish’s background ↗</Text></TouchableOpacity>}
+          {!!recipe.homeTip && <Text style={{ color: COLORS.primary, fontSize: 14, lineHeight: 21, marginBottom: 14 }}>{recipe.homeTip}</Text>}
           {!!recipe.recipeNote && <Text style={{ color: COLORS.textLight, fontSize: 12, lineHeight: 18, marginBottom: 12 }}>{recipe.recipeNote}</Text>}
           {!!recipe.imageCredit && <TouchableOpacity
             accessibilityRole="link" accessibilityLabel="View image source"
@@ -433,7 +413,7 @@ const RecipeDetailScreen = () => {
           ><Text style={{ color: COLORS.primary, fontSize: 12 }}>{recipe.imageCredit} ↗</Text></TouchableOpacity>}
           {!!recipe.imageLicenseUrl && <TouchableOpacity accessibilityRole="link"
             onPress={() => Linking.openURL(recipe.imageLicenseUrl)} style={{ paddingVertical: 12 }}>
-            <Text style={{ color: COLORS.primary, fontSize: 12 }}>Photo license: CC BY 2.0 ↗</Text>
+            <Text style={{ color: COLORS.primary, fontSize: 12 }}>Photo license: {recipe.imageLicense || "CC BY 2.0"} ↗</Text>
           </TouchableOpacity>}
           <TouchableOpacity
             accessibilityRole="button"
@@ -445,7 +425,7 @@ const RecipeDetailScreen = () => {
           <View style={recipeDetailStyles.statsContainer}>
             <View style={recipeDetailStyles.statCard}>
               <LinearGradient
-                colors={["#FF6B6B", "#FF8E53"]}
+                colors={[COLORS.primary, COLORS.primaryDark]}
                 style={recipeDetailStyles.statIconContainer}
               >
                 <Ionicons
@@ -466,7 +446,7 @@ const RecipeDetailScreen = () => {
 
             <View style={recipeDetailStyles.statCard}>
               <LinearGradient
-                colors={["#4ECDC4", "#44A08D"]}
+                colors={[COLORS.primary, COLORS.primaryDark]}
                 style={recipeDetailStyles.statIconContainer}
               >
                 <Ionicons
@@ -656,7 +636,7 @@ const RecipeDetailScreen = () => {
           <View style={recipeDetailStyles.sectionContainer}>
             <View style={recipeDetailStyles.sectionTitleRow}>
               <LinearGradient
-                colors={["#9C27B0", "#673AB7"]}
+                colors={[COLORS.primary, COLORS.primaryDark]}
                 style={recipeDetailStyles.sectionIcon}
               >
                 <Ionicons
@@ -681,6 +661,7 @@ const RecipeDetailScreen = () => {
               Follow each step and mark it complete as you cook.
             </Text>
 
+            <CookingProgress completed={completedSteps.length} total={recipe.instructions.length} />
             <View style={recipeDetailStyles.instructionsContainer}>
               {recipe.instructions.map((instruction, index) => {
                 const isCompleted = completedSteps.includes(index);
@@ -747,6 +728,9 @@ const RecipeDetailScreen = () => {
                             isCompleted &&
                               recipeDetailStyles.completeButtonActive,
                           ]}
+                          accessibilityRole="checkbox"
+                          accessibilityLabel={`Cooking step ${index + 1}`}
+                          accessibilityState={{ checked: isCompleted }}
                           onPress={() => toggleStep(index)}
                         >
                           <Ionicons
@@ -803,8 +787,54 @@ const RecipeDetailScreen = () => {
           </TouchableOpacity>
         </View>
       </ScrollView>
+      <View style={[recipeDetailStyles.floatingButtons, { top: insets.top + 12 }]}>
+        <TouchableOpacity
+          style={recipeDetailStyles.floatingButton}
+          onPress={() => backOrReplace(router, "/(taps)")}
+          accessibilityRole="button"
+          accessibilityLabel="Go back"
+          hitSlop={8}
+        >
+          <Ionicons
+            name="arrow-back"
+            size={24}
+            color={COLORS.primary}
+          />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[
+            recipeDetailStyles.floatingButton,
+            {
+              backgroundColor: isSaving
+                ? COLORS.textLight
+                : COLORS.primary,
+            },
+          ]}
+          onPress={handleToggleSave}
+          disabled={isSaving}
+        >
+          <Ionicons
+            name={
+              isSaving
+                ? "hourglass-outline"
+                : isSaved
+                  ? "bookmark"
+                  : "bookmark-outline"
+            }
+            size={24}
+            color={COLORS.white}
+          />
+        </TouchableOpacity>
+      </View>
+
     </View>
   );
 };
 
-export default RecipeDetailScreen;
+// Changing recipe/account remounts checkmarks and saved state without effect-driven resets.
+export default function RecipeDetailScreen() {
+  const { id } = useLocalSearchParams();
+  const { user } = useUser();
+  return <RecipeDetailContent key={`${user?.id || "guest"}:${String(id)}`} recipeId={id} />;
+}

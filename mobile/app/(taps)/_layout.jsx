@@ -1,18 +1,14 @@
+import SelectionPulse from "../../components/motion/SelectionPulse";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { EDITORIAL_COLORS as E } from "../../constants/editorialTheme";
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import { StyleSheet, View } from "react-native";
 
-const COLORS = {
-  cream: "#FFF8F0",
-  white: "#FFFFFF",
-  green: "#245B4B",
-  sage: "#DDEDE5",
-  coral: "#E76F51",
-  muted: "#74807B",
-  border: "#E8DED1",
-};
+const COLORS = { ...E, border: E.line };
 
 const TAB_ICONS = {
+  profile: { active: "person-circle", inactive: "person-circle-outline" },
   pantry: {
     active: "basket",
     inactive: "basket-outline",
@@ -32,6 +28,7 @@ const TAB_ICONS = {
 };
 
 export default function TabsLayout() {
+  const insets = useSafeAreaInsets();
   return (
     <Tabs
       screenOptions={({ route }) => {
@@ -42,10 +39,11 @@ export default function TabsLayout() {
           headerShown: false,
           tabBarActiveTintColor: COLORS.green,
           tabBarInactiveTintColor: COLORS.muted,
-          tabBarStyle: styles.tabBar,
+          tabBarStyle: [styles.tabBar, { height: 66 + Math.max(insets.bottom, 10), paddingBottom: Math.max(insets.bottom, 10) }],
           tabBarItemStyle: styles.tabItem,
           tabBarLabelStyle: styles.tabLabel,
           tabBarIcon: ({ focused, color }) => (
+            <SelectionPulse selected={focused}>
             <View
               style={[
                 styles.iconContainer,
@@ -66,6 +64,7 @@ export default function TabsLayout() {
                 }
               />
             </View>
+            </SelectionPulse>
           ),
         };
       }}
@@ -91,6 +90,7 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen name="pantry" options={{ title: "Pantry" }} />
+      <Tabs.Screen name="profile" options={{ title: "Profile" }} />
     </Tabs>
   );
 }
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     height: 76,
     paddingTop: 8,
     paddingBottom: 10,
-    boxShadow: "0 -3px 12px rgba(36, 91, 75, 0.08)",
+
   },
 
   tabItem: {
@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
 
   tabLabel: {
     fontSize: 12,
-    fontWeight: "800",
+    fontWeight: "600",
     marginTop: 2,
   },
 

@@ -1,3 +1,5 @@
+import { EDITORIAL_COLORS as E, EDITORIAL_FONT as editorialFont } from "../constants/editorialTheme";
+import { betaFetch } from "../services/betaRequest";
 import { useAuth } from '@clerk/expo';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
@@ -37,7 +39,7 @@ function Scanner({ getToken }) {
     let timedOut = false;
     const timeout = setTimeout(() => { timedOut = true; abort.abort(); }, duration);
     try {
-      const response = await fetch(`${API_URL}/pantry${path}`, { method: 'POST', signal: abort.signal,
+      const response = await betaFetch(`${API_URL}/pantry${path}`, { method: 'POST', signal: abort.signal,
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(body) });
       const data = await response.json().catch(() => null);
       if (abort.signal.aborted) throw new Error('Request aborted.');
@@ -135,16 +137,16 @@ function Scanner({ getToken }) {
     </ScrollView></KeyboardAvoidingView></SafeAreaView>;
 }
 function Button({ label, onPress, disabled, secondary }) {
-  return <Pressable accessibilityRole="button" accessibilityState={{ disabled }} onPress={onPress} disabled={disabled} style={[s.button, secondary && { backgroundColor: '#DCECE4' }, disabled && { opacity: 0.5 }]}><Text style={{ color: secondary ? '#245B4B' : 'white', fontWeight: '700', textAlign: 'center' }}>{label}</Text></Pressable>;
+  return <Pressable accessibilityRole="button" accessibilityState={{ disabled }} onPress={onPress} disabled={disabled} style={[s.button, secondary && { backgroundColor: E.sage }, disabled && { opacity: 0.5 }]}><Text style={{ color: secondary ? '#245B4B' : 'white', fontWeight: '700', textAlign: 'center' }}>{label}</Text></Pressable>;
 }
 const s = StyleSheet.create({
-  page: { flex: 1, backgroundColor: '#FFF8F0' }, center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  page: { flex: 1, backgroundColor: E.background }, center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   content: { width: '100%', maxWidth: 700, alignSelf: 'center', padding: 20, paddingBottom: 50, gap: 16 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, flexWrap: 'wrap' }, icon: { minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
-  eyebrow: { color: '#A74531', fontSize: 11, fontWeight: '800', letterSpacing: 1.3 }, title: { color: '#20302A', fontSize: 32, lineHeight: 38, fontWeight: '800' },
-  body: { color: '#65736B', fontSize: 14, lineHeight: 21 }, small: { color: '#65736B', fontSize: 12, lineHeight: 18 }, section: { color: '#245B4B', fontSize: 21, fontWeight: '700' },
-  placeholder: { padding: 30, minHeight: 210, backgroundColor: '#DCECE4', borderRadius: 22, alignItems: 'center', justifyContent: 'center', gap: 12 }, photo: { width: '100%', height: 240, borderRadius: 20, backgroundColor: '#DCECE4' },
-  button: { backgroundColor: '#245B4B', borderRadius: 14, padding: 16, minHeight: 48 }, card: { backgroundColor: 'white', borderWidth: 1, borderColor: '#E9E1D7', borderRadius: 18, padding: 16, gap: 12 },
-  input: { borderWidth: 1, borderColor: '#DCECE4', padding: 12, borderRadius: 12, minHeight: 48, color: '#20302A', fontSize: 16 }, unit: { minHeight: 44, paddingHorizontal: 14, justifyContent: 'center', borderRadius: 12, backgroundColor: '#DCECE4' },
-  error: { color: '#A74531', backgroundColor: '#FBE6E0', padding: 15, borderRadius: 12, lineHeight: 21 }, link: { color: '#245B4B', fontWeight: '700', lineHeight: 21 },
+  eyebrow: { color: E.gold, fontSize: 9, fontWeight: '700', letterSpacing: 1.6 }, title: { fontFamily: editorialFont, color: E.ink, fontSize: 36, lineHeight: 42, },
+  body: { color: E.muted, fontSize: 14, lineHeight: 21 }, small: { color: E.muted, fontSize: 12, lineHeight: 18 }, section: { fontFamily: editorialFont, color: '#245B4B', fontSize: 21, },
+  placeholder: { padding: 30, minHeight: 210, backgroundColor: E.sage, borderRadius: 22, alignItems: 'center', justifyContent: 'center', gap: 12 }, photo: { width: '100%', height: 240, borderRadius: 20, backgroundColor: E.sage },
+  button: { backgroundColor: '#245B4B', borderRadius: 14, padding: 16, minHeight: 48 }, card: { backgroundColor: 'white', borderWidth: 1, borderColor: E.line, borderRadius: 18, padding: 16, gap: 12 },
+  input: { borderWidth: 1, borderColor: E.sage, padding: 12, borderRadius: 12, minHeight: 48, color: E.ink, fontSize: 16 }, unit: { minHeight: 44, paddingHorizontal: 14, justifyContent: 'center', borderRadius: 12, backgroundColor: E.sage },
+  error: { color: E.gold, backgroundColor: '#FBE6E0', padding: 15, borderRadius: 12, lineHeight: 21 }, link: { color: '#245B4B', fontWeight: '700', lineHeight: 21 },
 });

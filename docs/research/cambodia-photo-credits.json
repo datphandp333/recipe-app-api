@@ -1,0 +1,26 @@
+[
+  {
+    "id": "curated-fish-amok",
+    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/84/Fish_Amok-_Khmer_specialty.jpg/1280px-Fish_Amok-_Khmer_specialty.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageSourceUrl": "https://commons.wikimedia.org/wiki/File:Fish_Amok-_Khmer_specialty.jpg",
+    "imageLicense": "CC BY 2.0",
+    "imageLicenseUrl": "https://creativecommons.org/licenses/by/2.0",
+    "imageCredit": "Serving suggestion \u00b7 Ben Yapp \u00b7 CC BY 2.0 \u00b7 displayed cropped"
+  },
+  {
+    "id": "curated-beef-lok-lak",
+    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/66/Beef_Lok_Lak.jpg/1280px-Beef_Lok_Lak.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageSourceUrl": "https://commons.wikimedia.org/wiki/File:Beef_Lok_Lak.jpg",
+    "imageLicense": "CC BY 2.0",
+    "imageLicenseUrl": "https://creativecommons.org/licenses/by/2.0",
+    "imageCredit": "Serving suggestion \u00b7 James Antrobus \u00b7 CC BY 2.0 \u00b7 displayed cropped"
+  },
+  {
+    "id": "curated-num-banh-chok",
+    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/61/Num_Banh_Chok.jpg/1280px-Num_Banh_Chok.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageSourceUrl": "https://commons.wikimedia.org/wiki/File:Num_Banh_Chok.jpg",
+    "imageLicense": "CC BY-SA 2.0",
+    "imageLicenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+    "imageCredit": "Serving suggestion \u00b7 Thomas Wanhoff from Siem Reap, Cambodia \u00b7 CC BY-SA 2.0 \u00b7 displayed cropped"
+  }
+]

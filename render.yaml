@@ -1,0 +1,26 @@
+# Optional free-tier backend template. Creating this file does not deploy anything.
+services:
+  - type: web
+    name: simmerli-api
+    runtime: node
+    plan: free
+    rootDir: Back-end
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeployTrigger: off
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "22"
+      - key: BETA_LIMITS_ENABLED
+        value: "false"
+      - key: DATABASE_URL
+        sync: false
+      - key: CLERK_SECRET_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: PEXELS_API_KEY
+        sync: false

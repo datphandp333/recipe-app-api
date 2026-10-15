@@ -5,8 +5,8 @@ The home screen implements the direction in [the proposal](research/homepage-pro
 ## Content and behavior
 
 - `mobile/data/countries.js` contains all 195 countries and territories in the researched MealDB list. The research CSV remains the source reference for each country's iconic dish. These are editorial choices, not measured popularity rankings.
-- `mobile/data/curatedRecipes.js` contains eight original home adaptations with complete ingredients and instructions. Times are estimates and the recipes have not been kitchen-tested. Source links document cultural context; they do not claim these instructions were copied or tested by the linked organization.
-- The initial collection and its bundled photos need no MealDB request. Country selection uses local recipes first, then MealDB only for countries without local recipes. Additional recipes are labeled as recipes to explore, not necessarily the researched iconic dish.
+- `mobile/data/curatedRecipes.js` contains twenty original home adaptations (including three each for Cambodia, Afghanistan, Andorra, and Belize) with complete ingredients and instructions. Times are estimates and the recipes have not been kitchen-tested. Source links document cultural context; they do not claim these instructions were copied or tested by the linked organization.
+- The initial collection and its bundled photos need no MealDB request. Country selection uses all 26 bundled home and discovery recipes first, then MealDB only for countries without local recipes. Additional recipes are labeled as recipes to explore, not necessarily the researched iconic dish.
 - MealDB results must include ingredients and instructions and match the selected country. Ambiguous area labels never substitute another country's recipes. Missing coverage displays an honest empty state with a Chef action.
 - Successful fallback results are cached in memory for the current session (40 countries / 240 recipes). Refresh failures retain cached results. This is not persistent offline storage.
 - Recipe IDs remain strings throughout saving and navigation. Cookbook saves retain ingredients, instructions, and the adaptation note.
@@ -40,4 +40,6 @@ node --experimental-test-module-mocks --test Back-end/src/services/chefChat.test
 
 The catalog suite checks all country identities, offline recipes, accent-insensitive search, country isolation, incomplete records, partial provider failures, cached refresh failures, request deduplication, and complete cookbook payloads. Chef tests cover discussion versus explicit finalization and conversation context.
 
-A temporary React Native Web browser harness renders the actual home component with mocked Expo adapters, authentication, and API responses. It checks phone and desktop layouts, saving, country selection, fallback results, and navigation parameters. This does not replace a full Expo iOS/Android run or a live authenticated backend integration test. The workspace has no installed Expo dependencies.
+A temporary React Native Web browser harness renders the actual home component with mocked Expo adapters, authentication, and API responses. It checks phone and desktop layouts, saving, country selection, fallback results, and navigation parameters. This does not replace a full Expo iOS/Android run or a live authenticated backend integration test. See [the kitchen edit](discovery.md) for the expanded Search collection and the shared editorial theme.
+
+See [the country coverage and cultural-context audit](research/country-catalog-audit.md) for current coverage, review limits, and adaptation disclosures.

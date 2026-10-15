@@ -1,3 +1,5 @@
+import { COUNTRY_EXPANSION_RECIPES } from "./countryExpansionRecipes.js";
+import { CAMBODIAN_RECIPES } from "./cambodianRecipes.js";
 // Original Recipe Chef home adaptations. See docs/curated-home.md for provenance and limitations.
 export const CURATED_RECIPES = [
   {
@@ -13,14 +15,14 @@ export const CURATED_RECIPES = [
     "totalTime": 55,
     "timeIsEstimate": true,
     "servings": 4,
-    "source": "https://vietnamtourism.vn/en/index.php/news/items/12973",
+    "source": "https://vietnam.travel/node/125",
     "image": "https://www.themealdb.com/images/media/meals/pbzcrx1763765096.jpg",
     "imageCredit": "Serving suggestion · TheMealDB",
     "imageSourceUrl": "https://www.themealdb.com/meal/53238",
     "photoMealId": "53238",
     "generatedBy": "Recipe Chef starter collection",
     "isCurated": true,
-    "recipeNote": "Recipe Chef home adaptation. Cooking time is an estimate; this recipe has not been kitchen-tested.",
+    "recipeNote": "Recipe Chef home adaptation. Cooking time is an estimate; this recipe has not been kitchen-tested. Shortcut phở adaptation: packaged stock replaces a long-simmered bone broth, and the steak is cooked separately. Regional Vietnamese phở styles vary.",
     "ingredients": [
       {
         "id": "curated-beef-pho-ingredient-1",
@@ -135,7 +137,8 @@ export const CURATED_RECIPES = [
         "step": 5,
         "instruction": "Bring the strained broth back to a boil. Arrange the cooked beef on the noodles and ladle over the hot broth. Add spring onions and herbs, then serve immediately with lime wedges."
       }
-    ]
+    ],
+    "adaptationNote": "Shortcut phở adaptation: packaged stock replaces a long-simmered bone broth, and the steak is cooked separately. Regional Vietnamese phở styles vary."
   },
   {
     "id": "curated-margherita",
@@ -157,7 +160,7 @@ export const CURATED_RECIPES = [
     "photoMealId": "53014",
     "generatedBy": "Recipe Chef starter collection",
     "isCurated": true,
-    "recipeNote": "Recipe Chef home adaptation. Cooking time is an estimate; this recipe has not been kitchen-tested.",
+    "recipeNote": "Recipe Chef home adaptation. Cooking time is an estimate; this recipe has not been kitchen-tested. Home-oven adaptation using prepared dough. It does not claim to meet traditional Neapolitan pizza specifications.",
     "ingredients": [
       {
         "id": "curated-margherita-ingredient-1",
@@ -230,14 +233,15 @@ export const CURATED_RECIPES = [
         "step": 5,
         "instruction": "Finish with basil and the remaining olive oil. Rest for 2 minutes, then slice and serve."
       }
-    ]
+    ],
+    "adaptationNote": "Home-oven adaptation using prepared dough. It does not claim to meet traditional Neapolitan pizza specifications."
   },
   {
     "id": "curated-sushi-rolls",
     "countryId": "japan",
     "country": "Japan",
     "area": "Japan",
-    "cuisine": "Japanese",
+    "cuisine": "Japanese-inspired",
     "title": "Cucumber and avocado sushi rolls",
     "description": "A simple vegetable maki for a hands-on evening in the kitchen.",
     "category": "Vegan",
@@ -252,7 +256,7 @@ export const CURATED_RECIPES = [
     "imageLicenseUrl": "https://creativecommons.org/licenses/by/2.0/",
     "generatedBy": "Recipe Chef starter collection",
     "isCurated": true,
-    "recipeNote": "Recipe Chef home adaptation. Cooking time is an estimate; this recipe has not been kitchen-tested.",
+    "recipeNote": "Recipe Chef home adaptation. Cooking time is an estimate; this recipe has not been kitchen-tested. Vegetable maki adaptation with cucumber and avocado. It is not presented as a traditional Japanese filling combination or a representation of all sushi styles.",
     "ingredients": [
       {
         "id": "curated-sushi-rolls-ingredient-1",
@@ -343,7 +347,8 @@ export const CURATED_RECIPES = [
         "step": 6,
         "instruction": "Slice each roll into six pieces with a damp sharp knife and serve promptly with soy sauce. Refrigerate any leftovers promptly; do not leave cooked rice at room temperature for more than 2 hours."
       }
-    ]
+    ],
+    "adaptationNote": "Vegetable maki adaptation with cucumber and avocado. It is not presented as a traditional Japanese filling combination or a representation of all sushi styles."
   },
   {
     "id": "curated-lamb-tagine",
@@ -365,7 +370,7 @@ export const CURATED_RECIPES = [
     "photoMealId": "52843",
     "generatedBy": "Recipe Chef starter collection",
     "isCurated": true,
-    "recipeNote": "Recipe Chef home adaptation. Cooking time is an estimate; this recipe has not been kitchen-tested.",
+    "recipeNote": "Recipe Chef home adaptation. Cooking time is an estimate; this recipe has not been kitchen-tested. Stovetop adaptation cooked in a lidded pot rather than a tagine vessel. The apricot, chickpea, and tomato combination is this app’s interpretation.",
     "ingredients": [
       {
         "id": "curated-lamb-tagine-ingredient-1",
@@ -480,7 +485,8 @@ export const CURATED_RECIPES = [
         "step": 5,
         "instruction": "Taste and adjust the salt. Scatter over the coriander and serve in bowls. Bread or couscous can be served alongside if desired."
       }
-    ]
+    ],
+    "adaptationNote": "Stovetop adaptation cooked in a lidded pot rather than a tagine vessel. The apricot, chickpea, and tomato combination is this app’s interpretation."
   },
   {
     "id": "curated-lamb-biryani",
@@ -502,7 +508,7 @@ export const CURATED_RECIPES = [
     "photoMealId": "52805",
     "generatedBy": "Recipe Chef starter collection",
     "isCurated": true,
-    "recipeNote": "Recipe Chef home adaptation. Cooking time is an estimate; this recipe has not been kitchen-tested.",
+    "recipeNote": "Recipe Chef home adaptation. Cooking time is an estimate; this recipe has not been kitchen-tested. Simplified cooked-lamb, layered-rice adaptation. Biryani has many regional traditions across South Asia; this is not a claim of exclusive origin or one regional recipe.",
     "ingredients": [
       {
         "id": "curated-lamb-biryani-ingredient-1",
@@ -635,7 +641,8 @@ export const CURATED_RECIPES = [
         "step": 6,
         "instruction": "Remove from the heat and leave covered for 10 minutes. Check that the rice is fully tender; if still firm, sprinkle with a little hot water and steam for a few more minutes. Gently lift the layers together to serve."
       }
-    ]
+    ],
+    "adaptationNote": "Simplified cooked-lamb, layered-rice adaptation. Biryani has many regional traditions across South Asia; this is not a claim of exclusive origin or one regional recipe."
   },
   {
     "id": "curated-moussaka",
@@ -657,7 +664,7 @@ export const CURATED_RECIPES = [
     "photoMealId": "53006",
     "generatedBy": "Recipe Chef starter collection",
     "isCurated": true,
-    "recipeNote": "Recipe Chef home adaptation. Cooking time is an estimate; this recipe has not been kitchen-tested.",
+    "recipeNote": "Recipe Chef home adaptation. Cooking time is an estimate; this recipe has not been kitchen-tested. Greek-style home adaptation with roasted aubergine and an egg-free white sauce. Moussaka has different regional versions around the eastern Mediterranean.",
     "ingredients": [
       {
         "id": "curated-moussaka-ingredient-1",
@@ -783,7 +790,8 @@ export const CURATED_RECIPES = [
         "step": 6,
         "instruction": "Bake for 25–30 minutes until golden and bubbling and the centre reaches 74°C / 165°F. Rest for 10 minutes before portioning."
       }
-    ]
+    ],
+    "adaptationNote": "Greek-style home adaptation with roasted aubergine and an egg-free white sauce. Moussaka has different regional versions around the eastern Mediterranean."
   },
   {
     "id": "curated-vegetable-paella",
@@ -805,7 +813,7 @@ export const CURATED_RECIPES = [
     "photoMealId": "52942",
     "generatedBy": "Recipe Chef starter collection",
     "isCurated": true,
-    "recipeNote": "Recipe Chef home adaptation. Cooking time is an estimate; this recipe has not been kitchen-tested.",
+    "recipeNote": "Recipe Chef home adaptation. Cooking time is an estimate; this recipe has not been kitchen-tested. Vegetable skillet adaptation with aubergine, fennel, and peas. It is not traditional paella valenciana.",
     "ingredients": [
       {
         "id": "curated-vegetable-paella-ingredient-1",
@@ -913,7 +921,8 @@ export const CURATED_RECIPES = [
         "step": 5,
         "instruction": "Remove from the heat, cover loosely, and rest for 5 minutes. Serve directly from the pan with lemon wedges. This is a vegetable adaptation, not a traditional Valencian meat paella."
       }
-    ]
+    ],
+    "adaptationNote": "Vegetable skillet adaptation with aubergine, fennel, and peas. It is not traditional paella valenciana."
   },
   {
     "id": "curated-feijoada",
@@ -935,7 +944,7 @@ export const CURATED_RECIPES = [
     "photoMealId": "53482",
     "generatedBy": "Recipe Chef starter collection",
     "isCurated": true,
-    "recipeNote": "Recipe Chef home adaptation. Cooking time is an estimate; this recipe has not been kitchen-tested.",
+    "recipeNote": "Recipe Chef home adaptation. Cooking time is an estimate; this recipe has not been kitchen-tested. Quick Brazilian-inspired version using canned black beans and a reduced selection of pork. It is not the full slow-cooked preparation.",
     "ingredients": [
       {
         "id": "curated-feijoada-ingredient-1",
@@ -1036,6 +1045,9 @@ export const CURATED_RECIPES = [
         "step": 5,
         "instruction": "Serve hot with the orange slices. Cooked rice and sautéed greens are optional accompaniments. This quicker home version uses canned beans rather than a long soak and a selection of cured meats."
       }
-    ]
-  }
+    ],
+    "adaptationNote": "Quick Brazilian-inspired version using canned black beans and a reduced selection of pork. It is not the full slow-cooked preparation."
+  },
+  ...CAMBODIAN_RECIPES,
+  ...COUNTRY_EXPANSION_RECIPES
 ];

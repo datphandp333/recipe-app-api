@@ -1342,7 +1342,7 @@ export const COUNTRIES = [
     "name": "Vietnam",
     "area": "Vietnamese",
     "dish": "Phở",
-    "sourceUrl": "https://vietnamtourism.vn/en/index.php/news/items/12973"
+    "sourceUrl": "https://vietnam.travel/node/125"
   },
   {
     "id": "yemen",

@@ -16,7 +16,7 @@ export default function IngredientPicture({ ingredient, style }) {
   if (illustration) return <View style={[styles.container, style]} accessible accessibilityLabel={`${name} illustration`}>
     {illustration === 'nori' ? <View style={{ width: '65%', height: '65%', backgroundColor: '#364B2B', borderColor: '#637547', borderWidth: 3, borderRadius: 2, transform: [{ rotate: '-8deg' }] }}>
       {[0, 1, 2].map(i => <View key={i} style={{ height: 2, backgroundColor: '#53643F', marginTop: 8, marginHorizontal: 5 }} />)}
-    </View> : <View style={{ width: '75%', height: '65%', backgroundColor: '#ECD3A3', borderRadius: 100, borderWidth: 3, borderColor: '#D5B581', transform: [{ rotate: '-8deg' }] }}>
+    </View> : ['kroeung', 'recado', 'wrappers', 'pasta-shells'].includes(illustration) ? <View style={{ width: '65%', height: '50%', backgroundColor: illustration === 'recado' ? '#BA5C3A' : illustration === 'kroeung' ? '#DAB947' : '#ECD3A3', borderRadius: 40, borderWidth: 4, borderColor: '#EEE5D4', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: illustration === 'recado' ? 'white' : '#4D522E', fontSize: 11, fontWeight: '600' }}>{({ kroeung: "Kroeung", recado: "Recado", wrappers: "Wrappers", "pasta-shells": "Pasta shells" })[illustration]}</Text></View> : <View style={{ width: '75%', height: '65%', backgroundColor: '#ECD3A3', borderRadius: 100, borderWidth: 3, borderColor: '#D5B581', transform: [{ rotate: '-8deg' }] }}>
       <View style={{ width: '60%', height: '45%', borderRadius: 80, backgroundColor: '#F7E5C5', margin: '8%' }} />
     </View>}
   </View>;

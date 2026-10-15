@@ -3,6 +3,12 @@
   "build": {
     "development": { "developmentClient": true, "distribution": "internal" },
     "development-simulator": { "developmentClient": true, "distribution": "internal", "ios": { "simulator": true } },
-    "production": {}
-  }
+    "production": {
+      "distribution": "store",
+      "environment": "production",
+      "autoIncrement": true,
+      "env": { "EXPO_PUBLIC_BETA_ENABLED": "false" }
+    }
+  },
+  "submit": { "production": {} }
 }

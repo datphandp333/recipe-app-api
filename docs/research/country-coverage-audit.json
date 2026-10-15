@@ -1,0 +1,2326 @@
+{
+  "checkedAt": "2026-10-15T02:38:51.562Z",
+  "scope": "All implemented country/territory entries. Complete country-matched provider recipes, not authenticity certification.",
+  "summary": {
+    "entries": 195,
+    "bundledRecipes": 26,
+    "bundled": 13,
+    "provider": 12,
+    "gap": 40,
+    "unverified": 130
+  },
+  "countries": [
+    {
+      "id": "afghanistan",
+      "name": "Afghanistan",
+      "editorialDish": "Kabuli pulao",
+      "contextSource": "https://en.wikipedia.org/wiki/Kabuli_pulao",
+      "bundledRecipeIds": [
+        "curated-kabuli-pulao",
+        "curated-bolani",
+        "curated-mantu"
+      ],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "bundled",
+      "localCoverageUpdatedAt": "2026-10-14"
+    },
+    {
+      "id": "albania",
+      "name": "Albania",
+      "editorialDish": "Tavë kosi",
+      "contextSource": "https://akt.gov.al/en/kulinari/tave-kosi-2/",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [
+        {
+          "id": "53404",
+          "title": "Tavë Kosi Baked Lamb and Yogurt"
+        }
+      ],
+      "coverage": "provider"
+    },
+    {
+      "id": "algeria",
+      "name": "Algeria",
+      "editorialDish": "Couscous",
+      "contextSource": "https://en.wikipedia.org/wiki/Algerian_couscous",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [
+        {
+          "id": "53284",
+          "title": "Algerian Bouzgene Berber Bread with Roasted Pepper Sauce"
+        },
+        {
+          "id": "53282",
+          "title": "Algerian Carrots"
+        },
+        {
+          "id": "53288",
+          "title": "Algerian Flafla (Bell Pepper Salad)"
+        },
+        {
+          "id": "53281",
+          "title": "Algerian Kefta (Meatballs)"
+        },
+        {
+          "id": "53290",
+          "title": "Cheese Borek"
+        },
+        {
+          "id": "53289",
+          "title": "Chorba Hamra bel Frik (Algerian Lamb, Tomato, and Freekeh Soup)"
+        }
+      ],
+      "coverage": "provider"
+    },
+    {
+      "id": "andorra",
+      "name": "Andorra",
+      "editorialDish": "Escudella",
+      "contextSource": "https://www.culturapopular.ad/categories/escudella",
+      "bundledRecipeIds": [
+        "curated-escudella",
+        "curated-trinxat",
+        "curated-andorran-trout"
+      ],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "bundled",
+      "localCoverageUpdatedAt": "2026-10-14"
+    },
+    {
+      "id": "angola",
+      "name": "Angola",
+      "editorialDish": "Muamba de galinha",
+      "contextSource": "https://pt.wikipedia.org/wiki/Moamba_de_galinha",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "gap"
+    },
+    {
+      "id": "antigua-and-barbuda",
+      "name": "Antigua and Barbuda",
+      "editorialDish": "Fungee and pepperpot",
+      "contextSource": "https://en.wikipedia.org/wiki/Antigua_and_Barbuda_cuisine",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "gap"
+    },
+    {
+      "id": "argentina",
+      "name": "Argentina",
+      "editorialDish": "Asado",
+      "contextSource": "https://www.argentina.gob.ar/jefatura/turismo/viaja-por-argentina/asado",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [
+        {
+          "id": "53133",
+          "title": "Asado"
+        }
+      ],
+      "coverage": "provider"
+    },
+    {
+      "id": "armenia",
+      "name": "Armenia",
+      "editorialDish": "Harissa",
+      "contextSource": "https://armenia.travel/articles/explore-armenias-must-try-dishes/",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "gap"
+    },
+    {
+      "id": "aruba",
+      "name": "Aruba",
+      "editorialDish": "Keshi yena",
+      "contextSource": "https://en.wikipedia.org/wiki/Keshi_yena",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "gap"
+    },
+    {
+      "id": "australia",
+      "name": "Australia",
+      "editorialDish": "Meat pie",
+      "contextSource": "https://en.wikipedia.org/wiki/Meat_pie_%28Australia_and_New_Zealand%29",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [
+        {
+          "id": "53111",
+          "title": "Anzac biscuits"
+        },
+        {
+          "id": "53099",
+          "title": "Aussie Burgers"
+        },
+        {
+          "id": "53107",
+          "title": "Avocado dip with new potatoes"
+        },
+        {
+          "id": "53103",
+          "title": "Barramundi with Moroccan spices"
+        },
+        {
+          "id": "53100",
+          "title": "Blueberry & lemon friands"
+        },
+        {
+          "id": "53101",
+          "title": "Chocolate Coconut Squares"
+        }
+      ],
+      "coverage": "provider"
+    },
+    {
+      "id": "austria",
+      "name": "Austria",
+      "editorialDish": "Wiener schnitzel",
+      "contextSource": "https://www.bmluk.gv.at/themen/lebensmittel/trad-lebensmittel/speisen/wiener_schnitzel.html",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "gap"
+    },
+    {
+      "id": "azerbaijan",
+      "name": "Azerbaijan",
+      "editorialDish": "Plov",
+      "contextSource": "https://azerbaijan.travel/azerbaijani-plov",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "gap"
+    },
+    {
+      "id": "bahamas",
+      "name": "Bahamas",
+      "editorialDish": "Cracked conch",
+      "contextSource": "https://www.bahamas.com/blog/5-ways-to-eat-conch-in-the-bahamas",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "gap"
+    },
+    {
+      "id": "bahrain",
+      "name": "Bahrain",
+      "editorialDish": "Machboos",
+      "contextSource": "https://en.wikipedia.org/wiki/Bahraini_cuisine",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "gap"
+    },
+    {
+      "id": "bangladesh",
+      "name": "Bangladesh",
+      "editorialDish": "Hilsa curry",
+      "contextSource": "https://beautifulbangladesh.gov.bd/cat/tasty-food/45",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "gap"
+    },
+    {
+      "id": "barbados",
+      "name": "Barbados",
+      "editorialDish": "Cou-cou and flying fish",
+      "contextSource": "https://en.wikipedia.org/wiki/Barbadian_cuisine",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "gap"
+    },
+    {
+      "id": "belarus",
+      "name": "Belarus",
+      "editorialDish": "Draniki",
+      "contextSource": "https://www.tasteatlas.com/draniki",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "gap"
+    },
+    {
+      "id": "belgium",
+      "name": "Belgium",
+      "editorialDish": "Moules-frites",
+      "contextSource": "https://en.wikipedia.org/wiki/Moules-frites",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "gap"
+    },
+    {
+      "id": "belize",
+      "name": "Belize",
+      "editorialDish": "Rice and beans",
+      "contextSource": "https://www.travelbelize.org/blog/around-belize-four-dishes/",
+      "bundledRecipeIds": [
+        "curated-belize-rice-beans",
+        "curated-belize-stew-chicken",
+        "curated-fry-jacks"
+      ],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "bundled",
+      "localCoverageUpdatedAt": "2026-10-14"
+    },
+    {
+      "id": "benin",
+      "name": "Benin",
+      "editorialDish": "Amiwo",
+      "contextSource": "https://en.wikipedia.org/wiki/Amiwo",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "gap"
+    },
+    {
+      "id": "bermuda",
+      "name": "Bermuda",
+      "editorialDish": "Fish chowder",
+      "contextSource": "https://en.wikipedia.org/wiki/Bermuda_fish_chowder",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "gap"
+    },
+    {
+      "id": "bhutan",
+      "name": "Bhutan",
+      "editorialDish": "Ema datshi",
+      "contextSource": "https://en.wikipedia.org/wiki/Ema_datshi",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "gap"
+    },
+    {
+      "id": "bolivia",
+      "name": "Bolivia",
+      "editorialDish": "Salteñas",
+      "contextSource": "https://es.wikipedia.org/wiki/Salte%C3%B1a",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "gap"
+    },
+    {
+      "id": "bosnia-and-herzegovina",
+      "name": "Bosnia and Herzegovina",
+      "editorialDish": "Ćevapi",
+      "contextSource": "https://en.wikipedia.org/wiki/%C4%86evapi",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "gap"
+    },
+    {
+      "id": "botswana",
+      "name": "Botswana",
+      "editorialDish": "Seswaa",
+      "contextSource": "https://en.wikipedia.org/wiki/Botswana_cuisine",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [
+        {
+          "id": "53470",
+          "title": "Seswaa"
+        }
+      ],
+      "coverage": "provider"
+    },
+    {
+      "id": "brazil",
+      "name": "Brazil",
+      "editorialDish": "Feijoada",
+      "contextSource": "https://en.wikipedia.org/wiki/Feijoada_%28Brazilian_dish%29",
+      "bundledRecipeIds": [
+        "curated-feijoada"
+      ],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [
+        {
+          "id": "53482",
+          "title": "Black bean & meat stew - feijoada"
+        }
+      ],
+      "coverage": "bundled"
+    },
+    {
+      "id": "brunei",
+      "name": "Brunei",
+      "editorialDish": "Ambuyat",
+      "contextSource": "https://en.wikipedia.org/wiki/Ambuyat",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "gap"
+    },
+    {
+      "id": "bulgaria",
+      "name": "Bulgaria",
+      "editorialDish": "Banitsa",
+      "contextSource": "https://en.wikipedia.org/wiki/Banitsa",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [
+        {
+          "id": "53494",
+          "title": "Keto Banitsa"
+        }
+      ],
+      "coverage": "provider"
+    },
+    {
+      "id": "burkina-faso",
+      "name": "Burkina Faso",
+      "editorialDish": "Riz gras",
+      "contextSource": "https://en.wikipedia.org/wiki/Riz_gras",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "gap"
+    },
+    {
+      "id": "burundi",
+      "name": "Burundi",
+      "editorialDish": "Boko boko",
+      "contextSource": "https://www.tasteatlas.com/boko-boko-harees",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "gap"
+    },
+    {
+      "id": "cambodia",
+      "name": "Cambodia",
+      "editorialDish": "Fish amok",
+      "contextSource": "https://en.wikipedia.org/wiki/Fish_amok",
+      "bundledRecipeIds": [
+        "curated-fish-amok",
+        "curated-beef-lok-lak",
+        "curated-num-banh-chok"
+      ],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "bundled"
+    },
+    {
+      "id": "cameroon",
+      "name": "Cameroon",
+      "editorialDish": "Ndolé",
+      "contextSource": "https://en.wikipedia.org/wiki/Ndol%C3%A9",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "gap"
+    },
+    {
+      "id": "canada",
+      "name": "Canada",
+      "editorialDish": "Poutine",
+      "contextSource": "https://en.wikipedia.org/wiki/Poutine",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [
+        {
+          "id": "52804",
+          "title": "Poutine"
+        }
+      ],
+      "coverage": "provider"
+    },
+    {
+      "id": "cape-verde",
+      "name": "Cape Verde",
+      "editorialDish": "Cachupa",
+      "contextSource": "https://en.wikipedia.org/wiki/Cachupa",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "gap"
+    },
+    {
+      "id": "cayman-islands",
+      "name": "Cayman Islands",
+      "editorialDish": "Fish rundown",
+      "contextSource": "https://www.insideoutcayman.com/2019/05/20/rundown-a-taste-of-tradition/",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "gap"
+    },
+    {
+      "id": "central-african-republic",
+      "name": "Central African Republic",
+      "editorialDish": "Kanda",
+      "contextSource": "https://en.wikipedia.org/wiki/Cuisine_of_the_Central_African_Republic",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "gap"
+    },
+    {
+      "id": "chad",
+      "name": "Chad",
+      "editorialDish": "Daraba",
+      "contextSource": "https://www.tasteatlas.com/daraba",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "gap"
+    },
+    {
+      "id": "chile",
+      "name": "Chile",
+      "editorialDish": "Pastel de choclo",
+      "contextSource": "https://www.biobiochile.cl/noticias/sociedad/curiosidades/2025/01/14/popular-sitio-gastronomico-situo-al-pastel-de-choclo-entre-los-platos-mas-reconfortantes-del-mundo.shtml",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [
+        {
+          "id": "53520",
+          "title": "Pastel de Choclo"
+        }
+      ],
+      "coverage": "provider"
+    },
+    {
+      "id": "china",
+      "name": "China",
+      "editorialDish": "Peking duck",
+      "contextSource": "https://english.visitbeijing.com.cn/article/47OMoepubrG",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [
+        {
+          "id": "53373",
+          "title": "Air Fryer Egg Rolls"
+        },
+        {
+          "id": "53366",
+          "title": "Beef and Broccoli Stir-Fry"
+        },
+        {
+          "id": "52952",
+          "title": "Beef Lo Mein"
+        },
+        {
+          "id": "52956",
+          "title": "Chicken Congee"
+        },
+        {
+          "id": "53367",
+          "title": "Chicken Fried Rice"
+        },
+        {
+          "id": "53365",
+          "title": "Chinese Orange Chicken"
+        }
+      ],
+      "coverage": "provider"
+    },
+    {
+      "id": "colombia",
+      "name": "Colombia",
+      "editorialDish": "Bandeja paisa",
+      "contextSource": "https://en.wikipedia.org/wiki/Bandeja_paisa",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "gap"
+    },
+    {
+      "id": "costa-rica",
+      "name": "Costa Rica",
+      "editorialDish": "Gallo pinto",
+      "contextSource": "https://costarricense.com/en/recipes/gallo-pinto/",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [
+        {
+          "id": "53541",
+          "title": "Gallo pinto"
+        }
+      ],
+      "coverage": "provider"
+    },
+    {
+      "id": "croatia",
+      "name": "Croatia",
+      "editorialDish": "Peka",
+      "contextSource": "https://www.dalmatia.hr/activities/peka/",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [
+        {
+          "id": "53056",
+          "title": "Croatian lamb peka"
+        }
+      ],
+      "coverage": "provider"
+    },
+    {
+      "id": "cuba",
+      "name": "Cuba",
+      "editorialDish": "Ropa vieja",
+      "contextSource": "https://www.196flavors.com/es/ropa-vieja/",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "gap"
+    },
+    {
+      "id": "cyprus",
+      "name": "Cyprus",
+      "editorialDish": "Souvla",
+      "contextSource": "https://en.wikipedia.org/wiki/Souvla",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "gap"
+    },
+    {
+      "id": "czechia",
+      "name": "Czechia",
+      "editorialDish": "Svíčková",
+      "contextSource": "https://www.visitczechia.com/en-us/things-to-do/places/gastronomic-tourism/czech-cuisine-and-regional-products/g-svickova-na-smetane",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "gap"
+    },
+    {
+      "id": "denmark",
+      "name": "Denmark",
+      "editorialDish": "Smørrebrød",
+      "contextSource": "https://denmark.dk/people-and-culture/cuisine",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "gap"
+    },
+    {
+      "id": "djibouti",
+      "name": "Djibouti",
+      "editorialDish": "Skoudehkaris",
+      "contextSource": "https://www.tasteatlas.com/skoudehkaris",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "gap"
+    },
+    {
+      "id": "dominica",
+      "name": "Dominica",
+      "editorialDish": "Callaloo soup",
+      "contextSource": "https://en.wikipedia.org/wiki/Dominica_cuisine",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "gap"
+    },
+    {
+      "id": "dominican-republic",
+      "name": "Dominican Republic",
+      "editorialDish": "La bandera",
+      "contextSource": "https://www.godominicanrepublic.com/blog/post/5-must-try-dishes-of-dominican-gastronomy",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "gap"
+    },
+    {
+      "id": "dr-congo",
+      "name": "DR Congo",
+      "editorialDish": "Poulet à la moambé",
+      "contextSource": "https://en.wikipedia.org/wiki/Moambe_chicken",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "gap"
+    },
+    {
+      "id": "ecuador",
+      "name": "Ecuador",
+      "editorialDish": "Encebollado",
+      "contextSource": "https://ecuador.travel/en/what-to-eat/",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "gap"
+    },
+    {
+      "id": "egypt",
+      "name": "Egypt",
+      "editorialDish": "Koshari",
+      "contextSource": "https://en.wikipedia.org/wiki/Koshary",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [
+        {
+          "id": "53027",
+          "title": "Koshari"
+        }
+      ],
+      "coverage": "provider"
+    },
+    {
+      "id": "el-salvador",
+      "name": "El Salvador",
+      "editorialDish": "Pupusas",
+      "contextSource": "https://en.wikipedia.org/wiki/Pupusa",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "gap"
+    },
+    {
+      "id": "equatorial-guinea",
+      "name": "Equatorial Guinea",
+      "editorialDish": "Pepesup",
+      "contextSource": "https://en.wikipedia.org/wiki/Cuisine_of_Equatorial_Guinea",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "gap"
+    },
+    {
+      "id": "eritrea",
+      "name": "Eritrea",
+      "editorialDish": "Zigni",
+      "contextSource": "https://en.wikipedia.org/wiki/Zigni",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "gap"
+    },
+    {
+      "id": "estonia",
+      "name": "Estonia",
+      "editorialDish": "Verivorst",
+      "contextSource": "https://visitestonia.com/en/what-to-do/regional-flavors",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "gap"
+    },
+    {
+      "id": "ethiopia",
+      "name": "Ethiopia",
+      "editorialDish": "Doro wat",
+      "contextSource": "https://www.allaboutethiopia.com/2026/08/doro-wat.html",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "providerRecipes": [],
+      "coverage": "gap"
+    },
+    {
+      "id": "faroe-islands",
+      "name": "Faroe Islands",
+      "editorialDish": "Skerpikjøt",
+      "contextSource": "https://visitfaroeislands.com/en/about-vfi/people-society/faroese-food",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "fiji",
+      "name": "Fiji",
+      "editorialDish": "Kokoda",
+      "contextSource": "https://www.fiji.travel/things-to-do/local-eats/how-to-make-fijian-kokoda",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "finland",
+      "name": "Finland",
+      "editorialDish": "Karjalanpiirakka",
+      "contextSource": "https://www.visitfinland.com/en/articles/finlands-traditional-and-iconic-foods/",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "france",
+      "name": "France",
+      "editorialDish": "Boeuf bourguignon",
+      "contextSource": "https://www.france.fr/fr/article/specialites-bourgogne/",
+      "bundledRecipeIds": [
+        "discover-lemon-roast-chicken",
+        "discover-pan-seared-steak"
+      ],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "bundled",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "gabon",
+      "name": "Gabon",
+      "editorialDish": "Poulet nyembwe",
+      "contextSource": "https://fr.wikipedia.org/wiki/Nyembou%C3%A8",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "gambia",
+      "name": "Gambia",
+      "editorialDish": "Domoda",
+      "contextSource": "https://www.tasteatlas.com/domoda",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "georgia",
+      "name": "Georgia",
+      "editorialDish": "Khachapuri",
+      "contextSource": "https://en.wikipedia.org/wiki/Khachapuri",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "germany",
+      "name": "Germany",
+      "editorialDish": "Sauerbraten",
+      "contextSource": "https://de.wikipedia.org/wiki/Sauerbraten",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "ghana",
+      "name": "Ghana",
+      "editorialDish": "Jollof rice",
+      "contextSource": "https://visitghana.com/taste-ghana-food-fair/",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "gibraltar",
+      "name": "Gibraltar",
+      "editorialDish": "Calentita",
+      "contextSource": "https://es.wikipedia.org/wiki/Calentita",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "greece",
+      "name": "Greece",
+      "editorialDish": "Moussaka",
+      "contextSource": "https://www.visitgreece.gr/en/experiences/architecture/traditional-settlements/cherished-greek-dishes",
+      "bundledRecipeIds": [
+        "curated-moussaka"
+      ],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "bundled",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "greenland",
+      "name": "Greenland",
+      "editorialDish": "Suaasat",
+      "contextSource": "https://en.wikipedia.org/wiki/Greenlandic_cuisine",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "grenada",
+      "name": "Grenada",
+      "editorialDish": "Oil down",
+      "contextSource": "https://en.wikipedia.org/wiki/Oil_down",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "guadeloupe",
+      "name": "Guadeloupe",
+      "editorialDish": "Colombo",
+      "contextSource": "https://www.lesilesdeguadeloupe.com/en/explore/gastronomy-spirits/tastes-of-guadeloupe/colombo/",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "guam",
+      "name": "Guam",
+      "editorialDish": "Kelaguen",
+      "contextSource": "https://bsp.guam.gov/wp-bsp-content/uploads/govarchieve/GR-10.101_Guam%20Visitor%27s%20Bureau%20%20Setbision%20Bisitan%20Guahan.pdf",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "guatemala",
+      "name": "Guatemala",
+      "editorialDish": "Pepián",
+      "contextSource": "https://www.sicultura.gob.gt/directory-directorio_c/listing/pepian-2/",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "guernsey",
+      "name": "Guernsey",
+      "editorialDish": "Bean jar",
+      "contextSource": "https://en.wikipedia.org/wiki/Guernsey_bean_jar",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "guinea",
+      "name": "Guinea",
+      "editorialDish": "Fouti",
+      "contextSource": "https://en.wikipedia.org/wiki/Cuisine_of_Guinea",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "guinea-bissau",
+      "name": "Guinea-Bissau",
+      "editorialDish": "Caldo de mancarra",
+      "contextSource": "https://www.eeas.europa.eu/sites/default/files/guia_turistico_guine-bissau_ue_acl2018_pt_web.pdf",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "guyana",
+      "name": "Guyana",
+      "editorialDish": "Pepperpot",
+      "contextSource": "https://en.wikipedia.org/wiki/Guyanese_pepperpot",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "haiti",
+      "name": "Haiti",
+      "editorialDish": "Griot",
+      "contextSource": "https://www.foodnetwork.com/recipes/food-network-kitchen/griot-20290286",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "honduras",
+      "name": "Honduras",
+      "editorialDish": "Baleadas",
+      "contextSource": "https://es.wikipedia.org/wiki/Baleada",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "hong-kong",
+      "name": "Hong Kong",
+      "editorialDish": "Char siu bao",
+      "contextSource": "https://www.hkengage.gov.hk/en/essentials/living/hong-kong-must-try-foods",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "hungary",
+      "name": "Hungary",
+      "editorialDish": "Gulyás",
+      "contextSource": "https://en.wikipedia.org/wiki/Goulash",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "iceland",
+      "name": "Iceland",
+      "editorialDish": "Kjötsúpa",
+      "contextSource": "https://visitreykjavik.is/traditional-icelandic-dishes-try-reykjavik",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "india",
+      "name": "India",
+      "editorialDish": "Biryani",
+      "contextSource": "https://en.wikipedia.org/wiki/Biryani",
+      "bundledRecipeIds": [
+        "curated-lamb-biryani"
+      ],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "bundled",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "indonesia",
+      "name": "Indonesia",
+      "editorialDish": "Nasi goreng",
+      "contextSource": "https://itjen.kemendikdasmen.go.id/web/?p=6635",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "iran",
+      "name": "Iran",
+      "editorialDish": "Ghormeh sabzi",
+      "contextSource": "https://en.wikipedia.org/wiki/Ghormeh_sabzi",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "iraq",
+      "name": "Iraq",
+      "editorialDish": "Masgouf",
+      "contextSource": "https://en.wikipedia.org/wiki/Masgouf",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "ireland",
+      "name": "Ireland",
+      "editorialDish": "Irish stew",
+      "contextSource": "https://en.wikipedia.org/wiki/Irish_stew",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "israel",
+      "name": "Israel",
+      "editorialDish": "Falafel",
+      "contextSource": "https://en.wikipedia.org/wiki/Falafel",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "italy",
+      "name": "Italy",
+      "editorialDish": "Pizza Margherita",
+      "contextSource": "https://it.wikipedia.org/wiki/Pizza_Margherita",
+      "bundledRecipeIds": [
+        "curated-margherita",
+        "discover-parmesan-risotto",
+        "discover-coffee-tiramisu",
+        "discover-garlic-pasta"
+      ],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "bundled",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "ivory-coast",
+      "name": "Ivory Coast",
+      "editorialDish": "Attiéké",
+      "contextSource": "https://fr.wikipedia.org/wiki/Atti%C3%A9k%C3%A9",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "jamaica",
+      "name": "Jamaica",
+      "editorialDish": "Jerk chicken",
+      "contextSource": "https://www.visitjamaica.com/discover-jamaica/cuisine/iconic-meals/",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "japan",
+      "name": "Japan",
+      "editorialDish": "Sushi",
+      "contextSource": "https://www.japan.travel/en/local-specialities/local-foods/",
+      "bundledRecipeIds": [
+        "curated-sushi-rolls",
+        "discover-honey-soy-salmon"
+      ],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "bundled",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "jersey",
+      "name": "Jersey",
+      "editorialDish": "Bean crock",
+      "contextSource": "https://www.food.com/recipe/traditional-jersey-bean-crock-the-original-baked-beans-388262",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "jordan",
+      "name": "Jordan",
+      "editorialDish": "Mansaf",
+      "contextSource": "https://en.wikipedia.org/wiki/Mansaf",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "kazakhstan",
+      "name": "Kazakhstan",
+      "editorialDish": "Beshbarmak",
+      "contextSource": "https://www.tasteatlas.com/beshbarmak",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "kenya",
+      "name": "Kenya",
+      "editorialDish": "Nyama choma",
+      "contextSource": "https://en.wikipedia.org/wiki/Nyama_choma",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "kosovo",
+      "name": "Kosovo",
+      "editorialDish": "Flija",
+      "contextSource": "https://en.wikipedia.org/wiki/Flia",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "kuwait",
+      "name": "Kuwait",
+      "editorialDish": "Machboos",
+      "contextSource": "https://en.wikipedia.org/wiki/Kuwaiti_cuisine",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "kyrgyzstan",
+      "name": "Kyrgyzstan",
+      "editorialDish": "Beshbarmak",
+      "contextSource": "https://en.wikipedia.org/wiki/Beshbarmak",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "laos",
+      "name": "Laos",
+      "editorialDish": "Laap",
+      "contextSource": "https://en.wikipedia.org/wiki/Lao_cuisine",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "latvia",
+      "name": "Latvia",
+      "editorialDish": "Grey peas with bacon",
+      "contextSource": "https://en.wikipedia.org/wiki/Grey_peas",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "lebanon",
+      "name": "Lebanon",
+      "editorialDish": "Kibbeh",
+      "contextSource": "https://en.wikipedia.org/wiki/Kibbeh",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "lesotho",
+      "name": "Lesotho",
+      "editorialDish": "Papa",
+      "contextSource": "https://centralbank.org.ls/about-the-kingdom-of-lesotho/",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "liberia",
+      "name": "Liberia",
+      "editorialDish": "Cassava leaf stew",
+      "contextSource": "https://en.wikipedia.org/wiki/Liberian_cuisine",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "libya",
+      "name": "Libya",
+      "editorialDish": "Bazeen",
+      "contextSource": "https://www.tasteatlas.com/bazin",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "liechtenstein",
+      "name": "Liechtenstein",
+      "editorialDish": "Käsknöpfle",
+      "contextSource": "https://en.tourismus.li/rezepte/detail/kasknopfle-dc0e5593-abe1-418e-943e-a897c7979b3e.html",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "lithuania",
+      "name": "Lithuania",
+      "editorialDish": "Cepelinai",
+      "contextSource": "https://lithuania.travel/en/what-to-do/food-and-drink/lithuanian-products/cepelinai",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "luxembourg",
+      "name": "Luxembourg",
+      "editorialDish": "Judd mat gaardebounen",
+      "contextSource": "https://en.wikipedia.org/wiki/Judd_mat_Gaardebounen",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "madagascar",
+      "name": "Madagascar",
+      "editorialDish": "Romazava",
+      "contextSource": "https://en.wikipedia.org/wiki/Romazava",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "malawi",
+      "name": "Malawi",
+      "editorialDish": "Nsima",
+      "contextSource": "https://ich.unesco.org/en/RL/nsima-culinary-tradition-of-malawi-01292",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "malaysia",
+      "name": "Malaysia",
+      "editorialDish": "Nasi lemak",
+      "contextSource": "https://www.malaysia.travel/explore/malaysian-food-52-top-picks-you-shouldn-t-miss",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "maldives",
+      "name": "Maldives",
+      "editorialDish": "Mas huni",
+      "contextSource": "https://en.wikipedia.org/wiki/Mas_huni",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "mali",
+      "name": "Mali",
+      "editorialDish": "Tiguadege na",
+      "contextSource": "https://en.wikipedia.org/wiki/Peanut_stew",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "malta",
+      "name": "Malta",
+      "editorialDish": "Stuffat tal-fenek",
+      "contextSource": "https://en.wikipedia.org/wiki/Stuffat_tal-Fenek",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "mauritius",
+      "name": "Mauritius",
+      "editorialDish": "Dholl puri",
+      "contextSource": "https://www.ilemaurice.im/en/mauritian-dholl-puri/",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "mexico",
+      "name": "Mexico",
+      "editorialDish": "Tacos al pastor",
+      "contextSource": "https://tollbit.bbcgoodfood.com/travel/global/top-10-foods-try-mexico",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "moldova",
+      "name": "Moldova",
+      "editorialDish": "Mămăligă",
+      "contextSource": "https://mymoldova.online/gastronomie/mamaliga",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "mongolia",
+      "name": "Mongolia",
+      "editorialDish": "Buuz",
+      "contextSource": "https://en.wikipedia.org/wiki/Buuz",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "montenegro",
+      "name": "Montenegro",
+      "editorialDish": "Kačamak",
+      "contextSource": "https://www.montenegro.travel/en/explore-montenegro/food-wine/food-routes",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "morocco",
+      "name": "Morocco",
+      "editorialDish": "Tagine",
+      "contextSource": "https://visitmorocco.com/en/travel-info/food-drinks",
+      "bundledRecipeIds": [
+        "curated-lamb-tagine"
+      ],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "bundled",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "mozambique",
+      "name": "Mozambique",
+      "editorialDish": "Matapa",
+      "contextSource": "https://en.wikipedia.org/wiki/Matapa",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "myanmar",
+      "name": "Myanmar",
+      "editorialDish": "Mohinga",
+      "contextSource": "https://en.wikipedia.org/wiki/Mohinga",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "namibia",
+      "name": "Namibia",
+      "editorialDish": "Kapana",
+      "contextSource": "https://en.wikipedia.org/wiki/Kapana_%28grilled_meat%29",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "nepal",
+      "name": "Nepal",
+      "editorialDish": "Dal bhat",
+      "contextSource": "https://en.wikipedia.org/wiki/Dal_bhat",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "netherlands",
+      "name": "Netherlands",
+      "editorialDish": "Stamppot",
+      "contextSource": "https://en.wikipedia.org/wiki/Stamppot",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "new-zealand",
+      "name": "New Zealand",
+      "editorialDish": "Hāngī",
+      "contextSource": "https://www.newzealand.com.au/info/frequently-asked-questions/what-is-a-h%C4%81ng%C4%AB-and-where-can-i-enjoy-it",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "nicaragua",
+      "name": "Nicaragua",
+      "editorialDish": "Gallo pinto",
+      "contextSource": "https://www.visitanicaragua.com/en/platillos/rooster-chick/",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "niger",
+      "name": "Niger",
+      "editorialDish": "Dambou",
+      "contextSource": "https://en.wikipedia.org/wiki/Dambou",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "nigeria",
+      "name": "Nigeria",
+      "editorialDish": "Jollof rice",
+      "contextSource": "https://www.youtube.com/watch?v=przoZrlm8iE",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "north-korea",
+      "name": "North Korea",
+      "editorialDish": "Pyongyang naengmyeon",
+      "contextSource": "https://en.wikipedia.org/wiki/North_Korean_cuisine",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "north-macedonia",
+      "name": "North Macedonia",
+      "editorialDish": "Tavče gravče",
+      "contextSource": "https://en.wikipedia.org/wiki/Tav%C4%8De_grav%C4%8De",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "norway",
+      "name": "Norway",
+      "editorialDish": "Fårikål",
+      "contextSource": "https://www.visitnorway.com/things-to-do/food-and-drink/the-norwegian-cookbook/farikal/",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "oman",
+      "name": "Oman",
+      "editorialDish": "Shuwa",
+      "contextSource": "https://www.tasteatlas.com/shuwa",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "pakistan",
+      "name": "Pakistan",
+      "editorialDish": "Nihari",
+      "contextSource": "https://artsandculture.google.com/story/ugXRkkkVCjzYKA",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "palestine",
+      "name": "Palestine",
+      "editorialDish": "Musakhan",
+      "contextSource": "https://en.wikipedia.org/wiki/Musakhan",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "panama",
+      "name": "Panama",
+      "editorialDish": "Sancocho",
+      "contextSource": "https://www.prensa.com/cultura/sancocho-favorito-comidas-gastronomia-panamena_0_4338316231.html",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "papua-new-guinea",
+      "name": "Papua New Guinea",
+      "editorialDish": "Mumu",
+      "contextSource": "https://en.wikipedia.org/wiki/Papua_New_Guinean_cuisine",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "paraguay",
+      "name": "Paraguay",
+      "editorialDish": "Sopa paraguaya",
+      "contextSource": "https://www.inan.gov.py/site/?p=4581",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "peru",
+      "name": "Peru",
+      "editorialDish": "Ceviche",
+      "contextSource": "https://ich.unesco.org/en/RL/practices-and-meanings-associated-with-the-preparation-and-consumption-of-ceviche-an-expression-of-peruvian-traditional-cuisine-01952?RL=01952",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "philippines",
+      "name": "Philippines",
+      "editorialDish": "Adobo",
+      "contextSource": "https://en.wikipedia.org/wiki/Philippine_adobo",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "poland",
+      "name": "Poland",
+      "editorialDish": "Pierogi",
+      "contextSource": "https://en.wikipedia.org/wiki/Pierogi",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "portugal",
+      "name": "Portugal",
+      "editorialDish": "Bacalhau à Brás",
+      "contextSource": "https://pt.wikipedia.org/wiki/Bacalhau_%C3%A0_Br%C3%A1s",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "puerto-rico",
+      "name": "Puerto Rico",
+      "editorialDish": "Mofongo",
+      "contextSource": "https://en.wikipedia.org/wiki/Mofongo",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "qatar",
+      "name": "Qatar",
+      "editorialDish": "Machboos",
+      "contextSource": "https://visitqatar.com/intl-en/about-qatar/cuisine",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "republic-of-the-congo",
+      "name": "Republic of the Congo",
+      "editorialDish": "Saka saka",
+      "contextSource": "https://en.wikipedia.org/wiki/Culture_of_the_Republic_of_the_Congo",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "romania",
+      "name": "Romania",
+      "editorialDish": "Sarmale",
+      "contextSource": "https://en.wikipedia.org/wiki/Culture_of_Romania",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "russia",
+      "name": "Russia",
+      "editorialDish": "Pelmeni",
+      "contextSource": "https://en.wikipedia.org/wiki/Pelmeni",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "rwanda",
+      "name": "Rwanda",
+      "editorialDish": "Isombe",
+      "contextSource": "https://en.wikipedia.org/wiki/Isombe",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "saint-lucia",
+      "name": "Saint Lucia",
+      "editorialDish": "Green fig and saltfish",
+      "contextSource": "https://stlucia.org/en/blog/culinary/green-fig-and-saltfish-the-taste-that-helps-you-understand-saint-lucia/",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "samoa",
+      "name": "Samoa",
+      "editorialDish": "Palusami",
+      "contextSource": "https://www.nps.gov/npsa/learn/historyculture/samoan-food-and-culture.htm",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "san-marino",
+      "name": "San Marino",
+      "editorialDish": "Torta Tre Monti",
+      "contextSource": "https://en.wikipedia.org/wiki/Torta_Tre_Monti",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "saudi-arabia",
+      "name": "Saudi Arabia",
+      "editorialDish": "Kabsa",
+      "contextSource": "https://saudipedia.com/en/saudi-kabsa",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "senegal",
+      "name": "Senegal",
+      "editorialDish": "Ceebu jën",
+      "contextSource": "https://ich.unesco.org/en/RL/ceebu-jen-a-culinary-art-of-senegal-01748",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "serbia",
+      "name": "Serbia",
+      "editorialDish": "Pljeskavica",
+      "contextSource": "https://en.wikipedia.org/wiki/Pljeskavica",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "seychelles",
+      "name": "Seychelles",
+      "editorialDish": "Octopus curry",
+      "contextSource": "https://app.ckbk.com/recipe/isla15259c03s001ss002r011/seychellois-octopus-curry",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "sierra-leone",
+      "name": "Sierra Leone",
+      "editorialDish": "Cassava leaf stew",
+      "contextSource": "https://en.wikipedia.org/wiki/Sierra_Leonean_cuisine",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "singapore",
+      "name": "Singapore",
+      "editorialDish": "Hainanese chicken rice",
+      "contextSource": "https://en.wikipedia.org/wiki/Hainanese_chicken_rice",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "slovakia",
+      "name": "Slovakia",
+      "editorialDish": "Bryndzové halušky",
+      "contextSource": "https://en.wikipedia.org/wiki/Bryndzov%C3%A9_halu%C5%A1ky",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "slovenia",
+      "name": "Slovenia",
+      "editorialDish": "Kranjska klobasa",
+      "contextSource": "https://www.travel-slovenia.si/slo/slovensko/kranjska-klobasa/",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "solomon-islands",
+      "name": "Solomon Islands",
+      "editorialDish": "Poi",
+      "contextSource": "https://en.wikipedia.org/wiki/Cuisine_of_Solomon_Islands",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "somalia",
+      "name": "Somalia",
+      "editorialDish": "Bariis iskukaris",
+      "contextSource": "https://en.wikipedia.org/wiki/Bariis_iskukaris",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "south-africa",
+      "name": "South Africa",
+      "editorialDish": "Bobotie",
+      "contextSource": "https://en.wikipedia.org/wiki/Bobotie",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "south-korea",
+      "name": "South Korea",
+      "editorialDish": "Bibimbap",
+      "contextSource": "https://english1.visitkorea.or.kr/enu/FOD/FO_ENG_2_2.jsp",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "south-sudan",
+      "name": "South Sudan",
+      "editorialDish": "Kisra",
+      "contextSource": "https://en.wikipedia.org/wiki/Kisra",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "spain",
+      "name": "Spain",
+      "editorialDish": "Paella",
+      "contextSource": "https://www.spain.info/en/top/most-famous-spanish-food-recipes/",
+      "bundledRecipeIds": [
+        "curated-vegetable-paella"
+      ],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "bundled",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "sri-lanka",
+      "name": "Sri Lanka",
+      "editorialDish": "Rice and curry",
+      "contextSource": "https://en.wikipedia.org/wiki/Rice_and_curry",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "sudan",
+      "name": "Sudan",
+      "editorialDish": "Ful medames",
+      "contextSource": "https://visitsudan.org/en/cuisine",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "suriname",
+      "name": "Suriname",
+      "editorialDish": "Pom",
+      "contextSource": "https://en.wikipedia.org/wiki/Pom_%28dish%29",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "sweden",
+      "name": "Sweden",
+      "editorialDish": "Swedish meatballs",
+      "contextSource": "https://visitsweden.com/what-to-do/food-drink/swedish-kitchen/best-swedish-meatballs-and-where-get-them/",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "switzerland",
+      "name": "Switzerland",
+      "editorialDish": "Fondue",
+      "contextSource": "https://www.aboutswitzerland.eda.admin.ch/en/switzerlands-national-dishes",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "syria",
+      "name": "Syria",
+      "editorialDish": "Kibbeh",
+      "contextSource": "https://en.wikipedia.org/wiki/Kibbeh",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "taiwan",
+      "name": "Taiwan",
+      "editorialDish": "Beef noodle soup",
+      "contextSource": "https://en.wikipedia.org/wiki/Taiwanese_beef_noodle_soup",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "tajikistan",
+      "name": "Tajikistan",
+      "editorialDish": "Qurutob",
+      "contextSource": "https://en.wikipedia.org/wiki/Qurutob",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "tanzania",
+      "name": "Tanzania",
+      "editorialDish": "Ugali",
+      "contextSource": "https://www.tasteatlas.com/ugali",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "thailand",
+      "name": "Thailand",
+      "editorialDish": "Pad Thai",
+      "contextSource": "https://en.wikipedia.org/wiki/Pad_thai",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "togo",
+      "name": "Togo",
+      "editorialDish": "Fufu",
+      "contextSource": "https://en.wikipedia.org/wiki/Togolese_cuisine",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "tonga",
+      "name": "Tonga",
+      "editorialDish": "Lu pulu",
+      "contextSource": "https://www.tongatourism.travel/discover/people-and-culture/food-and-feasting",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "trinidad-and-tobago",
+      "name": "Trinidad and Tobago",
+      "editorialDish": "Doubles",
+      "contextSource": "https://en.wikipedia.org/wiki/Doubles_%28food%29",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "tunisia",
+      "name": "Tunisia",
+      "editorialDish": "Couscous",
+      "contextSource": "https://en.wikipedia.org/wiki/Tunisian_cuisine",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "turkey",
+      "name": "Turkey",
+      "editorialDish": "Mantı",
+      "contextSource": "https://www.ktb.gov.tr/EN-99083/turkish-ravioli.html",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "turkmenistan",
+      "name": "Turkmenistan",
+      "editorialDish": "Palaw",
+      "contextSource": "https://turkmenkitchen.com/en/recipe/turkmen-pilaf",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "tuvalu",
+      "name": "Tuvalu",
+      "editorialDish": "Tulolo pulaka",
+      "contextSource": "https://en.wikipedia.org/wiki/Tuvaluan_cuisine",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "uganda",
+      "name": "Uganda",
+      "editorialDish": "Matoke",
+      "contextSource": "https://en.wikipedia.org/wiki/Matoke",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "ukraine",
+      "name": "Ukraine",
+      "editorialDish": "Borshch",
+      "contextSource": "https://en.wikipedia.org/wiki/Borscht",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "united-arab-emirates",
+      "name": "United Arab Emirates",
+      "editorialDish": "Al machboos",
+      "contextSource": "https://visitabudhabi.ae/en/plan-your-trip/article-hub/emirati-food-to-try",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "united-kingdom",
+      "name": "United Kingdom",
+      "editorialDish": "Fish and chips",
+      "contextSource": "https://en.wikipedia.org/wiki/Fish_and_chips",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "united-states",
+      "name": "United States",
+      "editorialDish": "Hamburger",
+      "contextSource": "https://www.history.com/articles/hamburger-helpers-the-history-of-americas-favorite-sandwich",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "uruguay",
+      "name": "Uruguay",
+      "editorialDish": "Chivito",
+      "contextSource": "https://es.wikipedia.org/wiki/Chivito",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "uzbekistan",
+      "name": "Uzbekistan",
+      "editorialDish": "Plov",
+      "contextSource": "https://en.wikipedia.org/wiki/Uzbek_plov",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "vanuatu",
+      "name": "Vanuatu",
+      "editorialDish": "Laplap",
+      "contextSource": "https://www.vanuatu.travel/en/about-vanuatu/local-eats",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "venezuela",
+      "name": "Venezuela",
+      "editorialDish": "Pabellón criollo",
+      "contextSource": "https://en.wikipedia.org/wiki/Pabell%C3%B3n_criollo",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "vietnam",
+      "name": "Vietnam",
+      "editorialDish": "Phở",
+      "contextSource": "https://vietnam.travel/node/125",
+      "bundledRecipeIds": [
+        "curated-beef-pho"
+      ],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "bundled",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "yemen",
+      "name": "Yemen",
+      "editorialDish": "Saltah",
+      "contextSource": "https://en.wikipedia.org/wiki/Saltah",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "zambia",
+      "name": "Zambia",
+      "editorialDish": "Nshima",
+      "contextSource": "https://en.wikipedia.org/wiki/Zambian_cuisine",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    },
+    {
+      "id": "zimbabwe",
+      "name": "Zimbabwe",
+      "editorialDish": "Sadza",
+      "contextSource": "https://en.wikipedia.org/wiki/Ugali",
+      "bundledRecipeIds": [],
+      "providerAreaSupported": true,
+      "culturalReview": "Not reviewed by a cook from this community; source links are context, not endorsement.",
+      "coverage": "unverified",
+      "error": "HTTP 429"
+    }
+  ]
+}

@@ -50,6 +50,13 @@
       "when": 1790650268197,
       "tag": "0006_cooking_preferences",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1792024906062,
+      "tag": "0007_beta_usage",
+      "breakpoints": true
     }
   ]
 }

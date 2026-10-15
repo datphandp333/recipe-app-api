@@ -1,4 +1,5 @@
-import { KeyboardAvoidingView, Platform, ScrollView, View, Text, Pressable, StyleSheet } from 'react-native';
+import Pressable from "../motion/MotionPressable";
+import { KeyboardAvoidingView, Platform, ScrollView, View, Text, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import SimmerliBrand from './SimmerliBrand';
 export default function AuthFrame({ children }) {

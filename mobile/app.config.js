@@ -17,7 +17,8 @@ module.exports = ({ config }) => {
       .map(plugin => (Array.isArray(plugin) ? plugin[0] : plugin) === '@clerk/expo'
         ? ['@clerk/expo', { ...(Array.isArray(plugin) ? plugin[1] : {}), appleSignIn: appleSignInEnabled }]
         : plugin)
-      .concat(appleSignInEnabled ? [] : [withoutAppleSignIn]),
+      .concat(appleSignInEnabled ? [] : [withoutAppleSignIn])
+      .concat([['expo-build-properties', { ios: { enableSceneSupport: true } }]]),
     extra: {
       ...config.extra,
       appleSignInEnabled,

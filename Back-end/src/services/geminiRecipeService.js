@@ -1,3 +1,4 @@
+import { recordAIUsage, aiRequestSignal } from "./aiUsage.js";
 import { ENV } from "../config/env.js";
 
 const GEMINI_API_BASE_URL =
@@ -275,7 +276,7 @@ export const askGeminiForJson = async (
     getGeminiEndpoint(),
     {
       method: "POST",
-      signal,
+      signal: AbortSignal.any([signal, aiRequestSignal(), AbortSignal.timeout(100000)].filter(Boolean)),
 
       headers: {
         "Content-Type":
@@ -308,6 +309,8 @@ export const askGeminiForJson = async (
   const data = await response
     .json()
     .catch(() => null);
+
+  recordAIUsage(ENV.GEMINI_MODEL, data?.usageMetadata);
 
   if (!response.ok) {
     throw createGeminiError(

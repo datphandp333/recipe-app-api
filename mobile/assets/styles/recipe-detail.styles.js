@@ -1,3 +1,4 @@
+import { EDITORIAL_FONT as editorialFont } from "../../constants/editorialTheme";
 import { Dimensions, StyleSheet } from "react-native";
 import { COLORS } from "../../constants/colors";
 
@@ -41,7 +42,7 @@ export const recipeDetailStyles = StyleSheet.create({
 
   floatingButtons: {
     position: "absolute",
-    top: 54,
+    top: 0,
     left: 18,
     right: 18,
     flexDirection: "row",
@@ -53,7 +54,7 @@ export const recipeDetailStyles = StyleSheet.create({
     width: 46,
     height: 46,
     borderRadius: 23,
-    backgroundColor: "rgba(0, 0, 0, 0.45)",
+    backgroundColor: "rgba(255, 255, 255, 0.96)",
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
@@ -63,7 +64,7 @@ export const recipeDetailStyles = StyleSheet.create({
       width: 0,
       height: 4,
     },
-    shadowOpacity: 0.22,
+    shadowOpacity: 0.08,
     shadowRadius: 7,
     elevation: 6,
   },
@@ -77,7 +78,7 @@ export const recipeDetailStyles = StyleSheet.create({
 
   categoryBadge: {
     alignSelf: "flex-start",
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.saffron,
     paddingHorizontal: 13,
     paddingVertical: 7,
     borderRadius: 20,
@@ -85,7 +86,7 @@ export const recipeDetailStyles = StyleSheet.create({
   },
 
   categoryText: {
-    color: COLORS.white,
+    color: COLORS.text,
     fontSize: 12,
     fontWeight: "800",
     letterSpacing: 1,
@@ -96,7 +97,7 @@ export const recipeDetailStyles = StyleSheet.create({
     color: COLORS.white,
     fontSize: 32,
     lineHeight: 38,
-    fontWeight: "800",
+    fontFamily: editorialFont,
     letterSpacing: -0.6,
     marginBottom: 10,
     textShadowColor: "rgba(0, 0, 0, 0.65)",
@@ -210,8 +211,8 @@ export const recipeDetailStyles = StyleSheet.create({
   sectionTitle: {
     flex: 1,
     color: COLORS.text,
-    fontSize: 22,
-    fontWeight: "800",
+    fontSize: 27,
+    fontFamily: editorialFont,
     letterSpacing: -0.3,
   },
 
@@ -493,7 +494,7 @@ export const recipeDetailStyles = StyleSheet.create({
   notFoundTitle: {
     color: COLORS.text,
     fontSize: 26,
-    fontWeight: "800",
+    fontFamily: editorialFont,
     textAlign: "center",
     marginTop: 18,
     marginBottom: 9,

@@ -1,15 +1,18 @@
+import PageEntrance from "../../components/motion/PageEntrance";
+import Pressable from "../../components/motion/MotionPressable";
+import { EDITORIAL_COLORS as E, EDITORIAL_FONT as editorialFont } from "../../constants/editorialTheme";
 import { useUser } from "@clerk/expo";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ActivityIndicator, FlatList, Modal, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, FlatList, Modal, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { API_URL } from "../../constants/api";
 import { recipeImageSource } from "../../data/curatedImages";
 import { cookbookList } from "../../services/kitchenLists";
 
-const C = { green: "#245B4B", ink: "#20302A", muted: "#65736B", cream: "#FFF8F0", border: "#E9E1D7", sage: "#DCECE4", coral: "#A74531" };
+const C = { ...E, cream: E.background, border: E.line };
 function DishPhoto({ recipe }) {
   const source = recipeImageSource({ recipeId: recipe.recipeId, image: recipe.image });
   const imageKey = `${recipe.recipeId}:${recipe.image || ""}`;
@@ -17,7 +20,7 @@ function DishPhoto({ recipe }) {
   return source && failedKey !== imageKey ? <Image source={source} style={s.photo} contentFit="cover" onError={() => setFailedKey(imageKey)} accessibilityLabel={recipe.title} />
     : <View style={[s.photo, s.photoFallback]}><Ionicons name="restaurant-outline" size={38} color={C.green} /></View>;
 }
-export default function FavoritesScreen() {
+function FavoritesScreen() {
   const { user, isLoaded } = useUser();
   if (!isLoaded) return <View style={s.center}><ActivityIndicator color={C.green} /></View>;
   if (!user) return <View style={s.center}><Text style={s.body}>Sign in to open your cookbook.</Text></View>;
@@ -85,11 +88,11 @@ function Cookbook({ userId }) {
   };
   const visible = cookbookList(recipes, query, sort);
   return <SafeAreaView style={s.page} edges={["top", "left", "right"]}>
-    <FlatList data={visible} numColumns={2} keyExtractor={item => String(item.id)} columnWrapperStyle={s.row}
+    <FlatList data={visible} keyExtractor={item => String(item.id)}
       contentContainerStyle={s.content} keyboardShouldPersistTaps="handled"
       refreshControl={<RefreshControl refreshing={loading} onRefresh={load} tintColor={C.green} enabled={!busy} />}
       ListHeaderComponent={<>
-        <View style={s.header}><View style={s.grow}><Text style={s.eyebrow}>SAVED WITH LOVE. COOKED YOUR WAY.</Text><Text style={s.title}>Your next favorite{"\n"}is already here.</Text></View><View style={s.heart}><Ionicons name="heart-outline" size={28} color={C.coral} /></View></View>
+        <View style={s.header}><View style={s.grow}><Text style={s.eyebrow}>YOUR PERSONAL COLLECTION</Text><Text style={s.title}>Your cookbook.{"\n"}Made yours.</Text></View><View style={s.heart}><Ionicons name="heart-outline" size={28} color={C.coral} /></View></View>
         <Text style={s.body}>A personal cookbook for dishes worth making again.</Text>
         <View style={s.banner}><View style={s.grow}><Text style={s.bannerTitle}>My cookbook</Text><Text style={s.body}>{loading && !recipes.length ? "Opening your collection…" : `${recipes.length} saved recipe${recipes.length === 1 ? "" : "s"}`}</Text></View><Pressable accessibilityRole="button" accessibilityLabel="Discover recipes" style={s.discover} onPress={() => router.push("/(taps)")}><Ionicons name="add" size={18} color={C.green} /><Text style={s.link}>Discover</Text></Pressable></View>
         <View style={s.search}><Ionicons name="search-outline" size={20} color={C.green} /><TextInput accessibilityLabel="Search cookbook" placeholder="Search recipes, ingredients, notes…" placeholderTextColor={C.muted} value={query} onChangeText={setQuery} style={s.input} />{!!query && <Pressable accessibilityRole="button" accessibilityLabel="Clear cookbook search" onPress={() => setQuery("")} style={s.iconButton}><Ionicons name="close" size={18} color={C.green} /></Pressable>}</View>
@@ -122,17 +125,17 @@ function Cookbook({ userId }) {
 }
 const s = StyleSheet.create({
   page: { flex: 1, backgroundColor: C.cream }, center: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: C.cream, padding: 24 },
-  content: { padding: 20, paddingBottom: 35, width: "100%", maxWidth: 850, alignSelf: "center" }, grow: { flex: 1 },
-  header: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 12 }, eyebrow: { color: C.coral, fontWeight: "800", fontSize: 10, letterSpacing: 1.1, marginBottom: 10 },
-  title: { fontSize: 31, lineHeight: 36, letterSpacing: -0.8, fontWeight: "800", color: C.ink }, heart: { width: 54, height: 54, borderRadius: 18, backgroundColor: "#F7E5DC", alignItems: "center", justifyContent: "center" },
+  content: { padding: 20, paddingBottom: 80, width: "100%", maxWidth: 720, alignSelf: "center" }, grow: { flex: 1 },
+  header: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 12 }, eyebrow: { color: C.gold, fontWeight: "700", fontSize: 9, letterSpacing: 1.6, marginBottom: 10 },
+  title: { fontFamily: editorialFont, fontSize: 37, lineHeight: 43, letterSpacing: -1.4, color: C.ink }, heart: { width: 54, height: 54, borderRadius: 18, backgroundColor: C.yellow, alignItems: "center", justifyContent: "center" },
   body: { fontSize: 14, lineHeight: 21, color: C.muted }, banner: { backgroundColor: C.sage, borderRadius: 20, padding: 20, marginVertical: 22, flexDirection: "row", alignItems: "center", gap: 10 },
-  bannerTitle: { fontSize: 21, fontWeight: "800", color: C.green, marginBottom: 5 }, discover: { flexDirection: "row", alignItems: "center", gap: 4, backgroundColor: "white", borderRadius: 13, paddingHorizontal: 12, minHeight: 44 },
+  bannerTitle: { fontFamily: editorialFont, fontSize: 24, color: C.green, marginBottom: 5 }, discover: { flexDirection: "row", alignItems: "center", gap: 4, backgroundColor: "white", borderRadius: 13, paddingHorizontal: 12, minHeight: 44 },
   link: { color: C.green, fontSize: 12, fontWeight: "700" }, search: { flexDirection: "row", alignItems: "center", gap: 9, paddingHorizontal: 12, borderWidth: 1, borderColor: C.border, backgroundColor: "white", borderRadius: 15 },
   input: { flex: 1, minWidth: 0, color: C.ink, fontSize: 14, paddingVertical: 16 }, toolbar: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginVertical: 14, gap: 8 },
   sortOptions: { flexDirection: "row", gap: 8 }, chip: { borderWidth: 1, borderColor: C.border, borderRadius: 22, backgroundColor: "white", paddingHorizontal: 15, minHeight: 44, justifyContent: "center" }, chipActive: { backgroundColor: C.green, borderColor: C.green }, chipText: { fontSize: 12, fontWeight: "700", color: C.green },
-  iconButton: { width: 44, height: 44, justifyContent: "center", alignItems: "center" }, section: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 16 }, sectionTitle: { fontSize: 20, fontWeight: "800", color: C.ink, flexShrink: 1 },
-  row: { gap: 14 }, card: { flex: 1, maxWidth: "49%", backgroundColor: "white", borderWidth: 1, borderColor: C.border, borderRadius: 18, overflow: "hidden", marginBottom: 16 },
-  photo: { width: "100%", aspectRatio: 1.15 }, photoFallback: { alignItems: "center", justifyContent: "center", backgroundColor: C.sage }, cardBody: { padding: 12, gap: 8 }, cardTitle: { color: C.ink, fontSize: 16, lineHeight: 21, fontWeight: "700", minHeight: 42 }, small: { color: C.muted, fontSize: 12, lineHeight: 18 },
+  iconButton: { width: 44, height: 44, justifyContent: "center", alignItems: "center" }, section: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 16 }, sectionTitle: { fontFamily: editorialFont, fontSize: 26, color: C.ink, flexShrink: 1 },
+  row: { gap: 14 }, card: { width: "100%", backgroundColor: "white", borderWidth: 1, borderColor: C.border, borderRadius: 18, overflow: "hidden", marginBottom: 16 },
+  photo: { width: "100%", height: 240 }, photoFallback: { alignItems: "center", justifyContent: "center", backgroundColor: C.sage }, cardBody: { padding: 12, gap: 8 }, cardTitle: { color: C.ink, fontFamily: editorialFont, fontSize: 25, lineHeight: 31, minHeight: 42 }, small: { color: C.muted, fontSize: 12, lineHeight: 18 },
   cardFooter: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderTopWidth: 1, borderColor: C.border, paddingHorizontal: 12 }, edit: { minHeight: 48, justifyContent: "center", flex: 1 },
   empty: { backgroundColor: "white", borderRadius: 22, borderWidth: 1, borderColor: C.border, padding: 28, alignItems: "center", gap: 15 }, emptyText: { textAlign: "center", color: C.muted, fontSize: 14, lineHeight: 21 },
   primary: { backgroundColor: C.green, borderRadius: 13, padding: 15, alignItems: "center", marginTop: 12 }, white: { color: "white", fontSize: 14, fontWeight: "700" }, footer: { textAlign: "center", color: C.muted, fontSize: 12, paddingVertical: 25 },
@@ -140,3 +143,7 @@ const s = StyleSheet.create({
   overlay: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(15,35,26,0.5)", padding: 20 }, sheet: { backgroundColor: C.cream, borderRadius: 24, width: "100%", maxWidth: 480, maxHeight: "85%", padding: 22 },
   menuRow: { flexDirection: "row", gap: 14, paddingVertical: 18, alignItems: "center", borderTopWidth: 1, borderColor: C.border }, menuTitle: { color: C.green, fontSize: 16, fontWeight: "700", marginBottom: 4 },
 });
+
+export default function AnimatedFavoritesScreen() {
+  return <PageEntrance><FavoritesScreen /></PageEntrance>;
+}

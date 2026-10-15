@@ -6,6 +6,10 @@ import { ENV } from "./config/env.js";
 import { db } from "./config/db.js";
 import { favoritesTable } from "./db/schema.js";
 import job from "./config/cron.js";
+import { sessionAuth } from "./middleware/sessionAuth.js";
+import { meterAI } from "./middleware/meterAI.js";
+import { createMembershipService } from "./services/membershipService.js";
+import { createMembershipRouter } from "./routes/membershipRoutes.js";
 import aiRecipeRoutes from "./routes/aiRecipeRoutes.js";
 import imageRoutes from "./routes/imageRoutes.js";
 import { createPantryRouter } from "./routes/pantryRoutes.js";
@@ -13,7 +17,7 @@ import { createPantryRouter } from "./routes/pantryRoutes.js";
 const app = express();
 const PORT = ENV.PORT || 5001;
 
-if (ENV.NODE_ENV === "production") {
+if (ENV.NODE_ENV === "production" && process.env.ENABLE_KEEP_ALIVE === "true" && process.env.API_URL?.startsWith("https://")) {
   job.start();
 }
 
@@ -21,7 +25,7 @@ app.use(
   cors({
     origin: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Request-Id"],
   })
 );
 
@@ -44,7 +48,20 @@ app.get("/api/health", (request, response) => {
   });
 });
 
-app.use("/api/ai/recipes", aiRecipeRoutes);
+const membershipService = createMembershipService({ db });
+const authenticate = sessionAuth();
+// Expire cached AI output even for accounts that never make another request.
+const receiptCleanup = setInterval(() => {
+  membershipService.purgeExpiredReceipts().catch(() => console.error("Beta receipt cleanup failed."));
+}, 60 * 60 * 1000);
+receiptCleanup.unref();
+app.use("/api/membership", createMembershipRouter({ service: membershipService, authenticate }));
+app.use("/api/ai/recipes", (req, res, next) => {
+  if (req.method !== "POST") return next();
+  authenticate(req, res, () => meterAI(membershipService)(req, res, next));
+}, aiRecipeRoutes);
+app.post("/api/pantry/scan", authenticate, meterAI(membershipService, () => ["scans"]));
+app.post("/api/pantry/meal-plans/drafts", authenticate, meterAI(membershipService, () => ["plans"]));
 app.use("/api/images", imageRoutes);
 app.use("/api/pantry", createPantryRouter({ db }));
 

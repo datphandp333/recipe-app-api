@@ -1,0 +1,66 @@
+[
+  {
+    "id": "curated-kabuli-pulao",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/4/4d/Qabili_Pulau_-_Afghanistan_National_Dish.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "imageSourceUrl": "https://commons.wikimedia.org/wiki/File:Qabili_Pulau_-_Afghanistan_National_Dish.jpg",
+    "imageLicense": "CC BY-SA 3.0",
+    "imageLicenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "imageCredit": "Serving suggestion · Abdeviation at English Wikipedia · CC BY-SA 3.0 · displayed cropped"
+  },
+  {
+    "id": "curated-bolani",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/5/5c/Bolani_Afghan_bread_01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "imageSourceUrl": "https://commons.wikimedia.org/wiki/File:Bolani_Afghan_bread_01.jpg",
+    "imageLicense": "CC BY 2.0",
+    "imageLicenseUrl": "https://creativecommons.org/licenses/by/2.0",
+    "imageCredit": "Serving suggestion · arnold | inuyaki · CC BY 2.0 · displayed cropped"
+  },
+  {
+    "id": "curated-mantu",
+    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8f/Mantu_%284415169109%29.jpg/1280px-Mantu_%284415169109%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageSourceUrl": "https://commons.wikimedia.org/wiki/File:Mantu_(4415169109).jpg",
+    "imageLicense": "CC BY-SA 2.0",
+    "imageLicenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+    "imageCredit": "Serving suggestion · Kent Wang from London, United Kingdom · CC BY-SA 2.0 · displayed cropped"
+  },
+  {
+    "id": "curated-escudella",
+    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/ba/Escudella.jpg/1280px-Escudella.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageSourceUrl": "https://commons.wikimedia.org/wiki/File:Escudella.jpg",
+    "imageLicense": "CC BY 2.0",
+    "imageLicenseUrl": "https://creativecommons.org/licenses/by/2.0",
+    "imageCredit": "Serving suggestion · Wikimedia Commons contributor · CC BY 2.0 · displayed cropped"
+  },
+  {
+    "id": "curated-trinxat",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/8/89/Trinxat_1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "imageSourceUrl": "https://commons.wikimedia.org/wiki/File:Trinxat_1.jpg",
+    "imageLicense": "CC BY-SA 2.0",
+    "imageLicenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+    "imageCredit": "Serving suggestion · daniel.julia · CC BY-SA 2.0 · displayed cropped"
+  },
+  {
+    "id": "curated-belize-rice-beans",
+    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7c/Rice_and_Beans%2C_Stew_Chicken_and_Potato_Salad_-_Belize.jpg/1280px-Rice_and_Beans%2C_Stew_Chicken_and_Potato_Salad_-_Belize.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageSourceUrl": "https://commons.wikimedia.org/wiki/File:Rice_and_Beans,_Stew_Chicken_and_Potato_Salad_-_Belize.jpg",
+    "imageLicense": "CC BY 2.0",
+    "imageLicenseUrl": "https://creativecommons.org/licenses/by/2.0",
+    "imageCredit": "Serving suggestion · satanoid from Austin, TX, USA · CC BY 2.0 · displayed cropped"
+  },
+  {
+    "id": "curated-belize-stew-chicken",
+    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7c/Rice_and_Beans%2C_Stew_Chicken_and_Potato_Salad_-_Belize.jpg/1280px-Rice_and_Beans%2C_Stew_Chicken_and_Potato_Salad_-_Belize.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "imageSourceUrl": "https://commons.wikimedia.org/wiki/File:Rice_and_Beans,_Stew_Chicken_and_Potato_Salad_-_Belize.jpg",
+    "imageLicense": "CC BY 2.0",
+    "imageLicenseUrl": "https://creativecommons.org/licenses/by/2.0",
+    "imageCredit": "Serving suggestion · satanoid from Austin, TX, USA · CC BY 2.0 · displayed cropped"
+  },
+  {
+    "id": "curated-fry-jacks",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/5/58/Fry_jacks_with_eggs_and_salsa.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "imageSourceUrl": "https://commons.wikimedia.org/wiki/File:Fry_jacks_with_eggs_and_salsa.jpg",
+    "imageLicense": "Public domain",
+    "imageLicenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+    "imageCredit": "Serving suggestion · US Embassy Belize · Public domain · displayed cropped"
+  }
+]

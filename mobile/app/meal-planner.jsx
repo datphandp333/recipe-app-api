@@ -1,8 +1,13 @@
+import KitchenCompanion from "../components/chef/KitchenCompanion";
+import SuccessMoment from "../components/motion/SuccessMoment";
+import TouchableOpacity from "../components/motion/MotionPressable";
+import { EDITORIAL_COLORS as E, EDITORIAL_FONT as editorialFont } from "../constants/editorialTheme";
+import { betaFetch } from "../services/betaRequest";
 import { useAuth } from "@clerk/expo";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { API_URL } from "../constants/api";
 import CookingPreferences from "../components/CookingPreferences";
@@ -44,6 +49,7 @@ function Planner({ getToken }) {
   const [servings, setServings] = useState("2");
   const [maximumCookingTime, setMaximumCookingTime] = useState("30");
   const [current, setCurrent] = useState(null);
+  const [savedMoment, setSavedMoment] = useState(0);
   const [saved, setSaved] = useState([]);
   const [busy, setBusy] = useState("");
   const [loading, setLoading] = useState(true);
@@ -53,6 +59,7 @@ function Planner({ getToken }) {
   const [cooking, setCooking] = useState(null);
   const [feedback, setFeedback] = useState("");
   const [memory, setMemory] = useState(null);
+  const [preferencesDirty, setPreferencesDirty] = useState(false);
   const [preferencesSaving, setPreferencesSaving] = useState(false);
   const [suggestedNote, setSuggestedNote] = useState("");
   const scroll = useRef(null);
@@ -82,7 +89,7 @@ function Planner({ getToken }) {
       const token = await getToken();
       if (!mounted.current) throw new Error("Planner closed.");
       if (!token) throw new Error("Please sign in again.");
-      const response = await fetch(`${API_URL}/pantry/meal-plans${path}`, {
+      const response = await betaFetch(`${API_URL}/pantry/meal-plans${path}`, {
         method: method || (body ? "POST" : "GET"), signal: controller.signal,
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: body ? JSON.stringify(body) : undefined,
@@ -127,6 +134,7 @@ function Planner({ getToken }) {
     finally { lock.current = false; if (mounted.current) setBusy(""); }
   };
   const generate = () => act("planning", async () => {
+    setSavedMoment(0);
     const data = await request("/drafts", { servings: Number(servings), maximumCookingTime: Number(maximumCookingTime), startDate: today() });
     if (mounted.current) { setCurrent(data.plan); setChecked({}); setCooking(null); }
   });
@@ -134,6 +142,7 @@ function Planner({ getToken }) {
     const data = await request(`/${current.id}/save`, { startDate: today() });
     if (mounted.current) {
       setCurrent(data.plan);
+      setSavedMoment(value => value + 1);
       setSaved(previous => [data.plan, ...previous.filter(plan => plan.id !== data.plan.id)].slice(0, 10));
     }
   });
@@ -166,18 +175,24 @@ function Planner({ getToken }) {
   return (
     <ScrollView ref={scroll} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
       <Text style={styles.title}>Three dinners, less waste</Text>
-      <Text style={styles.subtitle}>Start today. Plan around your pantry and get one grocery list for the missing ingredients.</Text>
-      <CookingPreferences request={request} onSaved={preferencesSaved} onSaving={setPreferencesSaving} disabled={Boolean(busy)} suggestedNote={suggestedNote} clearSuggestion={() => setSuggestedNote("")} />
+      <Text style={styles.subtitle}>Start today. Choose your portions and time. We’ll use your pantry and saved preferences.</Text>
       <View style={styles.card}>
-        <Text style={styles.sectionTitle}>Your plan</Text>
-        <Text style={styles.label}>Servings per dinner · 1–8</Text>
-        <TextInput accessibilityLabel="Servings per dinner" keyboardType="number-pad" value={servings} onChangeText={value => { servingsEdited.current = true; setServings(value); }} editable={!busy} style={styles.input} maxLength={2} />
-        <Text style={styles.label}>Maximum minutes per dinner · 15–120</Text>
-        <TextInput accessibilityLabel="Maximum cooking time" keyboardType="number-pad" value={maximumCookingTime} onChangeText={setMaximumCookingTime} editable={!busy} style={styles.input} maxLength={3} />
-        <Button label={busy === "planning" ? "Preparing your dinners…" : "Plan three dinners"} onPress={generate} disabled={Boolean(busy) || !memory || preferencesSaving} />
-        {busy === "planning" ? <View style={styles.progress} accessibilityLiveRegion="polite"><ActivityIndicator color={GREEN} /><Text style={styles.subtitle}>Reading your pantry, creating recipes, and checking shared quantities. This may take up to 90 seconds.</Text></View> : null}
+        <Text style={styles.label}>How many people?</Text>
+        <View style={styles.stepper}>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Fewer servings" disabled={Boolean(busy) || Number(servings) <= 1} style={styles.stepButton} onPress={() => { servingsEdited.current = true; setServings(String(Math.max(1, Number(servings) - 1))); }}><Ionicons name="remove" size={22} color={GREEN} /></TouchableOpacity>
+          <Text style={styles.people} accessibilityLiveRegion="polite">{servings} {Number(servings) === 1 ? "person" : "people"}</Text>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel="More servings" disabled={Boolean(busy) || Number(servings) >= 8} style={styles.stepButton} onPress={() => { servingsEdited.current = true; setServings(String(Math.min(8, Number(servings) + 1))); }}><Ionicons name="add" size={22} color={GREEN} /></TouchableOpacity>
+        </View>
+        <Text style={styles.label}>Time per dinner</Text>
+        <View style={styles.timeOptions}>{[15, 30, 45, 60].map(minutes => <TouchableOpacity key={minutes} accessibilityRole="button" accessibilityState={{ selected: Number(maximumCookingTime) === minutes }} disabled={Boolean(busy)} onPress={() => setMaximumCookingTime(String(minutes))} style={[styles.timeChip, Number(maximumCookingTime) === minutes && styles.timeSelected]}><Text style={[styles.link, Number(maximumCookingTime) === minutes && { color: "white" }]}>{minutes} min</Text></TouchableOpacity>)}</View>
+        <View style={styles.customTime}><Text style={styles.subtitle}>Or set minutes (15–120)</Text><TextInput accessibilityLabel="Maximum cooking time" keyboardType="number-pad" value={maximumCookingTime} onChangeText={setMaximumCookingTime} editable={!busy} style={[styles.input, { width: 72 }]} maxLength={3} /></View>
+        <Button label={busy === "planning" ? "Preparing your dinners…" : "Plan three dinners"} onPress={generate} disabled={Boolean(busy) || !memory || preferencesSaving || preferencesDirty || !Number.isInteger(Number(maximumCookingTime)) || Number(maximumCookingTime) < 15 || Number(maximumCookingTime) > 120} />
+        {busy === "planning" ? <View style={styles.progress} accessibilityLiveRegion="polite"><KitchenCompanion size={46} mood="thinking" /><Text style={styles.subtitle}>Reading your pantry, creating recipes, and checking shared quantities. This may take up to 90 seconds.</Text></View> : null}
       </View>
+      <CookingPreferences request={request} onSaved={preferencesSaved} onSaving={setPreferencesSaving} disabled={Boolean(busy)} suggestedNote={suggestedNote} onDirty={setPreferencesDirty} clearSuggestion={() => setSuggestedNote("")} />
+      {preferencesDirty ? <Text style={styles.note}>Open Cooking preferences and save your changes to continue.</Text> : null}
       {error ? <Text style={styles.error} accessibilityLiveRegion="polite">{error}</Text> : null}
+      {savedMoment > 0 && current?.savedAt && <SuccessMoment key={savedMoment} message="Your dinners and grocery list are saved." />}
       {plan ? <>
         <View style={styles.banner}>
           <Text style={styles.sectionTitle}>{current.savedAt ? "Saved meal plan" : "Review your draft"}</Text>
@@ -241,36 +256,43 @@ function Planner({ getToken }) {
       {listError ? <View style={styles.card}><Text style={styles.error}>{listError}</Text><Button label="Retry saved plans" onPress={() => { setLoading(true); loadSaved(); }} disabled={loading || Boolean(busy)} secondary /></View> : null}
       {!loading && !listError && !saved.length ? <Text style={styles.subtitle}>Your saved plans will appear here.</Text> : null}
       {saved.map(entry => <Button key={entry.id} secondary disabled={Boolean(busy)} label={`${entry.plan.startDate} · ${entry.plan.servings} servings · ${entry.plan.meals[0].title}`}
-        onPress={() => { setCurrent(entry); setChecked({}); setError(""); setCooking(null); }} />)}
+        onPress={() => { setSavedMoment(0); setCurrent(entry); setChecked({}); setError(""); setCooking(null); }} />)}
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  page: { flex: 1, backgroundColor: "#FFF8F0" },
+  stepper: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: E.background, borderRadius: 14, padding: 4 },
+  stepButton: { width: 48, height: 48, alignItems: "center", justifyContent: "center" },
+  people: { color: E.ink, fontSize: 18, fontWeight: "600" },
+  timeOptions: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+  timeChip: { minHeight: 44, paddingHorizontal: 14, justifyContent: "center", borderRadius: 12, backgroundColor: E.sage },
+  timeSelected: { backgroundColor: GREEN },
+  customTime: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 12 },
+  page: { flex: 1, backgroundColor: E.background },
   header: { paddingHorizontal: 20, maxWidth: 740, width: "100%", alignSelf: "center" },
   back: { flexDirection: "row", alignItems: "center", gap: 8, paddingVertical: 14 },
   content: { padding: 20, paddingBottom: 48, gap: 16, maxWidth: 740, width: "100%", alignSelf: "center" },
-  title: { fontSize: 30, fontWeight: "800", color: GREEN },
-  subtitle: { fontSize: 14, lineHeight: 21, color: "#66736D", flexShrink: 1 },
-  card: { padding: 20, gap: 12, backgroundColor: "white", borderRadius: 20, borderWidth: 1, borderColor: "#E8DED1" },
-  sectionTitle: { fontSize: 21, fontWeight: "700", color: GREEN },
-  label: { fontWeight: "700", color: "#20302A", fontSize: 15, marginTop: 6 },
-  input: { borderWidth: 1, borderColor: "#DDEDE5", padding: 12, minHeight: 48, borderRadius: 12, fontSize: 16, color: "#20302A" },
+  title: { fontFamily: editorialFont, fontSize: 30, color: GREEN },
+  subtitle: { fontSize: 14, lineHeight: 21, color: E.muted, flexShrink: 1 },
+  card: { padding: 20, gap: 12, backgroundColor: "white", borderRadius: 20, borderWidth: 1, borderColor: E.line },
+  sectionTitle: { fontFamily: editorialFont, fontSize: 26, color: E.ink },
+  label: { fontWeight: "700", color: E.ink, fontSize: 15, marginTop: 6 },
+  input: { borderWidth: 1, borderColor: E.sage, padding: 12, minHeight: 48, borderRadius: 12, fontSize: 16, color: E.ink },
   button: { backgroundColor: GREEN, padding: 16, borderRadius: 14 },
   buttonText: { color: "white", fontWeight: "700", textAlign: "center", lineHeight: 22 },
-  secondary: { backgroundColor: "#DDEDE5" },
+  secondary: { backgroundColor: E.sage },
   green: { color: GREEN },
   disabled: { opacity: 0.5 },
   link: { color: GREEN, fontWeight: "700" },
   progress: { flexDirection: "row", gap: 12, alignItems: "center" },
   error: { backgroundColor: "#FFE8DF", color: "#A13C27", padding: 16, borderRadius: 12, lineHeight: 22 },
-  banner: { backgroundColor: "#DDEDE5", borderRadius: 16, padding: 18, gap: 8 },
+  banner: { backgroundColor: E.sage, borderRadius: 16, padding: 18, gap: 8 },
   eyebrow: { color: GREEN, fontSize: 12, fontWeight: "800" },
   reason: { backgroundColor: "#FFF2D8", padding: 12, borderRadius: 10, color: GREEN, lineHeight: 22 },
-  body: { color: "#20302A", fontSize: 15, lineHeight: 23, flexShrink: 1 },
+  body: { color: E.ink, fontSize: 15, lineHeight: 23, flexShrink: 1 },
   ingredient: { gap: 2 },
   grocery: { flexDirection: "row", gap: 12, alignItems: "center", paddingVertical: 10 },
-  checked: { textDecorationLine: "line-through", color: "#66736D" },
-  note: { color: "#66736D", fontSize: 13, lineHeight: 20 },
+  checked: { textDecorationLine: "line-through", color: E.muted },
+  note: { color: E.muted, fontSize: 13, lineHeight: 20 },
 });

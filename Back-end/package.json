@@ -5,7 +5,9 @@
   "main": "src/server.js",
   "scripts": {
     "dev": "nodemon src/server.js",
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "setup:beta": "node scripts/setup-beta.js",
+    "test:beta": "node --test src/services/membership*.test.js src/services/aiUsage.test.js src/services/betaConfig.test.js src/middleware/*.test.js src/routes/membershipRoutes.test.js"
   },
   "keywords": [],
   "type": "module",
@@ -21,6 +23,7 @@
     "express": "^5.1.0"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.10",
     "drizzle-kit": "^0.31.1",
     "nodemon": "^3.1.10"
   }

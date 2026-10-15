@@ -2,6 +2,7 @@ import { ingredientScanHandler } from "./ingredientScanRoute.js";
 import { Router } from "express";
 import { and, asc, eq } from "drizzle-orm";
 import { verifyToken } from "@clerk/backend";
+import { sessionAuth } from "../middleware/sessionAuth.js";
 import { pantryTable } from "../db/schema.js";
 import { validatePantryItem } from "../services/pantryValidation.js";
 import { createMealPlanRouter } from "./mealPlanRoutes.js";
@@ -9,24 +10,7 @@ import { createMealPlanRouter } from "./mealPlanRoutes.js";
 export function createPantryRouter({ db, verifySession = verifyToken, env = process.env }) {
   const router = Router();
 
-  router.use(async (req, res, next) => {
-    const token = req.headers.authorization?.match(/^Bearer (\S+)$/i)?.[1];
-    if (!token) return res.status(401).json({ message: "Sign in to use your pantry." });
-    const secretKey = env.CLERK_SECRET_KEY;
-    const jwtKey = env.CLERK_JWT_KEY?.replace(/\\n/g, "\n");
-    if (!secretKey && !jwtKey) {
-      return res.status(503).json({ message: "Pantry authentication is not configured on the server." });
-    }
-    try {
-      const authorizedParties = env.CLERK_AUTHORIZED_PARTIES?.split(",").map(value => value.trim()).filter(Boolean);
-      const payload = await verifySession(token, { secretKey, jwtKey, authorizedParties });
-      if (!payload.sub || !payload.sid) throw new Error("Session required");
-      req.pantryUserId = payload.sub;
-      next();
-    } catch {
-      res.status(401).json({ message: "Your session has expired. Please sign in again." });
-    }
-  });
+  router.use(sessionAuth({ verifySession, env }));
 
   router.post("/scan", ingredientScanHandler());
 

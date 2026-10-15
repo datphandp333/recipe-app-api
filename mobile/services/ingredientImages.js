@@ -26,6 +26,11 @@ export function ingredientImageNames(value) {
   return match ? [match[1]] : [];
 }
 export function ingredientIllustration(ingredient) {
+  const raw = typeof ingredient === "string" ? ingredient : ingredient?.name || ingredient?.label || "";
+  if (/\brecado\b/i.test(raw)) return "recado";
+  if (/\bdumpling wrappers\b/i.test(raw)) return "wrappers";
+  if (/\bpasta shells\b/i.test(raw)) return "pasta-shells";
+  if (/\bkroeung\b/i.test(raw)) return "kroeung";
   const names = ingredientImageNames(ingredient);
   return names.includes("Nori") ? "nori" : names.includes("Pizza Dough") ? "dough" : null;
 }

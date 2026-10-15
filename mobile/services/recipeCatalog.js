@@ -1,7 +1,9 @@
+import { DISCOVERY_RECIPES } from "../data/discoveryRecipes.js";
 import { COUNTRIES } from "../data/countries.js";
 import { CURATED_RECIPES } from "../data/curatedRecipes.js";
 
 export { COUNTRIES, CURATED_RECIPES };
+export const BUNDLED_RECIPES = [...CURATED_RECIPES, ...DISCOVERY_RECIPES];
 export const FEATURED_COUNTRIES = ["vietnam", "italy", "japan", "india", "morocco", "mexico"];
 export const normalizeSearch = (value = "") => String(value)
   .normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
@@ -13,6 +15,10 @@ export const searchCountries = (query = "") => {
   ).includes(term));
 };
 
+// Reference previews remain source records; never manufacture ingredient/instruction data.
+export const countryDishPreviews = (query = "") => normalizeSearch(query)
+  ? searchCountries(query).map(country => ({ ...country, kind: "source-preview" })) : [];
+
 export const searchRecipes = (recipes, query = "") => {
   const term = normalizeSearch(query);
   return recipes.filter((recipe) => normalizeSearch([
@@ -21,7 +27,7 @@ export const searchRecipes = (recipes, query = "") => {
   ].join(" ")).includes(term));
 };
 
-export const getCuratedRecipe = (id) => CURATED_RECIPES.find((recipe) => recipe.id === String(id)) || null;
+export const getCuratedRecipe = (id) => BUNDLED_RECIPES.find((recipe) => recipe.id === String(id)) || null;
 
 // Area adjectives aren't unique: never mix the two Congos, Dominicas, or Channel Islands.
 export const belongsToCountry = (meal, country) => {
@@ -94,10 +100,10 @@ export const createRecipeCatalog = ({ searchMeals, filterByArea, getMeal, transf
 
   return {
     async getCollection(countryId = "all", { refresh = false } = {}) {
-      if (countryId === "all") return { recipes: CURATED_RECIPES, source: "curated" };
+      if (countryId === "all") return { recipes: BUNDLED_RECIPES, source: "curated" };
       const country = COUNTRIES.find((item) => item.id === countryId);
       if (!country) throw new Error("Choose a country from the list.");
-      const local = CURATED_RECIPES.filter((recipe) => recipe.countryId === countryId);
+      const local = BUNDLED_RECIPES.filter((recipe) => recipe.countryId === countryId);
       if (local.length) return { recipes: local, source: "curated" };
       if (pending.has(countryId)) return pending.get(countryId);
       const request = loadCountry(country, refresh).finally(() => pending.delete(countryId));

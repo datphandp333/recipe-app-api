@@ -1,3 +1,4 @@
+import { betaFetch } from "./betaRequest";
 import { Platform } from "react-native";
 import { createRecipeCatalog, favoritePayload } from "./recipeCatalog";
 
@@ -38,7 +39,7 @@ const fetchJson = async (
   let response;
   let data;
   try {
-    response = await fetch(url, { ...options, signal: options.signal || controller.signal });
+    response = await betaFetch(url, { ...options, signal: options.signal || controller.signal });
     data = await response.json().catch(() => null);
   } finally {
     clearTimeout(timeout);
