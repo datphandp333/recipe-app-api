@@ -1,3 +1,4 @@
+import TouchableOpacity from "../components/motion/MotionPressable";
 import { EDITORIAL_FONT as editorialFont } from "../constants/editorialTheme";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { backOrReplace } from "../services/navigation";
@@ -7,7 +8,6 @@ import {
   Text,
   TextInput,
   ScrollView,
-  TouchableOpacity,
   Alert,
   Platform,
   ActivityIndicator,

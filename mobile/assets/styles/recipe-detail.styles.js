@@ -439,9 +439,9 @@ export const recipeDetailStyles = StyleSheet.create({
   },
 
   completeButton: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     backgroundColor: `${COLORS.primary}18`,
     borderWidth: 1,
     borderColor: `${COLORS.primary}40`,

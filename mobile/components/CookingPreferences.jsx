@@ -1,5 +1,6 @@
+import DisclosureChevron from './motion/DisclosureChevron';
+import useLayoutTransition from './motion/useLayoutTransition';
 import TouchableOpacity from "./motion/MotionPressable";
-import { Ionicons } from "@expo/vector-icons";
 import { EDITORIAL_COLORS as E, EDITORIAL_FONT } from "../constants/editorialTheme";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, TextInput, View } from "react-native";
@@ -7,6 +8,7 @@ import { ActivityIndicator, StyleSheet, Text, TextInput, View } from "react-nati
 const DEFAULTS = { householdSize: 2, spiceLevel: "any", dislikedIngredients: [], notes: "" };
 const toForm = value => ({ ...value, householdSize: String(value.householdSize), dislikedIngredients: value.dislikedIngredients.join(", ") });
 export default function CookingPreferences({ request, onSaved, onSaving, disabled, suggestedNote, clearSuggestion, onDirty }) {
+  const transition = useLayoutTransition();
   const [expanded, setExpanded] = useState(false);
   const [form, setForm] = useState(null);
   const [saving, setSaving] = useState(false);
@@ -33,10 +35,10 @@ export default function CookingPreferences({ request, onSaved, onSaving, disable
     finally { setSaving(false); onSaving(false); }
   };
   return <View style={styles.card}>
-    <TouchableOpacity accessibilityRole="button" accessibilityState={{ expanded: expanded || Boolean(suggestedNote) }} style={styles.heading} onPress={() => setExpanded(value => !value)}>
+    <TouchableOpacity accessibilityRole="button" accessibilityState={{ expanded: expanded || Boolean(suggestedNote) }} style={styles.heading} onPress={() => { transition(); setExpanded(value => !value); }}>
       <View style={{ flex: 1, gap: 4 }}><Text style={styles.title}>Cooking preferences</Text>
         <Text style={styles.help}>{message === "Unsaved changes" ? "Save your changes before planning" : form ? `${form.spiceLevel === "any" ? "Any spice level" : form.spiceLevel === "none" ? "No spice" : `${form.spiceLevel[0].toUpperCase()}${form.spiceLevel.slice(1)} spice`} · ${form.dislikedIngredients ? `Avoid ${form.dislikedIngredients}` : "No ingredients excluded"}` : "Loading saved preferences…"}</Text>
-      </View><Ionicons name={expanded || suggestedNote ? "chevron-up" : "chevron-down"} size={20} color={E.green} />
+      </View><DisclosureChevron expanded={expanded || Boolean(suggestedNote)} color={E.green} />
     </TouchableOpacity>
     {error ? <Text style={styles.error} accessibilityLiveRegion="polite">{error}</Text> : null}
     {!form ? error ? <TouchableOpacity onPress={() => setReload(value => value + 1)}><Text style={styles.label}>Retry preferences</Text></TouchableOpacity> : <ActivityIndicator color="#245B4B" /> : (expanded || suggestedNote) ? <>

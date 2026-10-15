@@ -1,8 +1,8 @@
+import TouchableOpacity from "../../components/motion/MotionPressable";
 import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
   ScrollView,

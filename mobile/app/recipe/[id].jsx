@@ -1,3 +1,4 @@
+import CookingCheck from "../../components/motion/CookingCheck";
 import CookingProgress from "../../components/motion/CookingProgress";
 import TouchableOpacity from "../../components/motion/MotionPressable";
 import { EDITORIAL_FONT as editorialFont } from "../../constants/editorialTheme";
@@ -731,17 +732,10 @@ const RecipeDetailContent = ({ recipeId }) => {
                           accessibilityRole="checkbox"
                           accessibilityLabel={`Cooking step ${index + 1}`}
                           accessibilityState={{ checked: isCompleted }}
+                          aria-checked={isCompleted}
                           onPress={() => toggleStep(index)}
                         >
-                          <Ionicons
-                            name="checkmark"
-                            size={16}
-                            color={
-                              isCompleted
-                                ? COLORS.white
-                                : COLORS.primary
-                            }
-                          />
+                          <CookingCheck checked={isCompleted} color={isCompleted ? COLORS.white : COLORS.primary} />
                         </TouchableOpacity>
                       </View>
                     </View>

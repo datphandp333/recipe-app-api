@@ -1,7 +1,8 @@
+import Pressable from "../../components/motion/MotionPressable";
 import { useSignUp } from '@clerk/expo';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Text, TextInput, View, Pressable } from 'react-native';
+import { Text, TextInput, View, } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AuthFrame,{AuthButton,AuthMessage,ui} from '../../components/auth/AuthFrame';
 import SocialButtons from '../../components/auth/SocialButtons';

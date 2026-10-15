@@ -3,7 +3,7 @@ import { Animated, Easing } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { useReducedMotion } from './MotionProvider';
 
-export default function PageEntrance({ children, style }) {
+export default function PageEntrance({ children, style, direction = 0 }) {
   const reduced = useReducedMotion();
   const [progress] = useState(() => new Animated.Value(reduced ? 1 : 0));
   useFocusEffect(useCallback(() => {
@@ -16,6 +16,8 @@ export default function PageEntrance({ children, style }) {
   }, [reduced, progress]));
   return <Animated.View style={[{ flex: 1 }, style, !reduced && {
     opacity: progress.interpolate({ inputRange: [0, 1], outputRange: [0.85, 1] }),
-    transform: [{ translateY: progress.interpolate({ inputRange: [0, 1], outputRange: [6, 0] }) }],
+    transform: direction
+      ? [{ translateX: progress.interpolate({ inputRange: [0, 1], outputRange: [direction * 18, 0] }) }]
+      : [{ translateY: progress.interpolate({ inputRange: [0, 1], outputRange: [6, 0] }) }],
   }]}>{children}</Animated.View>;
 }

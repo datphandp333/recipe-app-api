@@ -1,3 +1,4 @@
+import TouchableOpacity from "../components/motion/MotionPressable";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { EDITORIAL_FONT as editorialFont } from "../constants/editorialTheme";
 import { betaFetch } from "../services/betaRequest";
@@ -18,7 +19,6 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  TouchableOpacity,
   View,
 } from "react-native";
 

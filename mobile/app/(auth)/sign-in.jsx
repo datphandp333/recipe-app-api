@@ -1,3 +1,4 @@
+import TouchableOpacity from "../../components/motion/MotionPressable";
 import { verificationMethods, sendVerification, verifySignInCode, VERIFICATION_LABELS } from "../../services/signInVerification";
 import { useAuth, useSignIn } from "@clerk/expo";
 import { useRouter } from "expo-router";
@@ -6,7 +7,6 @@ import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";

@@ -1,3 +1,5 @@
+import DisclosureChevron from '../../components/motion/DisclosureChevron';
+import useLayoutTransition from '../../components/motion/useLayoutTransition';
 import KitchenCompanion from '../../components/chef/KitchenCompanion';
 import PageEntrance from "../../components/motion/PageEntrance";
 import TouchableOpacity from "../../components/motion/MotionPressable";
@@ -19,6 +21,8 @@ function ContinueButton({ title, onPress, disabled = false }) {
 
 export default function Onboarding() {
   const router = useRouter();
+  const transition = useLayoutTransition();
+  const [direction, setDirection] = useState(1);
   const scroll = useRef(null);
   const [step, setStep] = useState(0);
   const [goal, setGoal] = useState(null);
@@ -26,7 +30,7 @@ export default function Onboarding() {
   const [expanded, setExpanded] = useState(null);
   const [error, setError] = useState('');
   const picks = useMemo(() => onboardingPicks(goal, ingredients), [goal, ingredients]);
-  const move = next => { setStep(next); setExpanded(null); setError(''); scroll.current?.scrollTo({ y: 0, animated: false }); };
+  const move = next => { setDirection(next > step ? 1 : -1); setStep(next); setExpanded(null); setError(''); scroll.current?.scrollTo({ y: 0, animated: false }); };
   const toggle = id => setIngredients(previous => previous.includes(id) ? previous.filter(value => value !== id) : [...previous, id]);
   const link = async url => { try { await Linking.openURL(url); } catch { setError('Could not open the source. Please try again.'); } };
 
@@ -37,10 +41,10 @@ export default function Onboarding() {
       <TouchableOpacity accessibilityRole="button" onPress={() => router.push('/(auth)/sign-up')} style={s.back}><Text style={s.link}>Skip</Text></TouchableOpacity>
     </View>
     <View style={s.progress} accessible accessibilityLabel={`Step ${step + 1} of 3`}>{[0, 1, 2].map(index => <View key={index} style={[s.track, index <= step && s.filled]} />)}</View>
-    <PageEntrance key={step}><ScrollView ref={scroll} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
+    <View style={s.stepViewport}><PageEntrance key={step} direction={direction}><ScrollView ref={scroll} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
       <Text style={s.eyebrow}>{['YOUR KITCHEN, YOUR WAY', 'A FEW FAMILIAR INGREDIENTS', 'A FIRST TASTE OF SIMMERLI'][step]}</Text>
       <Text accessibilityRole="header" style={s.title}>{['What would make\ndinner better?', 'What’s usually\nin your kitchen?', 'Your next favorite\ncould be right here.'][step]}</Text>
-      <View style={s.guide}><KitchenCompanion key={`${step}:${goal}:${ingredients.join("-")}`} size={62} mood={step === 2 ? "celebrate" : "welcome"} /><Text style={[s.body, s.grow]}>{['Pick what matters today. Let’s find a dish worth making.', 'Choose a few, or let us surprise you. These choices help shape your first recipe picks.', 'Real recipes, picked from our collection using your answers. Open one and see what you could make.'][step]}</Text></View>
+      <View style={s.guide}><KitchenCompanion key={step} size={62} mood={step === 2 ? "celebrate" : "welcome"} /><Text style={[s.body, s.grow]}>{['Pick what matters today. Let’s find a dish worth making.', 'Choose a few, or let us surprise you. These choices help shape your first recipe picks.', 'Real recipes, picked from our collection using your answers. Open one and see what you could make.'][step]}</Text></View>
       {step === 0 && <>
         <View style={s.options}>{ONBOARDING_GOALS.map(item => <TouchableOpacity key={item.id} accessibilityRole="radio" aria-checked={goal === item.id} accessibilityState={{ selected: goal === item.id, checked: goal === item.id }} onPress={() => setGoal(item.id)} style={[s.option, goal === item.id && s.selected]}>
           <View style={s.optionIcon}><Ionicons name={item.icon} size={23} color={E.green} /></View><View style={s.grow}><Text style={s.optionTitle}>{item.title}</Text><Text style={s.small}>{item.detail}</Text></View><Ionicons name={goal === item.id ? 'checkmark-circle' : 'ellipse-outline'} size={22} color={goal === item.id ? E.green : E.line} />
@@ -59,7 +63,7 @@ export default function Onboarding() {
             <Text style={s.eyebrow}>{recipe.country} · {recipe.cookTime}</Text><Text style={s.recipeTitle}>{recipe.title}</Text>
             <Text style={s.small}>{matched.length ? `Includes your picks: ${matched.map(id => ONBOARDING_INGREDIENTS.find(item => item.id === id).label).join(', ')}.` : 'Another idea from our collection.'}</Text>
             <Text style={s.fine}>Simmerli home adaptation · you may need more ingredients.</Text>
-            <TouchableOpacity accessibilityRole="button" aria-expanded={expanded === recipe.id} accessibilityState={{ expanded: expanded === recipe.id }} onPress={() => setExpanded(previous => previous === recipe.id ? null : recipe.id)} style={s.preview}><Text style={s.link}>{expanded === recipe.id ? 'Close recipe preview' : `Preview ${recipe.title}`}</Text><Ionicons name={expanded === recipe.id ? 'chevron-up' : 'chevron-down'} size={18} color={E.green} /></TouchableOpacity>
+            <TouchableOpacity accessibilityRole="button" aria-expanded={expanded === recipe.id} accessibilityState={{ expanded: expanded === recipe.id }} onPress={() => { transition(); setExpanded(previous => previous === recipe.id ? null : recipe.id); }} style={s.preview}><Text style={s.link}>{expanded === recipe.id ? 'Close recipe preview' : `Preview ${recipe.title}`}</Text><DisclosureChevron expanded={expanded === recipe.id} size={18} color={E.green} /></TouchableOpacity>
             {expanded === recipe.id && <View style={s.fullRecipe}>
               <Text style={s.optionTitle}>Ingredients · serves {recipe.servings}</Text>
               {recipe.ingredients.map((item, index) => <Text key={index} style={s.small}>• {typeof item === 'string' ? item : item.label || `${item.amount || item.measure || ''} ${item.name}`}</Text>)}
@@ -77,7 +81,7 @@ export default function Onboarding() {
         <TouchableOpacity accessibilityRole="button" style={s.preview} onPress={() => move(0)}><Text style={s.link}>Try different answers</Text></TouchableOpacity>
       </>}
       <TouchableOpacity accessibilityRole="button" style={s.signIn} onPress={() => router.push('/(auth)/sign-in')}><Text style={s.small}>Already have an account? <Text style={s.link}>Sign in</Text></Text></TouchableOpacity>
-    </ScrollView></PageEntrance>
+    </ScrollView></PageEntrance></View>
     <View style={s.bottomCTA}>
       <ContinueButton title={step === 0 ? "Find my inspiration" : step === 1 ? (ingredients.length ? "Show my recipe picks" : "Surprise me") : "Create my account"} disabled={step === 0 && !goal} onPress={() => step < 2 ? move(step + 1) : router.push("/(auth)/sign-up")} />
       {step === 2 && <Text style={[s.fine, { textAlign: 'center' }]}>Save favorites. Make your kitchen feel like you.</Text>}
@@ -85,6 +89,7 @@ export default function Onboarding() {
   </SafeAreaView>;
 }
 const s = StyleSheet.create({
+  stepViewport: { flex: 1, overflow: 'hidden' },
   guide: { flexDirection: 'row', alignItems: 'center', gap: 16 },
   page: { flex: 1, backgroundColor: E.background },
   bottomCTA: { width: '100%', maxWidth: 620, alignSelf: 'center', paddingHorizontal: 24, paddingVertical: 12, gap: 8, backgroundColor: E.background, borderTopWidth: 1, borderTopColor: E.line },
