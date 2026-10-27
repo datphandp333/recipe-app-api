@@ -12,7 +12,18 @@ export function createBetaClient({ fetchImpl, randomId, hashBody }) {
     async fetch(url, options = {}) {
       const current = session;
       const metered = isMeteredPath(url) && (options.method || 'GET').toUpperCase() === 'POST';
-      if (!metered) return fetchImpl(url, options);
+      const favorites = /\/api\/favorites(?:\/|\?|$)/.test(url);
+      if (!metered && !favorites) return fetchImpl(url, options);
+      if (favorites) {
+        if (!current?.userId) throw new Error('Sign in to open your cookbook.');
+        const token = await current.getToken();
+        if (session !== current || !token) throw new Error('Your session changed. Please sign in again.');
+        const headers = new Headers(options.headers);
+        headers.set('Authorization', `Bearer ${token}`);
+        const response = await fetchImpl(url, { ...options, headers });
+        if (session !== current) throw new Error('Your session changed. Please reopen this screen.');
+        return response;
+      }
       if (!current?.userId) throw new Error('Sign in to use AI features.');
       const token = await current.getToken();
       if (session !== current || !token) throw new Error('Your session changed. Please sign in again.');

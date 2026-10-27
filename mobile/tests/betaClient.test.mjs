@@ -65,3 +65,26 @@ test('ordinary browsing requests do not require a session or consume an identifi
   const client = setup(async (_, req) => { assert.equal(req.headers, undefined); return response(); });
   client.bind(null); assert.equal((await client.fetch('http://api/api/images/dish', options)).status, 200);
 });
+test('favorites attach session identity without metering and block signed-out calls', async () => {
+  let calls = 0;
+  const client = setup(async (url, options) => {
+    calls++;
+    assert.equal(options.headers.get('Authorization'), 'Bearer alice-token');
+    assert.equal(options.headers.get('X-Request-Id'), null);
+    assert.equal(options.headers.get('Content-Type'), 'application/json');
+    return response();
+  });
+  for (const method of ['GET', 'POST', 'PUT', 'DELETE']) await client.fetch('https://api.example/api/favorites/alice/recipe', { method, headers: { 'Content-Type': 'application/json' } });
+  client.bind(null);
+  await assert.rejects(client.fetch('https://api.example/api/favorites/alice'), /Sign in/);
+  assert.equal(calls, 4);
+});
+test('favorites discard responses after account changes', async () => {
+  let finish;
+  const client = setup(() => new Promise(resolve => { finish = resolve; }));
+  const pending = client.fetch('https://api.example/api/favorites/alice');
+  await new Promise(resolve => setImmediate(resolve));
+  client.bind(null);
+  finish(response());
+  await assert.rejects(pending, /session changed/);
+});

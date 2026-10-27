@@ -1,3 +1,4 @@
+import { betaFetch } from "../services/betaRequest";
 import TouchableOpacity from "../components/motion/MotionPressable";
 import { EDITORIAL_FONT as editorialFont } from "../constants/editorialTheme";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -113,7 +114,7 @@ export default function FavoriteEditorScreen() {
       }
 
       try {
-        const response = await fetch(
+        const response = await betaFetch(
           `${API_URL}/favorites/${encodeURIComponent(user.id)}`
         );
 
@@ -227,7 +228,7 @@ export default function FavoriteEditorScreen() {
     try {
       setSaving(true);
 
-      const response = await fetch(
+      const response = await betaFetch(
         `${API_URL}/favorites/${encodeURIComponent(user.id)}/${encodeURIComponent(recipeId)}`,
         {
           method: "PUT",

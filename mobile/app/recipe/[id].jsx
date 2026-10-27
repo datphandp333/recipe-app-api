@@ -1,3 +1,4 @@
+import { betaFetch } from "../../services/betaRequest";
 import CookingCheck from "../../components/motion/CookingCheck";
 import CookingProgress from "../../components/motion/CookingProgress";
 import TouchableOpacity from "../../components/motion/MotionPressable";
@@ -208,7 +209,7 @@ const RecipeDetailContent = ({ recipeId }) => {
 
     try {
       if (isSaved) {
-        const response = await fetch(
+        const response = await betaFetch(
           `${API_URL}/favorites/${userId}/${recipeId}`,
           {
             method: "DELETE",
@@ -252,7 +253,7 @@ const RecipeDetailContent = ({ recipeId }) => {
           personalNote: recipe.recipeNote || "",
         };
 
-        const response = await fetch(`${API_URL}/favorites`, {
+        const response = await betaFetch(`${API_URL}/favorites`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

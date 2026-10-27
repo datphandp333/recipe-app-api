@@ -10,14 +10,14 @@ Status: configuration prepared locally. No hosting service, Expo project, Apple 
 
 ## Resolve before inviting other testers
 
-The Favorites routes still accept submitted account identifiers without verified session identity. They need backend Clerk authentication and matching mobile token headers before a shared backend is exposed for testing. Pantry and metered AI routes already verify sessions. This preparation does not establish that the app is ready for public launch.
+Favorites routes require verified Clerk sessions and reject access to another account. Mobile Favorites requests attach session tokens. Rotate any real credentials previously stored in tracked environment examples before exposing a shared backend. Validate hosted features and physical-device flows before inviting testers.
 
 ## Backend
 
 After the access-control issue is fixed and changes are reviewed/pushed to your repository:
 
 1. Connect that repository to Render and use the root `render.yaml` Blueprint, or create a Node web service with root `Back-end`, build `npm ci`, start `npm start`, and health path `/api/health`.
-2. Enter backend secrets in the host's environment settings using `Back-end/.env.example` as the key list. Never put backend secrets in Expo variables. Use a separate test database or a reviewed database backup before schema operations.
+2. Enter backend secrets in the host's environment settings for `DATABASE_URL`, `CLERK_SECRET_KEY`, `GEMINI_API_KEY`, and optional `PEXELS_API_KEY`. Never put backend secrets in Expo variables. Use a separate test database or a reviewed database backup before schema operations.
 3. Provision all database tables from the repository's Drizzle schema using a reviewed migration plan. `npm run setup:beta` adds only membership tables/functions to an existing database; it does not initialize the entire application schema. Do not blindly replay historical migrations against an existing database.
 4. Keep `BETA_LIMITS_ENABLED=false` and `ENABLE_KEEP_ALIVE=false`. The old self-ping is opt-in and is not needed for deployment.
 5. Verify `https://YOUR_HOST/api/health`, then authenticated pantry, favorites, scan, Chef, and meal-plan operations using the same Clerk instance configured in the app. A passing health endpoint alone does not verify the database or sign-in.

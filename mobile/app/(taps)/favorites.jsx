@@ -1,3 +1,4 @@
+import { betaFetch } from "../../services/betaRequest";
 import PageEntrance from "../../components/motion/PageEntrance";
 import Pressable from "../../components/motion/MotionPressable";
 import { EDITORIAL_COLORS as E, EDITORIAL_FONT as editorialFont } from "../../constants/editorialTheme";
@@ -45,7 +46,7 @@ function Cookbook({ userId }) {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 15000);
     try {
-      const response = await fetch(`${API_URL}/favorites/${encodeURIComponent(userId)}${path}`, { ...options, signal: controller.signal });
+      const response = await betaFetch(`${API_URL}/favorites/${encodeURIComponent(userId)}${path}`, { ...options, signal: controller.signal });
       const data = response.status === 204 ? null : await response.json();
       if (!response.ok) throw new Error(data?.message || "Your cookbook could not be updated.");
       return data;

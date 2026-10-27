@@ -419,7 +419,7 @@ export default function SecondServingScreen() {
     setIsSaving(true);
 
     try {
-      const response = await fetch(
+      const response = await betaFetch(
         `${API_URL}/favorites`,
         {
           method: "POST",
